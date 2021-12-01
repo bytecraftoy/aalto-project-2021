@@ -1,4 +1,4 @@
 export interface IEdge {
-  source_id: number;
-  target_id: number;
+  source_id: string;
+  target_id: string;
 }
