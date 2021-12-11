@@ -20,7 +20,7 @@
     "web-vitals": "^2.1.2"
   },
   "scripts": {
-    "start": "CHOKIDAR_USEPOLLING=true react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "lint": "eslint --ext .ts .",
@@ -44,7 +44,10 @@
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/node": "^16.11.12",
+    "identity-obj-proxy": "^3.0.0",
     "tslib": "^2.3.1",
     "use-resize-observer": "^8.0.0"
   }
+
 }
+
