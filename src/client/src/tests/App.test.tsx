@@ -31,6 +31,7 @@ test('Renders the button with proper content', () => {
 });
 
 test('Button click calls a function', () => {
+    
     jest.mock("../App");
     const { getByText } = render(<App/>);
     const button = getByText('Add');

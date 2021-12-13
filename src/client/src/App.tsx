@@ -5,6 +5,7 @@ import * as nodeService from './services/nodeService'
 import * as edgeService from "./services/edgeService"
 import * as t from './types'
 import './App.css';
+import { createNode } from 'typescript';
 
 const App : React.FC = () => {
 
@@ -160,5 +161,4 @@ const App : React.FC = () => {
 		</div>
 	);
 }
-
 export default App; 
