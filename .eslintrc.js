@@ -34,7 +34,8 @@ module.exports = {
         'import/no-default-export': 'warn',
         'no-mixed-spaces-and-tabs': 0,
         'indent': ['error', 4],
-        'quotes': ['error', 'single']
-
+        'quotes': ['error', 'single'],
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-unused-vars': [1, { 'argsIgnorePattern': '^_' }]
     }
 };

@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
+import { render, fireEvent, waitFor } from '@testing-library/react';
 import { RegistrationForm } from '../../components/RegistrationForm';
 
 const renderForm = () => {
@@ -23,12 +23,12 @@ describe('<RegistrationForm />', () => {
         expect(inputs).toHaveLength(4);
     });
 
-    test('should send a form given proper values', () => {
+    test('should send a form given proper values', async () => {
         const { createUser, registration } = renderForm();
 
         // Email, Username, Password, Confirm Password
         const inputs = registration.container.querySelectorAll('input');
-        const form = registration.container.querySelector('form');
+        const form = registration.container.querySelector('form')!;
 
         fireEvent.change(inputs[0], {
             target: { value: 'mrtest@example.com' },
@@ -46,17 +46,18 @@ describe('<RegistrationForm />', () => {
             target: { value: 'password123' },
         });
 
-        if (form) {
+        await waitFor(async () => {
             fireEvent.submit(form);
-            expect(createUser.mock.calls).toHaveLength(1);
-        }
+        });
+
+        expect(createUser.mock.calls).toHaveLength(1);
     });
 
-    test('should not submit if the repeated password is incorrect', () => {
+    test('should not submit if the repeated password is incorrect', async () => {
         const { createUser, registration } = renderForm();
 
         const inputs = registration.container.querySelectorAll('input');
-        const form = registration.container.querySelector('form');
+        const form = registration.container.querySelector('form')!;
 
         fireEvent.change(inputs[0], {
             target: { value: 'mrtest@example.com' },
@@ -74,20 +75,21 @@ describe('<RegistrationForm />', () => {
             target: { value: 'pass' },
         });
 
-        if (form) {
+        await waitFor(async () => {
             fireEvent.submit(form);
-            expect(createUser.mock.calls).toHaveLength(0);
-            expect(registration.container).toHaveTextContent(
-                'Passwords do not match'
-            );
-        }
+        });
+
+        expect(createUser.mock.calls).toHaveLength(0);
+        expect(registration.container).toHaveTextContent(
+            'Passwords do not match'
+        );
     });
 
-    test('should show appropriate message if email is missing', () => {
+    test('should show appropriate message if email is missing', async () => {
         const { createUser, registration } = renderForm();
 
         const inputs = registration.container.querySelectorAll('input');
-        const form = registration.container.querySelector('form');
+        const form = registration.container.querySelector('form')!;
 
         fireEvent.change(inputs[1], {
             target: { value: 'Mr.Test' },
@@ -101,20 +103,21 @@ describe('<RegistrationForm />', () => {
             target: { value: 'pass123' },
         });
 
-        if (form) {
+        await waitFor(async () => {
             fireEvent.submit(form);
-            expect(createUser.mock.calls).toHaveLength(0);
-            expect(registration.container).toHaveTextContent(
-                'Fill all the necessary information'
-            );
-        }
+        });
+
+        expect(createUser.mock.calls).toHaveLength(0);
+        expect(registration.container).toHaveTextContent(
+            'Fill all the necessary information'
+        );
     });
 
-    test('should show appropriate message if username is missing', () => {
+    test('should show appropriate message if username is missing', async () => {
         const { createUser, registration } = renderForm();
 
         const inputs = registration.container.querySelectorAll('input');
-        const form = registration.container.querySelector('form');
+        const form = registration.container.querySelector('form')!;
 
         fireEvent.change(inputs[0], {
             target: { value: 'mrtest@example.com' },
@@ -128,20 +131,21 @@ describe('<RegistrationForm />', () => {
             target: { value: 'password123' },
         });
 
-        if (form) {
+        await waitFor(async () => {
             fireEvent.submit(form);
-            expect(createUser.mock.calls).toHaveLength(0);
-            expect(registration.container).toHaveTextContent(
-                'Fill all the necessary information'
-            );
-        }
+        });
+
+        expect(createUser.mock.calls).toHaveLength(0);
+        expect(registration.container).toHaveTextContent(
+            'Fill all the necessary information'
+        );
     });
 
-    test('should show appropriate message if password is missing', () => {
+    test('should show appropriate message if password is missing', async () => {
         const { createUser, registration } = renderForm();
 
         const inputs = registration.container.querySelectorAll('input');
-        const form = registration.container.querySelector('form');
+        const form = registration.container.querySelector('form')!;
 
         fireEvent.change(inputs[0], {
             target: { value: 'mrtest@example.com' },
@@ -155,20 +159,21 @@ describe('<RegistrationForm />', () => {
             target: { value: 'password123' },
         });
 
-        if (form) {
+        await waitFor(async () => {
             fireEvent.submit(form);
-            expect(createUser.mock.calls).toHaveLength(0);
-            expect(registration.container).toHaveTextContent(
-                'Fill all the necessary information'
-            );
-        }
+        });
+
+        expect(createUser.mock.calls).toHaveLength(0);
+        expect(registration.container).toHaveTextContent(
+            'Fill all the necessary information'
+        );
     });
 
-    test('should show appropriate message if password confirmation is missing', () => {
+    test('should show appropriate message if password confirmation is missing', async () => {
         const { createUser, registration } = renderForm();
 
         const inputs = registration.container.querySelectorAll('input');
-        const form = registration.container.querySelector('form');
+        const form = registration.container.querySelector('form')!;
 
         fireEvent.change(inputs[0], {
             target: { value: 'mrtest@example.com' },
@@ -182,12 +187,13 @@ describe('<RegistrationForm />', () => {
             target: { value: 'password123' },
         });
 
-        if (form) {
+        await waitFor(async () => {
             fireEvent.submit(form);
-            expect(createUser.mock.calls).toHaveLength(0);
-            expect(registration.container).toHaveTextContent(
-                'Fill all the necessary information'
-            );
-        }
+        });
+
+        expect(createUser.mock.calls).toHaveLength(0);
+        expect(registration.container).toHaveTextContent(
+            'Fill all the necessary information'
+        );
     });
 });
