@@ -12,7 +12,10 @@ describe('Toolbar', () => {
 
     beforeEach(() => {
         mockCreate.mockRestore();
-        component = render(<Toolbar createNode={mockCreate} />);
+        component = render(
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            <Toolbar createNode={mockCreate} layoutWithDagre={async () => {}} />
+        );
     });
 
     test('calls a function when button is clicked', () => {

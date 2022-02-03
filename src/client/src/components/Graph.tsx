@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import * as nodeService from '../services/nodeService';
 import * as edgeService from '../services/edgeService';
+import * as layoutService from '../services/layoutService';
 import { IEdge, INode } from '../../../../types';
 import ReactFlow, {
     MiniMap,
@@ -294,6 +295,30 @@ export const Graph = (props: ReactFlowProps & GraphProps): JSX.Element => {
         await nodeService.updateNode(data);
     };
 
+    //calls nodeService.updateNode for all nodes
+    const updateNodes = async (): Promise<void> => {
+        for (const el of elements) {
+            if (isNode(el)) {
+                const node: INode = el.data;
+
+                if (node) {
+                    node.x = Math.round(el.position.x);
+                    node.y = Math.round(el.position.y);
+
+                    await nodeService.updateNode(node);
+                }
+            }
+        }
+    };
+
+    const layoutWithDagre = async (direction: string) => {
+        //applies the layout
+        setElements(layoutService.dagreLayout(elements, direction));
+
+        //sends updated node positions to backend
+        await updateNodes();
+    };
+
     return (
         <div style={{ height: '100%' }}>
             <h2 style={{ position: 'absolute', color: 'white' }}>Tasks</h2>
@@ -338,7 +363,10 @@ export const Graph = (props: ReactFlowProps & GraphProps): JSX.Element => {
                     </ReactFlow>
                 </div>
             </ReactFlowProvider>
-            <Toolbar createNode={createNode} />
+            <Toolbar
+                createNode={createNode}
+                layoutWithDagre={layoutWithDagre}
+            />
         </div>
     );
 };

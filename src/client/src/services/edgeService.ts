@@ -8,10 +8,15 @@ const getAll = async (): Promise<IEdge[]> => {
     return response.data;
 };
 
-const sendEdge = async (edge: IEdge): Promise<{ msg: string }> => {
-    const response = await axios.post(baseUrl, edge);
-    console.log('Edge added', response.data);
-    return response.data;
+const sendEdge = async (edge: IEdge): Promise<boolean> => {
+    try {
+        const response = await axios.post(baseUrl, edge);
+        console.log('Edge added', response.data);
+        return true;
+    } catch (e) {
+        console.log(e);
+        return false;
+    }
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

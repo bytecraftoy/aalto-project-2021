@@ -54,6 +54,7 @@ export const App: React.FC = () => {
                 target: String(e.target_id),
                 type: 'straight',
                 arrowHeadType: ArrowHeadType.ArrowClosed,
+                data: e,
             }));
             setElements(nodeElements.concat(edgeElements));
         };

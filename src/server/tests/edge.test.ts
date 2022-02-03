@@ -109,7 +109,27 @@ describe('POST request', () => {
         await api.post(baseUrl).send(e).expect(200);
 
         await api.post(baseUrl).send(e).expect(403);
-        //Edges with switched source and target are still allowed, altough they shouldn't!
+    });
+
+    test('should switch source and target when trying to make both-way edges', async () => {
+        await addDummyNodes();
+
+        const e1: IEdge = {
+            source_id: ids[0],
+            target_id: ids[1],
+        };
+        const e2: IEdge = {
+            source_id: ids[1],
+            target_id: ids[0],
+        };
+
+        await api.post(baseUrl).send(e1).expect(200);
+        await api.post(baseUrl).send(e2).expect(200);
+
+        const res = await api.get(baseUrl).expect(200);
+        expect(res.body).toHaveLength(1);
+        expect(res.body[0].source_id).toBe(ids[1]);
+        expect(res.body[0].target_id).toBe(ids[0]);
     });
 });
 

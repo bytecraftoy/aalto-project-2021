@@ -4,6 +4,7 @@ import { ToolbarProps } from '../../../../types';
 export const Toolbar = (props: ToolbarProps): JSX.Element => {
     const [nodeText, setNodeText] = useState('');
     const createNode = props.createNode;
+    const layoutWithDagre = props.layoutWithDagre;
 
     /**
      * Calls createNode from App.tsx and clears state
@@ -28,6 +29,18 @@ export const Toolbar = (props: ToolbarProps): JSX.Element => {
                 onClick={() => sendCreateNode(nodeText)}
             >
                 Create
+            </button>{' '}
+            <button
+                id="dagreTB"
+                onClick={async () => await layoutWithDagre('TB')}
+            >
+                Vertical Layout
+            </button>
+            <button
+                id="dagreLR"
+                onClick={async () => await layoutWithDagre('LR')}
+            >
+                Horizontal Layout
             </button>
         </div>
     );
