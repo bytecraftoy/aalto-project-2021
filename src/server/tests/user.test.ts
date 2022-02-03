@@ -119,6 +119,75 @@ describe('User registration', () => {
             .send({ ...dummyUsers[0], email: 'randomuser@example.com' })
             .expect(403);
     });
+
+    test('username should not be case sensitive', async () => {
+        await api.post(`${baseUrl}/register`).send(dummyUsers[0]).expect(200);
+        await api.post(`${baseUrl}/register`).send(dummyUsers[1]).expect(200);
+
+        const sensitiveUser1 = dummyUsers[0];
+        sensitiveUser1.username = sensitiveUser1.username.toUpperCase();
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser1 })
+            .expect(403);
+
+        sensitiveUser1.username = sensitiveUser1.username.toLowerCase();
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser1 })
+            .expect(403);
+
+        const sensitiveUser2 = dummyUsers[1];
+        sensitiveUser2.username = sensitiveUser2.username.toUpperCase();
+
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser2 })
+            .expect(403);
+
+        sensitiveUser2.username = sensitiveUser2.username.toLowerCase();
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser2 })
+            .expect(403);
+    });
+
+    test('email should not be case sensitive', async () => {
+        await api.post(`${baseUrl}/register`).send(dummyUsers[0]).expect(200);
+        await api.post(`${baseUrl}/register`).send(dummyUsers[1]).expect(200);
+
+        const sensitiveUser1 = {
+            ...dummyUsers[0],
+            username: dummyUsers[0].username.toUpperCase(),
+        };
+        const sensitiveUser2 = {
+            ...dummyUsers[1],
+            username: dummyUsers[1].username.toUpperCase(),
+        };
+
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser1 })
+            .expect(403);
+
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser2 })
+            .expect(403);
+
+        sensitiveUser1.username = sensitiveUser1.username.toLowerCase();
+        sensitiveUser2.username = sensitiveUser2.username.toLowerCase();
+
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser1 })
+            .expect(403);
+
+        await api
+            .post(`${baseUrl}/register`)
+            .send({ ...sensitiveUser2 })
+            .expect(403);
+    });
 });
 
 describe('Logging in', () => {

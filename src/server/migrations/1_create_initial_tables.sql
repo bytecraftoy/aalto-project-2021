@@ -1,4 +1,5 @@
 --sql commands here
+CREATE EXTENSION IF NOT EXISTS citext;
 
 CREATE TABLE node (
   id SERIAL PRIMARY KEY,
@@ -16,9 +17,9 @@ CREATE TABLE edge (
 
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  username TEXT NOT NULL,
+  username citext NOT NULL,
   password TEXT NOT NULL,
-  email TEXT NOT NULL,
+  email citext NOT NULL,
   UNIQUE (username),
   UNIQUE (email)
 );

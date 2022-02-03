@@ -18,19 +18,17 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
     const saltRounds = 10;
     const hash = await bcrypt.hash(user.password, saltRounds);
     const q = await db.query(
-        'SELECT username FROM users WHERE username=$1 OR email=$2',
-        [user.username, user.email]
+        'INSERT INTO users (username, password, email) VALUES (LOWER($1), $2, LOWER($3)) ON CONFLICT DO NOTHING RETURING (id)',
+        [user.username, hash, user.email]
     );
-    if (q.rowCount == 0) {
-        await db.query(
-            'INSERT INTO users (username, password, email) VALUES ($1, $2, $3)',
-            [user.username, hash, user.email]
-        );
-        res.status(200).json();
+    if (q.rowCount > 0) {
+        res.status(200).json().end();
     } else {
-        res.status(403).json({
-            message: 'Username or email already registered',
-        });
+        res.status(403)
+            .json({
+                message: 'Username or email already registered',
+            })
+            .end();
     }
 });
 
@@ -72,9 +70,6 @@ router.route('/user/login').post(async (req: Request, res: Response) => {
             res.status(401)
                 .json({ message: 'Wrong username or password' })
                 .end();
-            return;
-        } else if (rowCount >= 2) {
-            res.status(500).json({ message: 'More than one user found' }).end();
             return;
         }
 
