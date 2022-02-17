@@ -75,7 +75,7 @@ describe('Project', () => {
             cy.get('#project-button-row>button').click()
         
             cy.get('.project-card').last().find('.dropdown button').click('center', { force: true })
-            cy.get('.project-card').last().find('a').contains('Delete').click('center', { force: true })
+            cy.get('.project-card').last().get('#deleteButton').contains('Delete').click('center', { force: true })
     
             cy.get('.project-card').should('have.length', projectCount)
         });
