@@ -291,13 +291,17 @@ export const Graph = (props: GraphProps): JSX.Element => {
     };
 
     const handleKeyPress = (event: KeyboardEvent) => {
-        if (event.shiftKey) {
+        if (process.platform === 'darwin' && event.metaKey) {
             switchConnectState(true);
+        } else {
+            if (event.shiftKey) {
+                switchConnectState(true);
+            }
         }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-        if (event.key === 'Shift') {
+        if (event.key === 'Shift' || event.key === 'Meta') {
             switchConnectState(false);
         }
     };
