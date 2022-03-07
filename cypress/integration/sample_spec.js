@@ -211,24 +211,11 @@ describe('Graph', () => {
             cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('exist');
             cy.get(`.react-flow__node-default:contains(${node_name_2})`).should('exist');
 
-            cy.get('.react-flow__edge-straight').should('not.exist');
-
-            cy.get(`.react-flow__node-default:contains(${node_name_2})`).find('.react-flow__handle-bottom').should('have.length', 1).trigger('mousedown');
-
-            cy.get(`.react-flow__node-default:contains(${node_name_1})`).find('.react-flow__handle-top').should('have.length', 1).trigger('mouseup');
-
-
-            cy.get('.react-flow__edge-straight').should('have.length', 1);
-
             cy.get(`.react-flow__node-default:contains(${node_name_2})`).should('have.length', 1).then(($node) => {
-                cy.log('FUBARFUBARFUBAR')
                 let node_pos1 = $node[0].getBoundingClientRect();
 
                 cy.get('.react-flow__pane').should('have.length', 1).then(($node) => {
                     let pane_pos = $node[0].getBoundingClientRect();
-
-                    cy.log('pane_pos.x');
-                    cy.log(pane_pos.x);
 
                     // move node
                     cy.get(`.react-flow__node-default:contains(${node_name_2})`).trigger('mousehover').trigger('mousedown', 2, 2).then( () => {
@@ -244,10 +231,21 @@ describe('Graph', () => {
                 });
             });
 
+            cy.get('.react-flow__edge-straight').should('not.exist');
+
+            cy.get(`.react-flow__node-default:contains(${node_name_2})`).find('.react-flow__handle-bottom').should('have.length', 1).trigger('mousedown');
+
+            cy.get(`.react-flow__node-default:contains(${node_name_1})`).find('.react-flow__handle-top').should('have.length', 1).trigger('mouseup');
+
+
+            cy.get('.react-flow__edge-straight').should('have.length', 1);
+
             cy.get('.react-flow__edge-straight')
                 .should('have.length', 1)
                 .click('topLeft', { force: true })
                 .trigger('keydown', { key: 'Backspace', charCode: 0, keyCode: 8 })
+
+            cy.get('.react-flow__pane').should('have.length', 1)
                 .trigger('keyup', { key: 'Backspace', charCode: 0, keyCode: 8 });
 
             cy.get('.react-flow__edge-straight').should('not.exist');
