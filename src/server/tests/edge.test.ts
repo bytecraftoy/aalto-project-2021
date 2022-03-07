@@ -161,7 +161,7 @@ describe('DELETE request', () => {
         expect(res.body).toHaveLength(0);
     });
 
-    test('should not crash the app if the edge to be deleted does not exist', async () => {
+    test('should not crash the app if the id does not exist', async () => {
         const e: IEdge = {
             source_id: 0,
             target_id: 0,

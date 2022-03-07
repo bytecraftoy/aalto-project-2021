@@ -1,7 +1,7 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
 import { db } from '../../dbConfigs';
-import { Login, Registration } from '../../../../types';
+import { Login, Registration, UserToken } from '../../../../types';
 import bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
@@ -97,6 +97,22 @@ router.route('/user/login').post(async (req: Request, res: Response) => {
         email: user.email,
         id: user.id,
     });
+});
+
+router.route('/user/validity').post(async (req: Request, res: Response) => {
+    const body: UserToken = req.body;
+    console.log('What is body?');
+    console.log(body);
+    let valid = false;
+
+    const q = await db.query('SELECT * FROM users WHERE username=$1', [
+        body.username,
+    ]);
+    if (q.rowCount == 1) {
+        valid = true;
+    }
+
+    res.status(200).json({ valid }).end();
 });
 
 export { router as user };

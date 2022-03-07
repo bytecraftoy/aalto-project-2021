@@ -33,4 +33,26 @@ const logoutUser = (): void => {
     setToken('');
 };
 
-export { createUser, loginUser, logoutUser, getAuthHeader, setToken };
+const checkLogin = async (token: UserToken): Promise<boolean> => {
+    const response = await axiosWrapper(
+        axios.post<{ valid: boolean }>(`${baseUrl}/validity`, token)
+    );
+
+    console.log('What is response?');
+    console.log(response);
+
+    if (response) {
+        return response.valid;
+    }
+
+    return false;
+};
+
+export {
+    createUser,
+    loginUser,
+    logoutUser,
+    getAuthHeader,
+    setToken,
+    checkLogin,
+};

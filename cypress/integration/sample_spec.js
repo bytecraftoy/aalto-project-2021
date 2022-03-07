@@ -297,4 +297,28 @@ describe('Graph', () => {
             cy.get('.react-flow__edge-straight').should('have.length', 1);
         });
     });
+
+    describe('test element sidebar', () => {
+
+        const node_name_1 = '__test__1';
+
+        it('Can open and delete nodes on sidebar', () => {
+            const n_nodes_to_add = 1;
+
+            if (!myConsts.global_clean) {
+                // remove nodes prefixed with __test__
+                cy.removeAllTestNodes();
+            }
+
+            cy.insertNode(node_name_1);
+
+            cy.get(`.react-flow__node-default:contains(${node_name_1})`).click();
+    
+            cy.get('.detail-sidebar').should('exist');
+
+            cy.get(`.detail-sidebar-topbar .icon-button`).first().click();
+
+            cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('not.exist');
+        });
+    });
 });

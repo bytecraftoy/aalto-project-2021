@@ -29,6 +29,9 @@ function path(url: string): IPathRoute {
         '/user/login': {
             methods: ['POST', 'GET'],
         },
+        '/user/validity': {
+            methods: ['POST'],
+        },
     };
     if (url.includes('/edge/')) {
         return allRoutes['/edge/:source/:target'];

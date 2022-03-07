@@ -32,6 +32,7 @@ export const NodeEdit = (props: NodeEditProps): JSX.Element => {
                     onChange={(e) => {
                         setnodeName(e.target.value);
                     }}
+                    onBlur={handleSubmit}
                 />
             </form>
         </div>
