@@ -477,6 +477,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                     ref={reactFlowWrapper}
                 >
                     <ReactFlow
+                        id="graph"
                         elements={elements}
                         onConnect={onConnect}
                         connectionLineType={ConnectionLineType.Straight}
