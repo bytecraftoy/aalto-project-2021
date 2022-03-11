@@ -30,7 +30,6 @@ import { Toolbar, ToolbarHandle } from './Toolbar';
 import { useParams } from 'react-router';
 import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
-
 const graphStyle = {
     height: '100%',
     width: 'auto',
@@ -64,6 +63,9 @@ export const Graph = (props: GraphProps): JSX.Element => {
         useState<FlowInstance | null>(null);
 
     const connectButtonRef = useRef<ToolbarHandle>();
+
+    // For detecting the os
+    const platform = navigator.userAgent;
 
     // State for keeping track of node source handle sizes
     const [connectState, setConnectState] = useState(false);
@@ -255,7 +257,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
             }
         };
 
-        if (event.ctrlKey && reactFlowInstance && reactFlowWrapper?.current) {
+        if (((event.metaKey && platform.includes('Macintosh')) || event.ctrlKey) && reactFlowInstance && reactFlowWrapper?.current) {
             const reactFlowBounds =
                 reactFlowWrapper.current.getBoundingClientRect();
             let position = reactFlowInstance.project({
@@ -288,20 +290,15 @@ export const Graph = (props: GraphProps): JSX.Element => {
                     : els.concat(b)
             );
         }
-    };
-
+    }; 
     const handleKeyPress = (event: KeyboardEvent) => {
-        if (process.platform === 'darwin' && event.metaKey) {
+        if (event.shiftKey) {
             switchConnectState(true);
-        } else {
-            if (event.shiftKey) {
-                switchConnectState(true);
-            }
         }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-        if (event.key === 'Shift' || event.key === 'Meta') {
+        if (event.key === 'Shift') {
             switchConnectState(false);
         }
     };
