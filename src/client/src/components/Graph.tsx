@@ -167,15 +167,23 @@ export const Graph = (props: GraphProps): JSX.Element => {
         }
     };
 
+    const [lastCanceledName, setLastCanceledName] = useState('');
+
+    const removeTempNode = () => {
+        setElements((els) => {
+            return els.filter((e) => e.id !== 'TEMP');
+        });
+    }
+
     const onNodeNamingDone = async (label: string, node: Node) => {
         if (selectedProject) {
             if (!label) {
-                setElements((els) => {
-                    return els.filter((e) => e.id !== 'TEMP');
-                });
+                removeTempNode();
 
                 return;
             }
+
+            setLastCanceledName('');
 
             const data: INode = {
                 ...basicNode,
@@ -190,6 +198,11 @@ export const Graph = (props: GraphProps): JSX.Element => {
             props.sendNode(data, node, setElements);
         }
     };
+
+    const onNodeNamingCancel = (canceledName: string) => {
+        setLastCanceledName(canceledName);
+        removeTempNode();
+    }
 
     // handle what happens on mousepress press
     const handleMousePress = (event: MouseEvent) => {
@@ -218,9 +231,11 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
             unnamedNode.data.label = (
                 <NodeNaming
-                    onNodeNamingDone={async (label) =>
-                        onNodeNamingDone(label, unnamedNode)
+                    initialName={lastCanceledName}
+                    onNodeNamingDone={async (name) =>
+                        onNodeNamingDone(name, unnamedNode)
                     }
+                    onCancel={onNodeNamingCancel}
                 />
             );
 
