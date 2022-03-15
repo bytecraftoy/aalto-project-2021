@@ -1,9 +1,4 @@
-import React, {
-    useEffect,
-    MouseEvent as ReactMouseEvent,
-    useState,
-    useRef,
-} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { IEdge, INode, IProject, ProjectPermissions } from '../../../../types';
 import * as layoutService from '../services/layoutService';
 import ReactFlow, {
@@ -23,8 +18,10 @@ import ReactFlow, {
     removeElements,
     ConnectionLineType,
 } from 'react-flow-renderer';
-import { NodeEdit } from './NodeEdit';
+import { NodeNaming } from './NodeNaming';
 import { Toolbar, ToolbarHandle } from './Toolbar';
+import { basicNode } from '../App';
+
 const graphStyle = {
     height: '100%',
     width: 'auto',
@@ -170,52 +167,33 @@ export const Graph = (props: GraphProps): JSX.Element => {
         }
     };
 
-    const onNodeDoubleClick = (
-        event: ReactMouseEvent<Element, MouseEvent>,
-        node: Node<INode>
-    ) => {
-        if (node.data && node.id !== 'TEMP' && permissions.edit) {
-            const form = <NodeEdit node={node} onNodeEdit={onNodeEdit} />;
+    const onNodeNamingDone = async (label: string, node: Node) => {
+        if (selectedProject) {
+            if (!label) {
+                setElements((els) => {
+                    return els.filter((e) => e.id !== 'TEMP');
+                });
 
-            setElements((els) =>
-                els.map((el) => {
-                    if (el.id === node.id) {
-                        el.data = {
-                            ...el.data,
-                            label: form,
-                        };
-                    }
-                    return el;
-                })
-            );
+                return;
+            }
+
+            const data: INode = {
+                ...basicNode,
+                ...{
+                    label,
+                    x: node.position.x,
+                    y: node.position.y,
+                    project_id: selectedProject.id,
+                },
+            };
+
+            props.sendNode(data, node, setElements);
         }
     };
 
     // handle what happens on mousepress press
     const handleMousePress = (event: MouseEvent) => {
-        const onEditDone = async (data: INode, node: Node) => {
-            if (selectedProject) {
-                const n: INode = {
-                    status: 'ToDo',
-                    label: data.label,
-                    priority: 'Urgent',
-                    x: node.position.x,
-                    y: node.position.y,
-                    project_id: selectedProject.id,
-                };
-
-                if (!data.label) {
-                    setElements((els) => {
-                        return els.filter((e) => e.id !== 'TEMP');
-                    });
-
-                    return;
-                }
-
-                props.sendNode(n, node, setElements);
-            }
-        };
-
+        //ctrl (or mac equivalent) is down => create node
         if (
             ((event.metaKey && platform.includes('Macintosh')) ||
                 event.ctrlKey) &&
@@ -224,34 +202,30 @@ export const Graph = (props: GraphProps): JSX.Element => {
         ) {
             const reactFlowBounds =
                 reactFlowWrapper.current.getBoundingClientRect();
-            let position = reactFlowInstance.project({
-                x: event.clientX - reactFlowBounds.left,
-                y: event.clientY - reactFlowBounds.top,
+
+            const position = reactFlowInstance.project({
+                x: Math.floor(event.clientX - reactFlowBounds.left),
+                y: Math.floor(event.clientY - reactFlowBounds.top),
             });
 
-            position = { x: Math.floor(position.x), y: Math.floor(position.y) };
-
-            const tempExists =
-                elements.findIndex((el) => el.id === 'TEMP') >= 0;
-
-            const b: Node = {
+            const unnamedNode: Node = {
                 id: 'TEMP',
                 data: {},
                 type: props.DefaultNodeType,
                 position,
                 draggable: false,
             };
-            b.data.label = (
-                <NodeEdit
-                    node={b}
-                    onNodeEdit={async (_, data) => onEditDone(data, b)}
+
+            unnamedNode.data.label = (
+                <NodeNaming
+                    onNodeNamingDone={async (label) =>
+                        onNodeNamingDone(label, unnamedNode)
+                    }
                 />
             );
 
             setElements((els) =>
-                tempExists
-                    ? els.map((el) => (el.id === 'TEMP' ? b : el))
-                    : els.concat(b)
+                els.filter((el) => el.id !== 'TEMP').concat(unnamedNode)
             );
         }
     };
@@ -417,19 +391,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
         };
     }, [handleKeyPress]);
 
-    const onNodeEdit = async (id: string, data: INode) => {
-        setElements((els) =>
-            els.map((el) => {
-                if (el.id === id) {
-                    el.data = data;
-                }
-                return el;
-            })
-        );
-
-        await props.updateNode(data);
-    };
-
     const layoutWithDagre = async (direction: string) => {
         //applies the layout
         const newElements = layoutService.dagreLayout(elements, direction);
@@ -497,7 +458,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
                         onEdgeUpdate={() => null}
                         onLoad={onLoad}
                         onNodeDragStop={onNodeDragStop}
-                        onNodeDoubleClick={onNodeDoubleClick}
                         onElementClick={props.onElementClick}
                         selectionKeyCode={'e'}
                         nodesDraggable={permissions.edit}
