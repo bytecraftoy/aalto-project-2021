@@ -12,6 +12,8 @@ components:
                 email:
                     type: string
                     description: Email of the account. Emails are unique and can later be used to log in.
+            xml:
+                name: Register
 
         Login:
             type: object
@@ -25,6 +27,8 @@ components:
                 password:
                     type: string
                     description: Password of the account in plain text. Hashing of this password and comparison with the registered hash will happen on the server
+            xml:
+                name: Login
 
         Token:
             type: object
@@ -38,3 +42,5 @@ components:
                 token:
                     type: string
                     description: The token created by the backend when the user logged in the first time.
+            xml:
+                name: Token

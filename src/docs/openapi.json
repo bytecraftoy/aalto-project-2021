@@ -32,7 +32,7 @@
                 "summary": "Create a user",
                 "description": "Register a new user in the application. Emails and Usernames are unique. In addition usernames are not case sensitive",
                 "responses": {
-                    "200": { "description": "-OK" },
+                    "200": { "description": "OK" },
                     "403": { "description": "Forbidden" }
                 },
                 "requestBody": {
@@ -50,7 +50,15 @@
         "/api/user/login": {
             "post": {
                 "summary": "Login to the application",
-                "requestBody": { "required": true },
+                "description": "Given correct credentials server sends back a json web token which is then used to authenticate the user.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": { "$ref": "#/components/schemas/Login" }
+                        }
+                    },
+                    "required": true
+                },
                 "responses": {
                     "200": { "description": "OK" },
                     "401": { "description": "Unauthorized" },
@@ -91,7 +99,8 @@
                         "type": "string",
                         "description": "Email of the account. Emails are unique and can later be used to log in."
                     }
-                }
+                },
+                "xml": { "name": "Register" }
             },
             "Login": {
                 "type": "object",
@@ -108,7 +117,8 @@
                         "type": "string",
                         "description": "Password of the account in plain text. Hashing of this password and comparison with the registered hash will happen on the server"
                     }
-                }
+                },
+                "xml": { "name": "Login" }
             },
             "Token": {
                 "type": "object",
@@ -125,7 +135,8 @@
                         "type": "string",
                         "description": "The token created by the backend when the user logged in the first time."
                     }
-                }
+                },
+                "xml": { "name": "Token" }
             }
         }
     }
