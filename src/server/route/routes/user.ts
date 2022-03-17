@@ -7,6 +7,15 @@ import * as jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
 
+/**
+ * POST /api/user/register
+ * @summary Create a user
+ * @description Register a new user in the application. Emails and Usernames are unique. In addition usernames are not case sensitive
+ * @response 200 -OK
+ * @response 403 - Forbidden
+ * @bodyRequired
+ * @bodyContent {Register} - application/json
+ */
 router.route('/user/register').post(async (req: Request, res: Response) => {
     const user: Registration = req.body;
 
@@ -32,6 +41,14 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * POST /api/user/login
+ * @summary Login to the application
+ * @bodyRequired
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ * @response 403 - Forbidden
+ */
 router.route('/user/login').post(async (req: Request, res: Response) => {
     const body: Login = req.body;
     let user = null;
@@ -99,6 +116,14 @@ router.route('/user/login').post(async (req: Request, res: Response) => {
     });
 });
 
+/**
+ * POST /api/user/validity
+ * @summary Check JSON web tokens validity
+ * @description Endpoint used to check whether the JSON web token on the clients side is still valid.
+ * @bodyRequired
+ * @bodyContent {Token} - application/jsonn
+ * @response 200 - OK
+ */
 router.route('/user/validity').post(async (req: Request, res: Response) => {
     const body: UserToken = req.body;
     console.log('What is body?');
