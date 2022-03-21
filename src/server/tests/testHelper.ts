@@ -68,7 +68,6 @@ export const addProject = async (
             [project.owner_id, projectId]
         );
     } catch (e) {
-        console.log('Invalid project', e);
         await client.query('ROLLBACK');
     } finally {
         client.release();

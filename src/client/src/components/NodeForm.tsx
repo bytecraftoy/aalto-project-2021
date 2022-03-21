@@ -4,6 +4,7 @@ import { Form, Button } from 'react-bootstrap';
 import { Elements, isNode, Node } from 'react-flow-renderer';
 import * as nodeService from '../services/nodeService';
 import toast from 'react-hot-toast';
+import { socket } from '../services/socket';
 
 export interface NodeFormProps {
     element: Node<INode>;
@@ -22,6 +23,10 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
     const [status, setStatus] = useState<Status>(data.status);
     const [priority, setPriority] = useState<string>(data.priority);
     const [validated, setValidated] = useState<boolean>(false);
+
+    //const socket = React.useContext(SocketContext)
+    const href = window.location.href;
+    const url = href.substring(href.indexOf('project'), href.length);
 
     const handleSubmit = async (event: FormEvent) => {
         const form = event.currentTarget as HTMLFormElement;
@@ -47,6 +52,7 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
             );
 
             await nodeService.updateNode(node);
+            socket.emit('anything', {}, url);
         } else {
             toast(`❌ ${label ? 'Invalid Task' : 'Label cannot be empty'}`);
         }

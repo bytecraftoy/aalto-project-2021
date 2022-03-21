@@ -201,7 +201,6 @@ router
 
             res.status(200).json(user);
         } catch (e) {
-            console.log('Could not invite ', e);
             res.status(403).json();
         }
     });

@@ -33,4 +33,28 @@ if (process.env.NODE_ENV !== 'test') {
 
     // eslint-disable-next-line no-console
     console.log(`App listening on ${port}`);
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const io = require('socket.io')(8051, {
+        cors: {
+            origin: ['http://localhost:3000'],
+        },
+    });
+
+    const projectIo = io.of('/project');
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    projectIo.on('connection', (socket: any) => {
+        socket.on('anything', (message: any, room: any) => {
+            //socket.broadcast.emit('anything', message)
+            socket.to(room).emit('anything', message);
+        });
+        socket.on('join-project', (room: any) => {
+            socket.join(room);
+        });
+
+        socket.on('leave-project', (room: any) => {
+            socket.leave(room);
+        });
+    });
 }
