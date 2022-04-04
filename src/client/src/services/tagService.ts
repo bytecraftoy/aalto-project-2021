@@ -31,7 +31,7 @@ const updateTag = async (tag: ITag): Promise<void> => {
 const addNodeTagName = async (projId: number, nodeId: number, tagName: string): Promise<ITag | undefined> => {
     const response: ITag | undefined = await axiosWrapper(
         axios.post<ITag>(
-            `${baseUrl}/proj/node`,
+            `${baseUrl}/node/tagname`,
             {
                 projId: projId,
                 nodeId: nodeId,
@@ -46,7 +46,7 @@ const addNodeTagName = async (projId: number, nodeId: number, tagName: string): 
 const addNodeTagId = async (projId: number, nodeId: number, tagId: number): Promise<ITaggedNode | undefined> => {
     const response: ITaggedNode | undefined = await axiosWrapper(
         axios.post<ITaggedNode>(
-            `${baseUrl}/proj/node`,
+            `${baseUrl}/node/tagid`,
             {
                 projId: projId,
                 nodeId: nodeId,
