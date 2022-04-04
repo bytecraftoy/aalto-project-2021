@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { ITag } from '../../../../types';
-// import { ITag, ITaggedNode } from '../../../../types';
+import { axiosWrapper } from './axiosWrapper';
+import { ITag, ITaggedNode } from '../../../../types';
 export const baseUrl = '/api/tag';
+import { getAuthConfig } from './userService';
 
 const getAll = async (): Promise<ITag[]> => {
     const tag = await axios.get<ITag[]>(baseUrl);
@@ -27,4 +28,34 @@ const updateTag = async (tag: ITag): Promise<void> => {
     return response.data;
 };
 
-export { getAll, getAllForProj, sendTag, deleteTag, updateTag };
+const addNodeTagName = async (projId: number, nodeId: number, tagName: string): Promise<ITag | undefined> => {
+    const response: ITag | undefined = await axiosWrapper(
+        axios.post<ITag>(
+            `${baseUrl}/proj/node`,
+            {
+                projId: projId,
+                nodeId: nodeId,
+                tagName: tagName,
+            },
+            getAuthConfig()
+        )
+    );
+    return response;
+}
+
+const addNodeTagId = async (projId: number, nodeId: number, tagId: number): Promise<ITaggedNode | undefined> => {
+    const response: ITaggedNode | undefined = await axiosWrapper(
+        axios.post<ITaggedNode>(
+            `${baseUrl}/proj/node`,
+            {
+                projId: projId,
+                nodeId: nodeId,
+                tagId: tagId,
+            },
+            getAuthConfig()
+        )
+    );
+    return response;
+}
+
+export { getAll, getAllForProj, sendTag, deleteTag, updateTag, addNodeTagName, addNodeTagId };
