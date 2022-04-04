@@ -11,6 +11,7 @@ import {
     RootState,
     UserToken,
     UserData,
+    ITag,
 } from '../../../../types';
 import {
     ArrowHeadType,
@@ -28,6 +29,7 @@ import { BsFillPeopleFill } from 'react-icons/bs';
 import * as nodeService from '../services/nodeService';
 import * as edgeService from '../services/edgeService';
 import * as projectService from '../services/projectService';
+import * as tagService from '../services/tagService';
 import * as graphProps from '../components/GraphProps';
 import CSS from 'csstype';
 import { Spinner } from 'react-bootstrap';
@@ -77,6 +79,9 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
 
     const [isLoadingProject, setIsLoadingProject] = useState(true);
     const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
+    
+    const [projTags, setProjTags] = useState<ITag[]>([]);
+    const [nodeTags, setNodeTags] = useState<ITag[]>([]);
 
     useEffect(() => {
         setIsLoadingProject(true);
@@ -209,6 +214,25 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
             </h2>
         );
     }
+    const addNodeTag = async (nodeId: number | undefined, tagName: string): Promise<boolean> => {
+        if (nodeId) {
+            const newTag: ITag | undefined = await tagService.addNodeTagName(projectId, nodeId, tagName);
+
+            if (newTag) {
+                setProjTags(projTags.concat(newTag));
+                setNodeTags(nodeTags.concat(newTag));
+
+                return true;
+            }
+        }
+
+        // will prevent text input from clearing when entering tag name
+        return false;
+    };
+
+    const removeNodeTag = async (nodeId: number | undefined, tagId: number): Promise<void> => {
+        return;
+    };
 
     return (
         <>
@@ -227,6 +251,9 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
                 elements={elements}
                 setElements={setElements}
                 closeSidebar={closeSidebar}
+                nodeTags={nodeTags}
+                addNodeTag={addNodeTag}
+                removeNodeTag={removeNodeTag}
                 permissions={permissions}
                 user={props.user}
             />

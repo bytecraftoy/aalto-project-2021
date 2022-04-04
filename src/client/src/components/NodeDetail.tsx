@@ -5,6 +5,7 @@ import {
     INode,
     ProjectPermissions,
     UserToken,
+    ITag
 } from '../../../../types';
 import * as nodeService from '../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
@@ -16,6 +17,7 @@ import {
     BsClipboardCheck,
     BsExclamationCircle /* BsHash */,
 } from 'react-icons/bs';
+import { NodeTagEdit } from './NodeTagEdit';
 
 interface NodeDetailProps {
     element: Node<INode>;
@@ -24,6 +26,9 @@ interface NodeDetailProps {
     setEditMode: React.Dispatch<React.SetStateAction<boolean>>;
     permissions: ProjectPermissions;
     user?: UserToken;
+    nodeTags: ITag[];
+    addNodeTag: (nodeId: number | undefined, tagName: string) => Promise<boolean>;
+    removeNodeTag: (nodeId: number | undefined, tagId: number) => Promise<void>;
 }
 
 export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
@@ -71,6 +76,19 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     setEditMode={props.setEditMode}
                 />
                 <AssignUsers node={data} />
+                <NodeTagEdit
+                    tags={props.nodeTags}
+                    addTag={
+                        async (tagName: string): Promise<boolean> => {
+                            return props.addNodeTag(data.id, tagName);
+                        }
+                    }
+                    removeTag={
+                        (tagId: number): Promise<void> => {
+                            return props.removeNodeTag(data.id, tagId);
+                        }
+                    }
+                />
             </>
         );
     } else {
