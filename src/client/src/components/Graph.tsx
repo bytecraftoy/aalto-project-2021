@@ -87,9 +87,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
         useState<FlowInstance | null>(null);
     const [nodeHidden, setNodeHidden] = useState(false);
 
-    const href = window.location.href;
-    const url = href.substring(href.indexOf('project') + 8, href.length);
-
     const ToolbarRef = useRef<ToolbarHandle>();
 
     // For detecting the os
@@ -504,7 +501,15 @@ export const Graph = (props: GraphProps): JSX.Element => {
     }, [nodeHidden, setElements]);
 
     useEffect(() => {
-        socket.emit('join-project', url);
+        const href = window.location.href;
+        let x = href.length - 1;
+        let projectId = '';
+        while (href[x] !== '/') {
+            projectId = href[x].concat(projectId);
+            x--;
+        }
+
+        socket.emit('join-project', projectId);
 
         socket.on('add-node', (node) => {
             const n: Node = {
@@ -584,7 +589,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
         });
 
         return () => {
-            socket.emit('leave-project', url);
+            socket.emit('leave-project', projectId);
             socket.removeAllListeners();
         };
     }, []);
