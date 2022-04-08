@@ -24,6 +24,15 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
         return;
     }
 
+    if (user.password.length < 12) {
+        res.status(403)
+            .json({
+                message: 'Password must be at least 12 characters long',
+            })
+            .end();
+        return;
+    }
+
     const saltRounds = 10;
     const hash = await bcrypt.hash(user.password, saltRounds);
     const q = await db.query(
