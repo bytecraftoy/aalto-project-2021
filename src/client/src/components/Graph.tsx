@@ -22,6 +22,7 @@ import { NodeNaming } from './NodeNaming';
 import { Toolbar, ToolbarHandle } from './Toolbar';
 import { basicNode } from '../App';
 import { socket } from '../services/socket';
+import { Spinner } from 'react-bootstrap';
 
 // This is left here as a possible tip. You can check here whenever
 // the socket connects to the server. Right now it happens even though graph is no rendered
@@ -91,6 +92,8 @@ export const Graph = (props: GraphProps): JSX.Element => {
     const url = href.substring(href.indexOf('project') + 8, href.length);
 
     const ToolbarRef = useRef<ToolbarHandle>();
+
+    const [isCalculating, setIsCalculating] = useState(false);
 
     // For detecting the os
     const platform = navigator.userAgent;
@@ -468,19 +471,28 @@ export const Graph = (props: GraphProps): JSX.Element => {
     };
 
     const layoutWithDagre = async (direction: string) => {
+        setIsCalculating(true);
+
         //applies the layout
         const newElements = layoutService.dagreLayout(elements, direction);
 
         //sends updated node positions to backend
-        props.updateNodes(newElements, setElements);
+        await props.updateNodes(newElements, setElements);
+
+        setIsCalculating(false);
     };
 
     //does force direced iterations, without scrambling the nodes
     const forceDirected = async () => {
+        setIsCalculating(true);
+
         const newElements = layoutService.forceDirectedLayout(elements, 5);
 
-        props.updateNodes(newElements, setElements);
+        await props.updateNodes(newElements, setElements);
+
+        setIsCalculating(false);
     };
+
     useEffect(() => {
         setElements((els) =>
             els.map((el) => {
@@ -646,6 +658,14 @@ export const Graph = (props: GraphProps): JSX.Element => {
                             nodeBorderRadius={2}
                             maskColor="#69578c"
                         />
+                        {isCalculating ? (
+                            <Spinner
+                                animation="border"
+                                className="calculating-spinner"
+                            />
+                        ) : (
+                            <></>
+                        )}
                     </ReactFlow>
                 </div>
             </ReactFlowProvider>

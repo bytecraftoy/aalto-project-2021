@@ -107,3 +107,8 @@
     align-items: center;
     justify-content: center;
 }
+
+.calculating-spinner {
+    margin-top: 60px;
+    margin-left: 10px;
+}
