@@ -4,6 +4,7 @@ import * as router from './route';
 import { RequestHandler } from 'express-serve-static-core';
 import { Server } from 'socket.io';
 import { initSockets } from './helper/socket';
+import { logger } from './helper/logging';
 
 // call express
 export const app: Express = express(); // define our app using express
@@ -37,6 +38,5 @@ if (process.env.NODE_ENV !== 'test') {
     io = new Server(server);
     initSockets(io);
 
-    // eslint-disable-next-line no-console
-    console.log(`App listening on ${port}`);
+    logger.info(`App listening on ${port}`);
 }
