@@ -6,6 +6,7 @@ import {
     unassignUser,
 } from '../services/assignmentService';
 import { getMembers } from '../services/projectService';
+import { Spinner } from 'react-bootstrap';
 
 interface assignUsersProps {
     node: INode;
@@ -17,8 +18,11 @@ export const AssignUsers = (props: assignUsersProps): JSX.Element => {
 
     const [assignable, setAssignable] = useState<UserData[]>([]);
     const [assigned, setAssigned] = useState<UserData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const updateUsers = async () => {
+        setIsLoading(true);
+
         const assigned = await getAssignedUsers(nodeId);
         const everyone = await getMembers(props.node.project_id);
 
@@ -28,11 +32,15 @@ export const AssignUsers = (props: assignUsersProps): JSX.Element => {
         setAssignable(
             everyone.filter((u1) => !assigned.find((u2) => u2.id === u1.id))
         );
+
+        setIsLoading(false);
     };
 
     useEffect(() => {
         updateUsers();
     }, []);
+
+    if (isLoading) return <Spinner animation="border" />;
 
     return (
         <div>

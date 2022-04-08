@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Spinner } from 'react-bootstrap';
 import { INode, UserData } from '../../../../types';
 import { getAssignedUsers } from '../services/assignmentService';
 
@@ -11,21 +12,29 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
     if (!nodeId) return <></>;
 
     const [assigned, setAssigned] = useState<UserData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         getAssignedUsers(nodeId)
-            .then((users) => setAssigned(users))
+            .then(async (users) => {
+                setAssigned(users);
+                setIsLoading(false);
+            })
             .catch(() => setAssigned([]));
     }, []);
 
     return assigned.length ? (
         <div>
             <p>Assigned users:</p>
-            <ul>
-                {assigned.map((user) => (
-                    <li>{user.username}</li>
-                ))}
-            </ul>
+            {isLoading ? (
+                <Spinner animation="border" />
+            ) : (
+                <ul>
+                    {assigned.map((user) => (
+                        <li>{user.username}</li>
+                    ))}
+                </ul>
+            )}
         </div>
     ) : (
         <></>
