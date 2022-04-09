@@ -179,7 +179,7 @@ describe('Projects', () => {
         let anotherToken: string;
         const anotherUser: User = {
             username: 'John',
-            password: 'Doe',
+            password: 'DoePersonHere',
             email: 'john_doe@example.com',
             id: 0,
         };
