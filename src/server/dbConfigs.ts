@@ -1,6 +1,7 @@
 import { getConfig } from './configs';
 import { Pool, QueryConfig } from 'pg'; //PoolConfig was unused
 import { migrate } from 'postgres-migrations';
+import { logger } from './helper/logging';
 
 export class Database {
     private _pool: Pool | null = null;
@@ -21,9 +22,9 @@ export class Database {
         const pool = await this.getPool();
         const res = await pool.query(text, params);
         const duration = Date.now() - start;
-        if (process.env.NODE_ENV !== 'test') {
-            // eslint-disable-next-line no-console
-            console.log('executed query', {
+        if (process.env.NODE_ENV === 'development') {
+            logger.debug({
+                message: 'Executed query',
                 text,
                 duration,
                 rows: res.rowCount,
@@ -60,20 +61,16 @@ export class Database {
         const client = await pool.connect();
 
         this._waiting = new Promise((resolve) => {
-            if (process.env.NODE_ENV !== 'test') {
-                // eslint-disable-next-line no-console
-                console.log('running migrations');
-            }
+            logger.info({ message: 'Running migrations' });
             migrate({ client }, './migrations')
                 .then(() => {
-                    if (process.env.NODE_ENV !== 'test') {
-                        // eslint-disable-next-line no-console
-                        console.log('migrations done');
-                    }
+                    logger.info('Migrations finished');
                 })
                 .catch(async (e: Error) => {
-                    // eslint-disable-next-line no-console
-                    console.error('Migrations failed, shutting down.\n', e);
+                    logger.error({
+                        message: 'Migrations failed, shutting down.\n',
+                        error: e,
+                    });
 
                     process.exit(1);
                 })

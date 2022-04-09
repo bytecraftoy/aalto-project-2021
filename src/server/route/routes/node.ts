@@ -72,6 +72,12 @@ router
             return res.status(401).json({ message: 'No permission' });
         }
 
+        req.logger.info({
+            message: 'Deleting node',
+            projectId,
+            nodeId: id,
+        });
+
         await db.query('DELETE FROM node WHERE id = $1', [id]);
         res.status(200).json();
 
