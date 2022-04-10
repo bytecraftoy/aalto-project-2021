@@ -7,6 +7,8 @@ import {
 } from '../services/assignmentService';
 import { getMembers } from '../services/projectService';
 import { Spinner } from 'react-bootstrap';
+import './styles/Sidebar.css';
+import { BsFillPeopleFill, BsFillPersonPlusFill } from 'react-icons/bs';
 
 interface assignUsersProps {
     node: INode;
@@ -46,7 +48,9 @@ export const AssignUsers = (props: assignUsersProps): JSX.Element => {
         <div>
             {assigned.length ? (
                 <div>
-                    <p>Assigned users:</p>
+                    <p>
+                        <BsFillPeopleFill className="icon" /> Assigned users:
+                    </p>
                     <ul>
                         {assigned.map((user) => (
                             <li>
@@ -68,7 +72,9 @@ export const AssignUsers = (props: assignUsersProps): JSX.Element => {
             )}
             {assignable.length ? (
                 <div>
-                    <p>Assign users:</p>
+                    <p>
+                        <BsFillPersonPlusFill className="icon" /> Assign users:
+                    </p>
                     <ul>
                         {assignable.map((user) => (
                             <li>

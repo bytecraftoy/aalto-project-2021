@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
 import { INode, UserData } from '../../../../types';
 import { getAssignedUsers } from '../services/assignmentService';
+import './styles/Sidebar.css';
+import { BsFillPeopleFill } from 'react-icons/bs';
 
 interface assignedUsersProps {
     node: INode;
@@ -25,7 +27,9 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
 
     return assigned.length ? (
         <div>
-            <p>Assigned users:</p>
+            <p>
+                <BsFillPeopleFill className="icon" /> Assigned users:
+            </p>
             {isLoading ? (
                 <Spinner animation="border" />
             ) : (
