@@ -1,0 +1,67 @@
+components:
+    schemas:
+        Register:
+            type: object
+            properties:
+                username:
+                    type: string
+                    description: Username for the account. Usernames are unique and not case sensitive. Can be used to login
+                password:
+                    type: string
+                    description: Password for the account. The server will then hash it and save it in the database.
+                email:
+                    type: string
+                    description: Email of the account. Emails are unique and can later be used to log in.
+            xml:
+                name: Register
+
+        Login:
+            type: object
+            properties:
+                email:
+                    type: string | null
+                    description: Email address that is connected to an already registered account. Will be primarily used to login. If value is null, login will be done using the username
+                username:
+                    type: string | null
+                    description: Username that was used to create the account. If email is not given, username will be used to authenticate the user
+                password:
+                    type: string
+                    description: Password of the account in plain text. Hashing of this password and comparison with the registered hash will happen on the server
+            xml:
+                name: Login
+
+        Token:
+            type: object
+            properties:
+                email:
+                    type: string
+                    description: Email of the logged in user.
+                username:
+                    type: string
+                    description: Username of the logged in user.
+                token:
+                    type: string
+                    description: The token created by the backend when the user logged in the first time.
+            xml:
+                name: Token
+
+        Project:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: Name of the project.
+                owner_id:
+                    type: number
+                    description: UserId of the creator of the project.
+                description:
+                    type: string
+                    description: Description of the project.
+                public_view:
+                    type: boolean
+                    description: Whether the project is open for public viewing or not.
+                public_edit:
+                    type: string
+                    description: Whether the project is open for public editing or not.
+            xml:
+                name: Project

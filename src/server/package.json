@@ -6,10 +6,12 @@
     "scripts": {
         "start": "cross-env NODE_ENV=production SECRET=graphtask npm run server",
         "server": "tsc && node ./",
-        "dev": "cross-env NODE_ENV=development SECRET=graphtask nodemon",
+        "dev": "cross-env NODE_ENV=development SECRET=graphtask nodemon ",
         "lint": "eslint \"**/*.{ts,tsx}\"",
         "test": "cross-env NODE_ENV=test SECRET=graphtask jest --clearCache && jest --verbose --runInBand --forceExit --detectOpenHandles ",
-        "build": "rm -rf dist && npx tsc -p tsconfig.json"
+        "build": "rm -rf dist && npx tsc -p tsconfig.json",
+        "docu:dev": "nodemon e- yaml,js,ts --exec \"openapi-comment-parser src ../docs/openapi.json && npm run dev\"",
+        "openapi": "openapi-comment-parser ./route ../docs/openapi.json"
     },
     "dependencies": {
         "@babel/preset-typescript": "^7.16.0",
@@ -22,9 +24,12 @@
         "express-async-errors": "^3.1.1",
         "jest": "^27.4.3",
         "jsonwebtoken": "^8.5.1",
+        "openapi-comment-parser": "^1.0.0",
         "pg": "^8.7.1",
         "postgres-migrations": "^5.3.0",
-        "uuid": "^8.3.2"
+        "socket.io": "^4.4.1",
+        "uuid": "^8.3.2",
+        "winston": "^3.7.2"
     },
     "devDependencies": {
         "@tsconfig/node12": "^1.0.7",
@@ -42,6 +47,7 @@
         "eslint-plugin-import": "^2.22.1",
         "eslint-plugin-jsx-a11y": "^6.0.3",
         "eslint-plugin-react": "^7.7.0",
+        "jest-html-reporter": "^3.4.2",
         "nodemon": "^2.0.15",
         "prettier": "2.5.1",
         "supertest": "^6.1.6",

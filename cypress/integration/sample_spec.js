@@ -1,8 +1,5 @@
 
 const myConsts = {
-    // apparently the port changes on integration test?
-    //host_url : 'http://localhost:3000/',
-    //// empty string works on integration test, but not locally
     host_url : '',
     global_clean : true,
     node_name_prefix : '__test__'
@@ -31,12 +28,7 @@ describe('Login / Register', () => {
             cy.get('#psw').type('secretPassword123')
             cy.get('#psw-repeat').type('secretPassword123')
 
-            /* cy.contains('cypress@example.com')
-            cy.contains('Mr.Cypress') */
-
             cy.get('#register-button').click()
-
-            //cy.contains('#register-error').should('not.exist')
 
         })
 
@@ -49,8 +41,6 @@ describe('Login / Register', () => {
 
             cy.get('#logout-link').click()
 
-            //cy.contains('#login-error').should('not.exist')
-
         })
 
         it('logging in should be possible with a username', () => {
@@ -62,8 +52,6 @@ describe('Login / Register', () => {
             cy.contains('#login-error').should('not.exist')
 
             cy.get('#logout-link').click()
-
-            //cy.contains('#login-error').should('not.exist')
 
         })
     })
@@ -156,26 +144,6 @@ describe('Graph', () => {
             cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('exist');
             cy.get(`.react-flow__node-default:contains(${node_name_2})`).should('exist');
 
-            /*cy.get(`.react-flow__node-default:contains(${node_name_2})`).should('have.length', 1).then(($node) => {
-                let node_pos1 = $node[0].getBoundingClientRect();
-
-                cy.get('.react-flow__pane').should('have.length', 1).then(($node) => {
-                    let pane_pos = $node[0].getBoundingClientRect();
-
-                    // move node
-                    cy.get(`.react-flow__node-default:contains(${node_name_2})`).trigger('mousehover').trigger('mousedown', 2, 2).then( () => {
-                        
-                        // (x, y) at (pane_pos.x + 2, pane_pos,y + 2) sets the node perfectly at the upper left corner
-                        let posX = 2 + node_pos1.x + node_pos1.width*2;
-                        let posY = 2 + node_pos1.y + node_pos1.height*2;
-
-                        cy.get('body').trigger('mousemove', posX, posY, { force: true } );
-                        cy.get('body').trigger('mouseup', posX, posY, { force: true });
-
-                    });
-                });
-            });*/
-
             cy.get('.react-flow__edge-straight').should('not.exist');
 
             cy.get(`.react-flow__node-default:contains(${node_name_2})`).find('.react-flow__handle-bottom').should('have.length', 1).trigger('mousedown');
@@ -208,30 +176,6 @@ describe('Graph', () => {
 
             cy.insertNode(node_name_1, 'center');
             cy.insertNode(node_name_2, 'left');
-
-            /*cy.get(`.react-flow__node-default:contains(${node_name_2})`).should('have.length', 1).then(($node) => {
-
-                let node_pos1 = $node[0].getBoundingClientRect();
-
-                cy.get('.react-flow__pane').should('have.length', 1).then(($node) => {
-                    let pane_pos = $node[0].getBoundingClientRect();
-
-                    cy.log('pane_pos.x');
-                    cy.log(pane_pos.x);
-
-                    // move node
-                    cy.get(`.react-flow__node-default:contains(${node_name_2})`).trigger('mousehover').trigger('mousedown', 2, 2).then( () => {
-
-                        // (x, y) at (pane_pos.x + 2, pane_pos,y + 2) sets the node perfectly at the upper left corner
-                        let posX = 2 + node_pos1.x + node_pos1.width*2;
-                        let posY = 2 + node_pos1.y + node_pos1.height*2;
-
-                        cy.get('body').trigger('mousemove', posX, posY, { force: true });
-                        cy.get('body').trigger('mouseup', posX, posY, { force: true });
-
-                    });
-                });
-            });*/
 
             cy.get(`.react-flow__node-default:contains(${node_name_2})`).find('.react-flow__handle-bottom').should('have.length', 1).trigger('mousedown');
             cy.get(`.react-flow__node-default:contains(${node_name_1})`).find('.react-flow__handle-top').should('have.length', 1).trigger('mouseup');
@@ -285,6 +229,26 @@ describe('Graph', () => {
             if (!myConsts.global_clean) {
                 cy.removeAllTestNodes();
                 cy.get(`.react-flow__node-default:contains(${new_node_name})`).should('not.exist');
+            }
+        });
+
+        it('Can add description on the sidebar', () => {
+            const node_name_1 = '__test__1';
+            const new_node_description = '__test__NEW_DESCRIPTION';
+
+            cy.get('.flow-wrapper').should('exist');
+
+            cy.insertNode(node_name_1);
+
+            cy.get(`.react-flow__node-default:contains(${node_name_1})`).dblclick('center')
+            cy.get('#edit-button').click();
+            cy.get('#description-field').click().type('{selectall}{backspace}' + new_node_description + '{enter}')
+            
+            cy.get(`.node-description:contains(${new_node_description})`).should('exist')
+
+            if (!myConsts.global_clean) {
+                cy.removeAllTestNodes();
+                cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('not.exist');
             }
         });
     });

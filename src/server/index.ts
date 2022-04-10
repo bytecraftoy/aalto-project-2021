@@ -2,6 +2,9 @@ import express, { Request, Response, Router, Express } from 'express';
 require('express-async-errors'); //This needs to be imported before 'router' at least
 import * as router from './route';
 import { RequestHandler } from 'express-serve-static-core';
+import { Server } from 'socket.io';
+import { initSockets } from './helper/socket';
+import { logger } from './helper/logging';
 
 // call express
 export const app: Express = express(); // define our app using express
@@ -23,13 +26,17 @@ app.use('/api', routes);
 // Send index.html on root request
 app.use(express.static('dist'));
 app.get('/*', (req: Request, res: Response) => {
-    console.log('sending index.html');
     res.sendFile('/dist/index.html', { root: __dirname });
 });
+
+let io: Server | undefined;
 
 // START THE SERVER
 // =============================================================================
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(port);
-    console.log(`App listening on ${port}`);
+    const server = app.listen(port);
+    io = new Server(server);
+    initSockets(io);
+
+    logger.info(`App listening on ${port}`);
 }

@@ -27,5 +27,38 @@ module.exports = {
     testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
   
     // Module file extensions for importing
-    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node']
+    moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+
+  reporters: [
+    'default',
+    [
+      './node_modules/jest-html-reporter',
+      {
+        pageTitle: 'Unit Test Report',
+        outputPath: 'tests/reports/unit-test-report.html',
+        includeFailureMsg: true,
+      },
+    ],
+  ],
+
+  collectCoverage: true,
+  collectCoverageFrom: [
+    '**/*.ts',
+    '**/*.tsx',
+  ],
+  moduleFileExtensions: ["ts", "js", "json"],
+  coverageDirectory: "./coverage",
+  coverageReporters: [
+    "json",
+    "lcov",
+    "text"
+  ],
+  coverageThreshold: {
+    "global": {
+      "branches": 10,
+      "functions": 10,
+      "lines": 10,
+      "statements": 10
+    }
+  },
 };

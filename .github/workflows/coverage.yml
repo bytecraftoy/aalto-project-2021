@@ -1,0 +1,60 @@
+name: Code coverage measuring
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    tests_with_coverage:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: ravsamhq/notify-slack-action@v1
+              if: always()
+              with:
+                  status: ${{ job.status }}
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  notification_title: '{workflow} has {status_message}'
+                  message_format: '{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>'
+                  footer: 'Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
+                  notify_when: 'failure'
+              env:
+                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v1
+              with:
+                  node-version: 14
+
+            - name: Install dependencies in the root
+              run: npm ci
+            - name: Install dependencies in the client folder
+              run: npm ci
+              working-directory: ./src/client
+            - name: Install dependencies in the server folder
+              run: npm ci
+              working-directory: ./src/server
+
+            - name: Start up database for backend tests
+              run: docker-compose up -d
+
+            - name: Run front end tests
+              run: npm test
+              working-directory: ./src/client
+            - name: Run back end tests
+              run: npm test
+              working-directory: ./src/server
+            - name: Run cypress tests
+              uses: cypress-io/github-action@v2
+              with:
+                  build: npm run build:coverage
+                  start: npm start
+                  config: baseUrl=http://localhost:8050
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v2
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+                  directory: ./
+                  fail_ci_if_error: true
+                  files: ./coverage/lcov.info,./src/client/coverage/lcov.info,./src/server/coverage/lcov.info
+                  verbose: true

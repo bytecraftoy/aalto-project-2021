@@ -1,12 +1,9 @@
 import React from 'react';
 import { INode, IEdge, IProject } from '../../../../types';
 import { Node, Elements, ArrowHeadType, isNode } from 'react-flow-renderer';
-import toast from 'react-hot-toast';
 
 import * as nodeService from '../services/nodeService';
 import * as edgeService from '../services/edgeService';
-
-//const [elements, setElements] = useState<Elements>([]);
 
 const sendCreatedNode = async (
     node: INode,
@@ -31,15 +28,12 @@ const sendNode = async (
     setElements: React.Dispatch<React.SetStateAction<Elements>>
 ): Promise<void> => {
     const returnId = await nodeService.sendNode(data);
-    console.log('What did it return?');
-    console.log(returnId);
 
     if (returnId) {
         data.id = returnId;
         setElements((els) =>
             els.map((el) => {
                 if (el.id === node.id) {
-                    console.log('Success!');
                     const pos = (el as Node).position;
                     el = {
                         ...el,
@@ -74,20 +68,20 @@ const updateNodes = async (
     elements: Elements,
     setElements: React.Dispatch<React.SetStateAction<Elements>>
 ): Promise<void> => {
-    for (const el of elements) {
-        if (isNode(el)) {
-            const node: INode = el.data;
-
-            if (node) {
+    const nodes: INode[] = elements
+        .map((el) => {
+            if (isNode(el) && el.data) {
+                const node = el.data;
                 node.x = el.position.x;
                 node.y = el.position.y;
-
-                await updateNode(node);
-            } else {
-                toast('❌ What is going on?');
+                return node;
             }
-        }
-    }
+            return null;
+        })
+        .filter((el) => el);
+
+    await nodeService.updateNodes(nodes);
+
     setElements(elements);
 };
 

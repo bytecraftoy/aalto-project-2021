@@ -1,24 +1,21 @@
-import {
-    beforeEach,
-    beforeAll,
-    expect,
-    test,
-    afterAll,
-    describe,
-} from '@jest/globals';
+import { beforeAll, expect, test, describe } from '@jest/globals';
 import { db } from '../dbConfigs';
-import { INode, IProject, Registration, User } from '../../../types';
+import { INode, IProject, User } from '../../../types';
 import supertest from 'supertest';
 import { app } from '../index';
-import { mockUser } from '../../../testmock';
+import {
+    addProject,
+    registerLoginUser,
+    registerRandomUser,
+} from './testHelper';
 
 const baseUrl = '/api/project';
 
 const api = supertest(app);
 
 //This holds the possible dummy project's ID's
-let ids: string[] = [];
-const user: User = mockUser;
+let ids: number[] = [];
+let user: User;
 let token: string;
 
 //Helper functions for the tests
@@ -44,40 +41,19 @@ const addDummyProjects = async (): Promise<void> => {
     };
 
     ids = [];
-    let r = await db.query(
-        'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-        [p1.name, p1.owner_id, p1.description, p1.public_view, p1.public_edit]
-    );
-    ids.push(r.rows[0].id);
-    r = await db.query(
-        'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-        [p2.name, p2.owner_id, p2.description, p2.public_view, p2.public_edit]
-    );
-    ids.push(r.rows[0].id);
+    let id = await addProject(db, p1);
+    ids.push(id);
+    id = await addProject(db, p2);
+    ids.push(id);
 };
 
 //Helper functions end here
 describe('Projects', () => {
-    beforeEach(async () => {
-        await db.query('TRUNCATE project, node, edge CASCADE;', []);
-    });
-
     beforeAll(async () => {
         await db.initDatabase();
-
-        const registration: Registration = {
-            username: user.username,
-            password: user.password,
-            email: user.email,
-        };
-
-        await api.post('/api/user/register').send(registration);
-
-        const res = await api
-            .post('/api/user/login')
-            .send({ email: user.email, password: user.password });
-        user.id = res.body.id;
-        token = res.body.token;
+        const login = await registerRandomUser(api);
+        user = login.user;
+        token = login.token;
     });
 
     describe('GET request', () => {
@@ -109,21 +85,6 @@ describe('Projects', () => {
         });
 
         test('should save the project appropriately', async () => {
-            const p: IProject = {
-                name: 'Test-1',
-                description: 'First-project',
-                owner_id: user.id,
-                id: 0,
-                public_view: true,
-                public_edit: true,
-            };
-
-            await api
-                .post(baseUrl)
-                .set('Authorization', `bearer ${token}`)
-                .send(p)
-                .expect(200);
-
             const res = await api
                 .get(baseUrl)
                 .set('Authorization', `bearer ${token}`)
@@ -132,7 +93,6 @@ describe('Projects', () => {
             const project = res.body[0];
             expect(project.name).toBe('Test-1');
             expect(project.description).toBe('First-project');
-            console.log(project, user);
             expect(project.owner_id).toBe(user.id);
         });
 
@@ -157,6 +117,9 @@ describe('Projects', () => {
                 .get(baseUrl)
                 .set('Authorization', `bearer ${token}`)
                 .expect(200);
+
+            const lenghtBeforeDelete = result.body.length;
+
             expect(result.body[0].id).toBeDefined();
             expect(result.body[1].id).toBeDefined();
             const id = result.body[0].id;
@@ -168,7 +131,7 @@ describe('Projects', () => {
                 .get(baseUrl)
                 .set('Authorization', `bearer ${token}`)
                 .expect(200);
-            expect(result.body).toHaveLength(1);
+            expect(result.body).toHaveLength(lenghtBeforeDelete - 1);
         });
 
         test('deletes the right project', async () => {
@@ -213,8 +176,15 @@ describe('Projects', () => {
     describe('Test project permissions', () => {
         let onlyViewId: number;
         let noViewId: number;
+        let anotherToken: string;
+        const anotherUser: User = {
+            username: 'John',
+            password: 'DoePersonHere',
+            email: 'john_doe@example.com',
+            id: 0,
+        };
 
-        beforeEach(async () => {
+        beforeAll(async () => {
             const p1: IProject = {
                 name: 'onlyView',
                 description: 'Only viewing no editing',
@@ -233,33 +203,14 @@ describe('Projects', () => {
                 public_edit: false,
             };
 
-            onlyViewId = (
-                await db.query(
-                    'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-                    [
-                        p1.name,
-                        p1.owner_id,
-                        p1.description,
-                        p1.public_view,
-                        p1.public_edit,
-                    ]
-                )
-            ).rows[0].id;
+            onlyViewId = await addProject(db, p1);
+            noViewId = await addProject(db, p2);
+        });
 
-            noViewId = (
-                await db.query(
-                    'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-                    [
-                        p2.name,
-                        p2.owner_id,
-                        p2.description,
-                        p2.public_view,
-                        p2.public_edit,
-                    ]
-                )
-            ).rows[0].id;
-
-            console.log(onlyViewId, `${baseUrl}/${onlyViewId}`);
+        beforeAll(async () => {
+            const login = await registerLoginUser(api, anotherUser);
+            anotherUser.id = login.id;
+            anotherToken = login.token;
         });
 
         test('should return 200 on get if public_view is true on an anonymous account', async () => {
@@ -270,7 +221,7 @@ describe('Projects', () => {
             await api.get(`${baseUrl}/${noViewId}`).expect(401);
         });
 
-        test('should return 401 on get if public_edit is false on an anonymous account', async () => {
+        test('should return 401 on post if public_edit is false on an anonymous account', async () => {
             const n: INode = {
                 label: 'ShouldntBePosted',
                 priority: 'Urgent',
@@ -278,13 +229,57 @@ describe('Projects', () => {
                 x: 0,
                 y: 0,
                 project_id: onlyViewId,
+                description: 'this should not be posted',
             };
 
             await api.post('/api/node').send(n).expect(401);
         });
-    });
 
-    afterAll(() => {
-        console.log('Tests are done!');
+        test('should be able to add an account to a project', async () => {
+            await api
+                .post(`${baseUrl}/${noViewId}/members`)
+                .set('Authorization', `bearer ${token}`)
+                .send({ member: anotherUser.email })
+                .expect(200);
+        });
+
+        test('should be able to get project if account is invited', async () => {
+            await api
+                .get(`${baseUrl}/${noViewId}`)
+                .set('Authorization', `bearer ${anotherToken}`)
+                .expect(200);
+        });
+
+        test('should be able to post in project if account is invited', async () => {
+            const n: INode = {
+                label: 'ShouldBePosted',
+                priority: 'Urgent',
+                status: 'Doing',
+                x: 0,
+                y: 0,
+                project_id: noViewId,
+                description: 'this should be posted',
+            };
+
+            await api
+                .post('/api/node')
+                .set('Authorization', `bearer ${anotherToken}`)
+                .send(n)
+                .expect(200);
+        });
+
+        test('should be able to remove an account from a project', async () => {
+            await api
+                .delete(`${baseUrl}/${noViewId}/members/${anotherUser.id}`)
+                .set('Authorization', `bearer ${token}`)
+                .expect(200);
+        });
+
+        test('should not be able to get project if account is removed', async () => {
+            await api
+                .get(`${baseUrl}/${noViewId}`)
+                .set('Authorization', `bearer ${anotherToken}`)
+                .expect(401);
+        });
     });
 });

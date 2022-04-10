@@ -7,8 +7,8 @@
 
 .icon-button {
     color: #eeefff;
-    background-color: #eeefff31;
-    border: none;
+    background-color: #eeefff31 !important;
+    border: none !important;
     width: 32px;
     padding: 0;
     height: 32px;
@@ -106,4 +106,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.calculating-spinner {
+    margin-top: 60px;
+    margin-left: 10px;
 }

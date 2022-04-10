@@ -31,15 +31,15 @@ const addDummyUsers = async () => {
     await api.post(`${baseUrl}/register`).send(user);
 };
 
-beforeAll(async () => {
-    await db.initDatabase();
-});
-
-beforeEach(async () => {
-    await db.query('TRUNCATE users', []);
-});
-
 describe('User registration', () => {
+    beforeAll(async () => {
+        await db.initDatabase();
+    });
+
+    beforeEach(async () => {
+        await db.query('DELETE FROM users', []);
+    });
+
     test('sending a POST request with appropriate information should add a user', async () => {
         const person = {
             username: 'Tommy',
@@ -192,6 +192,15 @@ describe('User registration', () => {
             .send({ ...sensitiveUser2 })
             .expect(403);
     });
+
+    test('password should be at least 12 characters long', async () => {
+        const user1 = {
+            ...dummyUsers[1],
+            password: 'pass',
+        };
+
+        await api.post(`${baseUrl}/register`).send(user1).expect(403);
+    });
 });
 
 describe('Logging in', () => {
@@ -241,14 +250,14 @@ describe('Logging in', () => {
         let user = dummyUsers[0];
         let res = await api
             .post(`${baseUrl}/login`)
-            .send({ email: user.email, password: 'LetsHack!' })
+            .send({ email: user.email, password: 'LetsHack!123' })
             .expect(401);
         expect(res.body.message).toBe('Wrong email or password');
 
         user = dummyUsers[1];
         res = await api
             .post(`${baseUrl}/login`)
-            .send({ email: user.email, password: 'LetsHack!' })
+            .send({ email: user.email, password: 'LetsHack!123' })
             .expect(401);
         expect(res.body.message).toBe('Wrong email or password');
     });
@@ -295,7 +304,7 @@ describe('Database', () => {
         let injection: Registration = {
             // eslint-disable-next-line quotes
             email: " d'); DROP TABLE users; --",
-            password: 'Attack',
+            password: 'Attackersdream',
             username: 'Hacker',
         };
 
@@ -309,7 +318,7 @@ describe('Database', () => {
         injection = {
             // eslint-disable-next-line quotes
             username: " d'); DROP TABLE users; --",
-            password: 'Attack',
+            password: 'Attackersdream',
             email: 'hacker@example.com',
         };
 
@@ -330,8 +339,4 @@ describe('Database', () => {
         q = await db.query('SELECT * FROM users;', []);
         expect(q.rowCount).toBeGreaterThan(0);
     });
-});
-
-afterAll(async () => {
-    await db.query('TRUNCATE users;', []);
 });

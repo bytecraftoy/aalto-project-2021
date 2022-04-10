@@ -11,13 +11,24 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
     {
-        title: 'Graph based task management!',
-        image: '/img/undraw_docusaurus_mountain.svg',
+        title: 'Welcome to the documentation!',
+        image: '/img/homepage_graph2.png',
         description: (
             <>
-                Task management software created by some people! Keep track of
-                your progress and see what needs to be done before you move onto
-                the next feature!
+                These pages contain the documentation for <em>Depsee</em>: a
+                graph-based task management app.
+                <br></br>
+                <br></br>
+                The purpose of this app to make task management easier by
+                visualizing dependencies between tasks. The goal is to provide a
+                tool that is more flexible than traditional card-based
+                approaches but more focused than general-purpose graph editors.
+                Our app does exactly this while retaining extensive built-in
+                support for agile methods such as Scrum.
+                <br></br>
+                <br></br>
+                Our software is open-source and the code can be viewed at Github
+                from the link below. The app is deployed at Heroku.
             </>
         ),
     },
@@ -26,16 +37,16 @@ const FeatureList: FeatureItem[] = [
 function Feature({ title, image, description }: FeatureItem) {
     return (
         <div className={clsx('col col--4')}>
+            <div className="text--left padding-horiz--md">
+                <h3 className="text--center">{title}</h3>
+                <p>{description}</p>
+            </div>
             <div className="text--center">
                 <img
                     className={styles.featureSvg}
                     alt={title}
                     src={useBaseUrl(image)}
                 />
-            </div>
-            <div className="text--center padding-horiz--md">
-                <h3>{title}</h3>
-                <p>{description}</p>
             </div>
         </div>
     );

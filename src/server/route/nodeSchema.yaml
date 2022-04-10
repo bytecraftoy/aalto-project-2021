@@ -1,0 +1,42 @@
+components:
+    schemas:
+        Node:
+            type: object
+            properties:
+                label:
+                    type: string
+                    description: Text seen in the middle of the node
+                status:
+                    type: string
+                    description: Current status of the node. Can be one of the following -> Product Backlog | Sprint Backlog | ToDo | Doing | Code Review | Done | Done Done
+                priority:
+                    type: string
+                    description: A small description about how urgent the task of the node is
+                x:
+                    type: float
+                    description: x position of the node in the 2D graph. Though a float it will be rounded when a node is created
+                y:
+                    type: float
+                    description: y position of the node in the 2D graph. Though a float it will be rounded when a node is created
+
+        FullNode:
+            type: object
+            properties:
+                id:
+                    type: string
+                    description: Id of the to be updated node
+                label:
+                    type: string
+                    description: Text seen in the middle of the node
+                status:
+                    type: string
+                    description: Current status of the node. Can be one of the following -> Product Backlog | Sprint Backlog | ToDo | Doing | Code Review | Done | Done Done
+                priority:
+                    type: string
+                    description: A small description about how urgent the task of the node is
+                x:
+                    type: float
+                    description: x position of the node in the 2D graph. Though a float it will be rounded when a node is created
+                y:
+                    type: float
+                    description: y position of the node in the 2D graph. Though a float it will be rounded when a node is created

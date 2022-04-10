@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Login, Registration, UserToken } from '../../../../types';
 import { axiosWrapper } from './axiosWrapper';
+import { socket } from './socket';
 
 const baseUrl = '/api/user';
 
@@ -11,7 +12,11 @@ const setToken = (newToken: string): void => {
 };
 
 const getAuthHeader = (): { Authorization: string } => {
-    return { Authorization: token };
+    const auth = {
+        Authorization: token,
+        socketId: socket.id,
+    };
+    return auth;
 };
 
 const getAuthConfig = (): { headers: { Authorization: string } } => ({
@@ -41,9 +46,6 @@ const checkLogin = async (token: UserToken): Promise<boolean> => {
     const response = await axiosWrapper(
         axios.post<{ valid: boolean }>(`${baseUrl}/validity`, token)
     );
-
-    console.log('What is response?');
-    console.log(response);
 
     if (response) {
         return response.valid;

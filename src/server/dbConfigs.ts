@@ -1,6 +1,7 @@
 import { getConfig } from './configs';
 import { Pool, QueryConfig } from 'pg'; //PoolConfig was unused
 import { migrate } from 'postgres-migrations';
+import { logger } from './helper/logging';
 
 export class Database {
     private _pool: Pool | null = null;
@@ -10,7 +11,7 @@ export class Database {
     //handled in another way. Need to find at a later time whether it can be given a type.
 
     //eslint-disable-next-line @typescript-eslint/no-explicit-any -- /* eslint-disable ... */
-    async query(text: string | QueryConfig<any>, params: unknown[]) {
+    async query(text: string | QueryConfig<any>, params?: unknown[]) {
         if (this._waiting) {
             await this._waiting;
         }
@@ -21,8 +22,9 @@ export class Database {
         const pool = await this.getPool();
         const res = await pool.query(text, params);
         const duration = Date.now() - start;
-        if (process.env.NODE_ENV !== 'test') {
-            console.log('executed query', {
+        if (process.env.NODE_ENV === 'development') {
+            logger.debug({
+                message: 'Executed query',
                 text,
                 duration,
                 rows: res.rowCount,
@@ -59,17 +61,16 @@ export class Database {
         const client = await pool.connect();
 
         this._waiting = new Promise((resolve) => {
-            if (process.env.NODE_ENV !== 'test') {
-                console.log('running migrations');
-            }
+            logger.info({ message: 'Running migrations' });
             migrate({ client }, './migrations')
                 .then(() => {
-                    if (process.env.NODE_ENV !== 'test') {
-                        console.log('migrations done');
-                    }
+                    logger.info('Migrations finished');
                 })
                 .catch(async (e: Error) => {
-                    console.error('Migrations failed, shutting down.\n', e);
+                    logger.error({
+                        message: 'Migrations failed, shutting down.\n',
+                        error: e,
+                    });
 
                     process.exit(1);
                 })
@@ -83,8 +84,6 @@ export class Database {
 
 const db = new Database();
 
-if (process.env.NODE_ENV !== 'production') {
-    db.initDatabase();
-}
+db.initDatabase();
 
 export { db };

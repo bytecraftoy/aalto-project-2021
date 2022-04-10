@@ -1,9 +1,4 @@
-import React, {
-    useEffect,
-    MouseEvent as ReactMouseEvent,
-    useState,
-    useRef,
-} from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { IEdge, INode, IProject, ProjectPermissions } from '../../../../types';
 import * as layoutService from '../services/layoutService';
 import ReactFlow, {
@@ -23,8 +18,19 @@ import ReactFlow, {
     removeElements,
     ConnectionLineType,
 } from 'react-flow-renderer';
-import { NodeEdit } from './NodeEdit';
+import { NodeNaming } from './NodeNaming';
 import { Toolbar, ToolbarHandle } from './Toolbar';
+import { basicNode } from '../App';
+import { socket } from '../services/socket';
+import { Spinner } from 'react-bootstrap';
+
+// This is left here as a possible tip. You can check here whenever
+// the socket connects to the server. Right now it happens even though graph is no rendered
+// Putting it inside graph cause the connection to happend more than once because of refreshing
+/* socket.on('connect', () => {
+    console.log('Connected in graph!', socket.id)
+}) */
+
 const graphStyle = {
     height: '100%',
     width: 'auto',
@@ -83,6 +89,8 @@ export const Graph = (props: GraphProps): JSX.Element => {
     const [nodeHidden, setNodeHidden] = useState(false);
 
     const ToolbarRef = useRef<ToolbarHandle>();
+
+    const [isCalculating, setIsCalculating] = useState(false);
 
     // For detecting the os
     const platform = navigator.userAgent;
@@ -189,56 +197,50 @@ export const Graph = (props: GraphProps): JSX.Element => {
             );
             props.updateNode(n);
         } else {
-            console.log('INode data not found');
+            // eslint-disable-next-line no-console
+            console.error('INode data not found');
         }
     };
 
-    const onNodeDoubleClick = (
-        event: ReactMouseEvent<Element, MouseEvent>,
-        node: Node<INode>
-    ) => {
-        if (node.data && node.id !== 'TEMP' && permissions.edit) {
-            const form = <NodeEdit node={node} onNodeEdit={onNodeEdit} />;
+    const [lastCanceledName, setLastCanceledName] = useState('');
 
-            setElements((els) =>
-                els.map((el) => {
-                    if (el.id === node.id) {
-                        el.data = {
-                            ...el.data,
-                            label: form,
-                        };
-                    }
-                    return el;
-                })
-            );
+    const removeTempNode = () => {
+        setElements((els) => {
+            return els.filter((e) => e.id !== 'TEMP');
+        });
+    };
+
+    const onNodeNamingDone = async (label: string, node: Node) => {
+        if (selectedProject) {
+            if (!label) {
+                removeTempNode();
+
+                return;
+            }
+
+            setLastCanceledName('');
+
+            const data: INode = {
+                ...basicNode,
+                ...{
+                    label,
+                    x: node.position.x,
+                    y: node.position.y,
+                    project_id: selectedProject.id,
+                },
+            };
+
+            props.sendNode(data, node, setElements);
         }
+    };
+
+    const onNodeNamingCancel = (canceledName: string) => {
+        setLastCanceledName(canceledName);
+        removeTempNode();
     };
 
     // handle what happens on mousepress press
     const handleMousePress = (event: MouseEvent) => {
-        const onEditDone = async (data: INode, node: Node) => {
-            if (selectedProject) {
-                const n: INode = {
-                    status: 'ToDo',
-                    label: data.label,
-                    priority: 'Urgent',
-                    x: node.position.x,
-                    y: node.position.y,
-                    project_id: selectedProject.id,
-                };
-
-                if (!data.label) {
-                    setElements((els) => {
-                        return els.filter((e) => e.id !== 'TEMP');
-                    });
-
-                    return;
-                }
-
-                props.sendNode(n, node, setElements);
-            }
-        };
-
         // Don't do anything if clicking on Toolbar area
         if (ToolbarRef.current) {
             const toolbarBounds = ToolbarRef.current.getBounds();
@@ -256,37 +258,36 @@ export const Graph = (props: GraphProps): JSX.Element => {
         if (createState && reactFlowInstance && reactFlowWrapper?.current) {
             const reactFlowBounds =
                 reactFlowWrapper.current.getBoundingClientRect();
-            let position = reactFlowInstance.project({
-                x: event.clientX - reactFlowBounds.left,
-                y: event.clientY - reactFlowBounds.top,
+
+            const position = reactFlowInstance.project({
+                x: Math.floor(event.clientX - reactFlowBounds.left),
+                y: Math.floor(event.clientY - reactFlowBounds.top),
             });
 
-            position = { x: Math.floor(position.x), y: Math.floor(position.y) };
-
-            const tempExists =
-                elements.findIndex((el) => el.id === 'TEMP') >= 0;
-
-            const b: Node = {
+            const unnamedNode: Node = {
                 id: 'TEMP',
                 data: {},
                 type: props.DefaultNodeType,
                 position,
                 draggable: false,
             };
-            b.data.label = (
-                <NodeEdit
-                    node={b}
-                    onNodeEdit={async (_, data) => onEditDone(data, b)}
+
+            unnamedNode.data.label = (
+                <NodeNaming
+                    initialName={lastCanceledName}
+                    onNodeNamingDone={async (name) =>
+                        onNodeNamingDone(name, unnamedNode)
+                    }
+                    onCancel={onNodeNamingCancel}
                 />
             );
 
             setElements((els) =>
-                tempExists
-                    ? els.map((el) => (el.id === 'TEMP' ? b : el))
-                    : els.concat(b)
+                els.filter((el) => el.id !== 'TEMP').concat(unnamedNode)
             );
         }
     };
+
     const handleKeyPress = (event: KeyboardEvent) => {
         if (event.shiftKey) {
             switchConnectState(true);
@@ -379,15 +380,17 @@ export const Graph = (props: GraphProps): JSX.Element => {
         for (const e of sortedElementsToRemove) {
             if (isNode(e)) {
                 try {
-                    await props.deleteNode(parseInt(e.id));
+                    props.deleteNode(parseInt(e.id));
                 } catch (e) {
-                    console.log('Error in node deletion', e);
+                    // eslint-disable-next-line no-console
+                    console.error('Error in node deletion', e);
                 }
             } else if (isEdge(e)) {
-                await props
+                props
                     .deleteEdge(parseInt(e.source), parseInt(e.target))
                     .catch((e: Error) =>
-                        console.log('Error when deleting edge', e)
+                        // eslint-disable-next-line no-console
+                        console.error('Error when deleting edge', e)
                     );
             }
         }
@@ -443,7 +446,8 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
             props.sendEdge(edge);
         } else {
-            console.log(
+            // eslint-disable-next-line no-console
+            console.error(
                 'source or target of edge is null, unable to send to db'
             );
         }
@@ -457,19 +461,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
             document.removeEventListener('keydown', handleKeyPress);
         };
     }, [handleKeyPress]);
-
-    const onNodeEdit = async (id: string, data: INode) => {
-        setElements((els) =>
-            els.map((el) => {
-                if (el.id === id) {
-                    el.data = data;
-                }
-                return el;
-            })
-        );
-
-        await props.updateNode(data);
-    };
 
     const onNodeDragStart = () => {
         setCreateState(false);
@@ -493,21 +484,30 @@ export const Graph = (props: GraphProps): JSX.Element => {
     });
 
     const layoutWithDagre = async (direction: string) => {
+        setIsCalculating(true);
+
         //applies the layout
         layoutAnimationStart();
         const newElements = layoutService.dagreLayout(elements, direction);
 
         //sends updated node positions to backend
         await props.updateNodes(newElements, setElements);
+
+        setIsCalculating(false);
     };
 
     //does force direced iterations, without scrambling the nodes
     const forceDirected = async () => {
         layoutAnimationStart();
+        setIsCalculating(true);
+
         const newElements = layoutService.forceDirectedLayout(elements, 5);
 
         await props.updateNodes(newElements, setElements);
+
+        setIsCalculating(false);
     };
+
     useEffect(() => {
         setElements((els) =>
             els.map((el) => {
@@ -529,6 +529,100 @@ export const Graph = (props: GraphProps): JSX.Element => {
             })
         );
     }, [nodeHidden, setElements]);
+
+    useEffect(() => {
+        const href = window.location.href;
+        let x = href.length - 1;
+        let projectId = '';
+        while (href[x] !== '/') {
+            projectId = href[x].concat(projectId);
+            x--;
+        }
+
+        socket.emit('join-project', projectId);
+
+        socket.on('add-node', (node) => {
+            const n: Node = {
+                id: String(node.id),
+                data: node,
+                type: 'default',
+                position: { x: node.x, y: node.y },
+                draggable: true,
+            };
+
+            setElements((els) => els.concat(n));
+        });
+
+        socket.on('delete-node', ({ id }) => {
+            setElements((els) => els.filter((e) => e.id !== String(id)));
+        });
+
+        socket.on('add-edge', (edge: IEdge) => {
+            setElements((els) =>
+                els.concat({
+                    id: String(edge.source_id) + '-' + String(edge.target_id),
+                    source: String(edge.source_id),
+                    target: String(edge.target_id),
+                    type: 'straight',
+                    arrowHeadType: ArrowHeadType.ArrowClosed,
+                    data: edge,
+                })
+            );
+        });
+
+        socket.on('delete-edge', (edge: IEdge) => {
+            setElements((els) => {
+                return els.filter((e) => {
+                    return (
+                        !isEdge(e) ||
+                        e.id !== `${edge.source_id}-${edge.target_id}`
+                    );
+                });
+            });
+        });
+
+        socket.on('reverse-edge', (edge: IEdge) => {
+            setElements((els) => {
+                return els.map((e) => {
+                    if (
+                        isEdge(e) &&
+                        e.id === `${edge.target_id}-${edge.source_id}`
+                    ) {
+                        return {
+                            ...e,
+                            id: `${edge.source_id}-${edge.target_id}`,
+                            source: e.target,
+                            target: e.source,
+                            data: edge,
+                        };
+                    }
+
+                    return e;
+                });
+            });
+        });
+
+        socket.on('update-node', (nodes: INode[]) => {
+            setElements((els) =>
+                els.map((el) => {
+                    const node = nodes.find((n) => n.id === el.data.id);
+
+                    if (!node) return el;
+
+                    return {
+                        ...el,
+                        data: node,
+                        position: { x: node.x, y: node.y },
+                    };
+                })
+            );
+        });
+
+        return () => {
+            socket.emit('leave-project', projectId);
+            socket.removeAllListeners();
+        };
+    }, []);
 
     if (!selectedProject || !permissions || !permissions.view) {
         return <h2>No permissions or project doesn't exist</h2>;
@@ -561,7 +655,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
                         onLoad={onLoad}
                         onNodeDragStart={onNodeDragStart}
                         onNodeDragStop={onNodeDragStop}
-                        onNodeDoubleClick={onNodeDoubleClick}
                         onElementClick={props.onElementClick}
                         selectionKeyCode={'e'}
                         nodesDraggable={permissions.edit}
@@ -588,6 +681,14 @@ export const Graph = (props: GraphProps): JSX.Element => {
                             nodeBorderRadius={2}
                             maskColor="#69578c"
                         />
+                        {isCalculating ? (
+                            <Spinner
+                                animation="border"
+                                className="calculating-spinner"
+                            />
+                        ) : (
+                            <></>
+                        )}
                     </ReactFlow>
                 </div>
             </ReactFlowProvider>

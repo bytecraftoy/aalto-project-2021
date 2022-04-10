@@ -1,25 +1,94 @@
-import { INode, IProject } from '../../../types';
+import supertest from 'supertest';
+import { INode, IProject, Registration, User } from '../../../types';
 import { Database } from '../dbConfigs';
+
+export const registerRandomUser = async (
+    api: supertest.SuperTest<supertest.Test>
+) => {
+    const user: User = {
+        username: (Math.random() + 1).toString(36).substring(7),
+        password: (Math.random() + 1).toString(30),
+        email: (Math.random() + 1).toString(36).substring(7) + '@test.com',
+        id: 0,
+    };
+
+    const tokens = await registerLoginUser(api, user);
+    user.id = tokens.id;
+    return {
+        user,
+        token: tokens.token,
+    };
+};
+
+export const registerLoginUser = async (
+    api: supertest.SuperTest<supertest.Test>,
+    user: User
+) => {
+    const registration: Registration = {
+        username: user.username,
+        password: user.password,
+        email: user.email,
+    };
+
+    await api.post('/api/user/register').send(registration);
+
+    const res = await api
+        .post('/api/user/login')
+        .send({ email: user.email, password: user.password });
+    return {
+        id: res.body.id,
+        token: res.body.token,
+    };
+};
+
+export const addProject = async (
+    db: Database,
+    project: IProject
+): Promise<number> => {
+    const client = await db.getClient();
+    let projectId = 0;
+    try {
+        await client.query('BEGIN');
+
+        const q = await client.query(
+            'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
+            [
+                project.name,
+                project.owner_id,
+                project.description,
+                project.public_view,
+                project.public_edit,
+            ]
+        );
+
+        projectId = q.rows[0].id;
+
+        client.query(
+            'INSERT INTO users__project (users_id, project_id) VALUES ($1, $2)',
+            [project.owner_id, projectId]
+        );
+    } catch (e) {
+        await client.query('ROLLBACK');
+    } finally {
+        client.release();
+    }
+    return projectId;
+};
 
 export const addDummyProject = async (
     db: Database,
-    project?: IProject
+    userId: number
 ): Promise<number> => {
-    const p: IProject = project || {
+    const p: IProject = {
         name: 'Test-1',
         description: 'First-project',
-        owner_id: 0,
+        owner_id: userId,
         id: 0,
         public_view: true,
         public_edit: true,
     };
 
-    return (
-        await db.query(
-            'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
-            [p.name, p.owner_id, p.description, p.public_view, p.public_edit]
-        )
-    ).rows[0].id as number;
+    return addProject(db, p);
 };
 
 export const addDummyNodes = async (
@@ -35,6 +104,7 @@ export const addDummyNodes = async (
             x: 0,
             y: 0,
             project_id: projectId,
+            description: 'this is the first node',
         },
         {
             label: 'Second-node',
@@ -43,13 +113,14 @@ export const addDummyNodes = async (
             x: 1,
             y: 1,
             project_id: projectId,
+            description: 'this is the second node',
         },
     ];
 
     const ids: number[] = [];
     for (const node of n) {
         const res = await db.query(
-            'INSERT INTO node (label, priority, status, x, y, project_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;',
+            'INSERT INTO node (label, priority, status, x, y, project_id, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;',
             [
                 node.label,
                 node.priority,
@@ -57,6 +128,7 @@ export const addDummyNodes = async (
                 node.x,
                 node.y,
                 node.project_id,
+                node.description,
             ]
         );
         ids.push(res.rows[0].id);

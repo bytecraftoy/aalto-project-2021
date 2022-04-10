@@ -1,6 +1,8 @@
 import React from 'react';
 import { Elements, Node } from 'react-flow-renderer';
 import { INode } from '../../../../types';
+import { AssignedUsers } from './AssignedUsers';
+import { AssignUsers } from './AssignUsers';
 import { NodeForm } from './NodeForm';
 
 interface NodeDetailProps {
@@ -27,6 +29,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     setElements={props.setElements}
                     setEditMode={props.setEditMode}
                 />
+                <AssignUsers node={data} />
             </>
         );
     } else {
@@ -36,6 +39,12 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                 <p>Status: {data.status}</p>
                 <p>Priority: {data.priority}</p>
                 <p>ID: {data.id}</p>
+                {data.description && (
+                    <p className="node-description">
+                        Description: {data.description}
+                    </p>
+                )}
+                <AssignedUsers node={data} />
             </>
         );
     }

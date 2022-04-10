@@ -1,7 +1,22 @@
 {
-    "name": "docs",
+    "name": "my-website",
     "version": "0.0.0",
     "private": true,
+    "dependencies": {
+        "@docusaurus/core": "2.0.0-beta.14",
+        "@mdx-js/react": "^1.6.21",
+        "clsx": "^1.1.1",
+        "docusaurus-preset-openapi": "0.4.0",
+        "prism-react-renderer": "^1.2.1",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1",
+        "@docusaurus/preset-classic": "2.0.0-beta.14",
+        "@docusaurus/mdx-loader": "2.0.0-beta.14",
+        "@docusaurus/plugin-content-docs": "2.0.0-beta.14",
+        "@docusaurus/types": "2.0.0-beta.14",
+        "@docusaurus/utils-validation": "2.0.0-beta.14",
+        "@docusaurus/utils": "2.0.0-beta.14"
+    },
     "scripts": {
         "docusaurus": "docusaurus",
         "start": "docusaurus start",
@@ -11,22 +26,7 @@
         "clear": "docusaurus clear",
         "serve": "docusaurus serve",
         "write-translations": "docusaurus write-translations",
-        "write-heading-ids": "docusaurus write-heading-ids",
-        "typecheck": "tsc"
-    },
-    "dependencies": {
-        "@docusaurus/core": "2.0.0-beta.15",
-        "@docusaurus/preset-classic": "2.0.0-beta.15",
-        "@mdx-js/react": "^1.6.21",
-        "clsx": "^1.1.1",
-        "prism-react-renderer": "^1.2.1",
-        "react": "^17.0.1",
-        "react-dom": "^17.0.1"
-    },
-    "devDependencies": {
-        "@docusaurus/module-type-aliases": "2.0.0-beta.15",
-        "@tsconfig/docusaurus": "^1.0.4",
-        "typescript": "^4.5.2"
+        "write-heading-ids": "docusaurus write-heading-ids"
     },
     "browserslist": {
         "production": [

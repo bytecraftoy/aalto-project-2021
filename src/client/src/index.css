@@ -138,7 +138,10 @@ code {
 }
 
 .topbar {
-    flex-flow: column wrap;
+    display: flex;
+    flex-flow: row;
+    justify-content: space-between;
+    align-items: center;
     position: absolute;
     width: 100%;
     background-color: #44207249;
@@ -270,4 +273,47 @@ code {
 
 .react-flow__node {
     transition: var(--node-transition) !important;
+}
+.tag-sidebar {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    align-items: center;
+    position: absolute;
+    z-index: 4;
+
+    width: 200px;
+    left: 0;
+    top: 128px;
+}
+.tag-taglist > p {
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    align-items: center;
+    z-index: 4;
+}
+
+.tag-disptag {
+    display: flex;
+    padding: 0.2em 0.4em;
+    border: 0.2em solid #21007a;
+    margin: 0.1em 0.3em 0.1em;
+    border-radius: 0.12em;
+    box-sizing: border-box;
+    width: 80%;
+    text-decoration: none;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    color: #ffffff;
+    background-color: #3c0077;
+    text-align: center;
+    justify-content: center;
+    transition: all 0.2s;
+    align-self: auto;
+}
+
+.tag-disptag:hover {
+    background-color: #2d0061;
+    color: #ffffff;
 }

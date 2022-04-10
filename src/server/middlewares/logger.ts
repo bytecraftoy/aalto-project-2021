@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-export const logger = (
+export const requestLogger = (
     req: Request,
     res: Response,
     next: (param?: unknown) => void
@@ -11,16 +11,33 @@ export const logger = (
         body = { ...body, password: '' };
     }
 
-    const date: Date = new Date();
-    if (process.env.NODE_ENV !== 'test') {
-        console.table([
-            {
-                date: `${date.toLocaleDateString()} - ${date.toLocaleTimeString()}`,
-                method: req.method,
-                url: `${req.baseUrl}${req.url}`,
-                body: body,
-            },
-        ]);
+    const method = req.method;
+    const url = `${req.baseUrl}${req.url}`;
+
+    if (process.env.NODE_ENV === 'development') {
+        req.logger.info({ message: 'Request', method, url, body });
+    } else {
+        req.logger.info({ message: 'Request', method, url });
     }
+
+    res.on('finish', () => {
+        if (process.env.NODE_ENV === 'development') {
+            req.logger.info({
+                message: 'Response',
+                method,
+                url,
+                status: res.statusCode,
+                body,
+            });
+        } else {
+            req.logger.info({
+                message: 'Response',
+                method,
+                url,
+                status: res.statusCode,
+            });
+        }
+    });
+
     next();
 };

@@ -21,36 +21,49 @@ export const Topbar = (props: TopbarProps): JSX.Element => {
     };
     return (
         <div className="topbar">
-            {user && (
-                <Link className="link-topbar" id="home-link" to="/">
-                    Home
-                </Link>
-            )}
-            {!user && (
-                <Link className="link-topbar" id="login-link" to="/user/login">
-                    Login
-                </Link>
-            )}
-            {!user && (
-                <Link
-                    className="link-topbar"
-                    id="register-link"
-                    to="/user/register"
-                >
-                    Register
-                </Link>
-            )}
-            {user && (
-                <a
-                    className="link-topbar"
-                    id="logout-link"
-                    href="#"
-                    onClick={logOut}
-                >
-                    Logout
+            <div>
+                {user && (
+                    <Link className="link-topbar" id="home-link" to="/">
+                        Home
+                    </Link>
+                )}
+                {!user && (
+                    <Link
+                        className="link-topbar"
+                        id="login-link"
+                        to="/user/login"
+                    >
+                        Login
+                    </Link>
+                )}
+                {!user && (
+                    <Link
+                        className="link-topbar"
+                        id="register-link"
+                        to="/user/register"
+                    >
+                        Register
+                    </Link>
+                )}
+                <a className="link-topbar" id="docs-link" href="/docs">
+                    Help
                 </a>
+            </div>
+            {user && (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div id="whoamiText" style={{ marginRight: '8px' }}>
+                        Logged in as {user.username}
+                    </div>
+                    <a
+                        className="link-topbar"
+                        id="logout-link"
+                        href="#"
+                        onClick={logOut}
+                    >
+                        Logout
+                    </a>
+                </div>
             )}
-            {user && <div id="whoamiText">Logged in as {user.username}</div>}
         </div>
     );
 };

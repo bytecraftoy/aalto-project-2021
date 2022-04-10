@@ -1,0 +1,22 @@
+components:
+    schemas:
+        Project:
+            type: object
+            properties:
+                owner_id:
+                    type: number
+                    description: ID of the project's owner
+                name:
+                    type: string
+                    description: Name of the project
+                description:
+                    type: string
+                    description: Small description of the new project
+                public_view:
+                    type: boolean
+                    description: Boolean value determining, whether anyone can view contents of the project even without logging in
+                public_edit:
+                    type: boolean
+                    description: Boolean value determining, whether anyone can edit edges and nodes of the project even without logging in
+            xml:
+                name: Project

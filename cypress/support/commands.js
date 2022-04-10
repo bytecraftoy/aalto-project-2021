@@ -29,18 +29,19 @@ Cypress.Commands.add('registerLogin', () => {
     
     cy.get('#email').type('user@example.com')
     cy.get('#username').type('Tester')
-    cy.get('#psw').type('password')
-    cy.get('#psw-repeat').type('password')
+    cy.get('#psw').type('password123456')
+    cy.get('#psw-repeat').type('password123456')
     cy.get('#register-button').click()
 
     cy.visit('/user/login')
 
     cy.get('#emailUser').type('user@example.com')
-    cy.get('#psw').type('password')
+    cy.get('#psw').type('password123456')
     cy.get('#login-button').click()
 });
 
 Cypress.Commands.add('deleteAllProjects', () => {
+    cy.contains('Home').scrollIntoView()
     cy.get('#home-link').click()
     cy.get("body").then($body => {
         if ($body.find(".project-card").length > 0) {   

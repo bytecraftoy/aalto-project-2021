@@ -39,11 +39,11 @@ describe('<RegistrationForm />', () => {
         });
 
         fireEvent.change(inputs[2], {
-            target: { value: 'password123' },
+            target: { value: 'password123456' },
         });
 
         fireEvent.change(inputs[3], {
-            target: { value: 'password123' },
+            target: { value: 'password123456' },
         });
 
         await waitFor(async () => {
@@ -68,11 +68,11 @@ describe('<RegistrationForm />', () => {
         });
 
         fireEvent.change(inputs[2], {
-            target: { value: 'password123' },
+            target: { value: 'password123456' },
         });
 
         fireEvent.change(inputs[3], {
-            target: { value: 'pass' },
+            target: { value: 'passwords986562' },
         });
 
         await waitFor(async () => {

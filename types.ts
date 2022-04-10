@@ -18,6 +18,7 @@ export interface INode {
     x: number;
     y: number;
     project_id: number;
+    description: string;
 }
 
 export interface IEdge {
@@ -65,6 +66,12 @@ export interface User {
     id: number;
 }
 
+export interface UserData {
+    username: string;
+    email: string;
+    id: number;
+}
+
 export interface RootState {
     project: IProject[];
 }
@@ -87,9 +94,11 @@ export interface ITag {
     id: number;
     label: string;
     color: string;
+    project_id: number;
 }
 
 export interface ITaggedNode {
     node_id: string;
     tag_id: number;
+    project_id: number;
 }

@@ -3,7 +3,28 @@ import { Request, Response } from 'express';
 import { IEdge } from '../../../../types';
 import { db } from '../../dbConfigs';
 import { checkProjectPermission } from '../../helper/permissionHelper';
+import { projectIo } from '../../helper/socket';
 
+/**
+ * GET /api/edge/:id
+ * @summary Get edges
+ * @description Fetch edges from the project 'id'
+ * @response 200 - OK
+ */
+
+router.route('/edge/:id').get(async (req: Request, res: Response) => {
+    const project_id = req.params.id;
+    const q = await db.query('SELECT * FROM edge WHERE project_id = $1', [
+        project_id,
+    ]);
+    res.json(q.rows);
+});
+/**
+ * DELETE /api/edge/:source/:target
+ * @description Delete an edge connected to 'source' and 'target'
+ * @summary Delete an edge
+ * @response 200 - OK
+ */
 router
     .route('/edge/:source/:target')
     .delete(async (req: Request, res: Response) => {
@@ -11,7 +32,7 @@ router
         const target = req.params.target;
 
         const edgeQuery = await db.query(
-            'SELECT project_id FROM edge WHERE source_id = $1 AND target_id = $2',
+            'SELECT * FROM edge WHERE source_id = $1 AND target_id = $2',
             [source, target]
         );
 
@@ -19,10 +40,10 @@ router
             return res.status(403).json({ message: 'Edge does not exist' });
         }
 
-        const permissions = await checkProjectPermission(
-            req,
-            edgeQuery.rows[0].project_id
-        );
+        const edge: IEdge = edgeQuery.rows[0];
+
+        const permissions = await checkProjectPermission(req, edge.project_id);
+
         if (!permissions.edit) {
             return res.status(401).json({ message: 'No permission' });
         }
@@ -31,23 +52,26 @@ router
             'DELETE FROM edge WHERE source_id = $1 AND target_id = $2',
             [source, target]
         );
+
         res.status(200).json();
+
+        projectIo
+            ?.except(req.get('socketId')!)
+            .to(edge.project_id.toString())
+            .emit('delete-edge', edge);
     });
 
-router.route('/edge/:id').get(async (req: Request, res: Response) => {
-    const project_id = parseInt(req.params.id);
+// @bodyContent {string} text/plain gives a description of what the JSON body
+// sent should look like, but puts just a string in it. Need to look deeper how it works
 
-    const permissions = await checkProjectPermission(req, project_id);
-    if (!permissions.view) {
-        return res.status(401).json({ message: 'No permission' });
-    }
-
-    const q = await db.query('SELECT * FROM edge WHERE project_id = $1', [
-        project_id,
-    ]);
-    res.json(q.rows);
-});
-
+/**
+ * POST /api/edge
+ * @summary Create an edge
+ * @description Create a new  **edge**
+ * @bodyRequired
+ * @response 200 - OK
+ * @response 403 - Forbidden
+ */
 router
     .route('/edge')
     .post(async (req: Request, res: Response) => {
@@ -84,6 +108,11 @@ router
 
             if (oppositeEdge.rowCount > 0) {
                 res.status(200).json();
+
+                projectIo
+                    ?.except(req.get('socketId')!)
+                    .to(newEdge.project_id.toString())
+                    .emit('reverse-edge', newEdge);
             } else {
                 res.status(403).json({ message: 'no duplicate edges allowed' });
             }
@@ -94,6 +123,11 @@ router
             );
 
             res.status(200).json();
+
+            projectIo
+                ?.except(req.get('socketId')!)
+                .to(newEdge.project_id.toString())
+                .emit('add-edge', newEdge);
         }
     })
     .put((req: Request, res: Response) => {

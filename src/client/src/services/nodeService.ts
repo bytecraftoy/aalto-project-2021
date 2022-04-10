@@ -30,4 +30,8 @@ const updateNode = async (node: INode): Promise<void> => {
     await axiosWrapper(axios.put(baseUrl, node, getAuthConfig()));
 };
 
-export { getAll, sendNode, deleteNode, updateNode };
+const updateNodes = async (nodes: INode[]): Promise<void> => {
+    await axiosWrapper(axios.put(baseUrl, nodes, getAuthConfig()));
+};
+
+export { getAll, sendNode, deleteNode, updateNode, updateNodes };

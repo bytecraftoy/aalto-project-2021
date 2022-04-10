@@ -6,10 +6,10 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-    title: 'My Site',
-    tagline: 'Dinosaurs are cool',
+    title: 'Depsee documentation',
+    tagline: 'Documentation for depsee',
     url: 'https://your-docusaurus-test-site.com',
-    baseUrl: '/',
+    baseUrl: '/docs/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.ico',
@@ -18,56 +18,66 @@ const config = {
 
     presets: [
         [
-            'classic',
-            /** @type {import('@docusaurus/preset-classic').Options} */
+            "docusaurus-preset-openapi",
+            /** @type {import('docusaurus-preset-openapi').Options} */
             ({
-                docs: {
-                    sidebarPath: require.resolve('./sidebars.js'),
-                    // Please change this to your repo.
-                    editUrl: 'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+                api: {
+                    path: "./openapi.json",
+                    routeBasePath: "petstore",
                 },
-                blog: {
-                    showReadingTime: true,
+                docs: {
+                    sidebarPath: require.resolve("./sidebars.js"),
                     // Please change this to your repo.
                     editUrl:
-                        'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+                        "https://github.com/cloud-annotations/docusaurus-openapi/edit/main/demo/",
                 },
+                blog: false,
                 theme: {
-                    customCss: require.resolve('./src/css/custom.css'),
+                    customCss: require.resolve("./src/css/custom.css"),
+                },
+                proxy: {
+                    "/proxy": {
+                        target: "http://localhost:8091",
+                        pathRewrite: { "^/proxy": "" },
+                    },
                 },
             }),
         ],
+    ],
+
+    plugins: [
+        [
+            'docusaurus-plugin-openapi',
+            {
+                id: 'cos',
+                path: './openapi.json',
+            }
+        ]
     ],
 
     themeConfig:
         /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
             navbar: {
-                title: 'Info',
+                title: 'Home',
                 logo: {
-                    alt: 'My Site Logo',
+                    alt: 'Logo for the site',
                     src: 'img/logo.svg',
                 },
                 items: [
                     {
-                        type: 'doc',
-                        docId: 'intro',
-                        position: 'left',
-                        label: 'Documentation',
-                    },
-                    {
-                        to: '/blog',
-                        label: 'Blog',
+                        to: '/help',
+                        label: 'How to use',
                         position: 'left'
                     },
                     {
-                        href: 'https://github.com/facebook/docusaurus',
-                        label: 'GitHub',
-                        position: 'right',
+                        to: '/api',
+                        label: 'API documentation',
+                        position: 'left'
                     },
                     {
-                        to: '/help',
-                        label: 'Help',
+                        to: '/internal',
+                        label: 'Internal Documentation',
                         position: 'left'
                     }
                 ],
@@ -76,46 +86,20 @@ const config = {
                 style: 'dark',
                 links: [
                     {
-                        title: 'Docs',
+                        title: 'Useful links',
                         items: [
                             {
-                                label: 'Tutorial',
-                                to: '/docs/intro',
-                            },
-                        ],
-                    },
-                    {
-                        title: 'Community',
-                        items: [
-                            {
-                                label: 'Stack Overflow',
-                                href: 'https://stackoverflow.com/questions/tagged/docusaurus',
+                                label: 'The app at Heroku',
+                                href: 'https://aalto-project.herokuapp.com/',
                             },
                             {
-                                label: 'Discord',
-                                href: 'https://discordapp.com/invite/docusaurus',
-                            },
-                            {
-                                label: 'Twitter',
-                                href: 'https://twitter.com/docusaurus',
-                            },
-                        ],
-                    },
-                    {
-                        title: 'More',
-                        items: [
-                            {
-                                label: 'Blog',
-                                to: '/blog',
-                            },
-                            {
-                                label: 'GitHub',
-                                href: 'https://github.com/facebook/docusaurus',
+                                label: 'Github',
+                                href: 'https://github.com/bytecraftoy/aalto-project-2021',
                             },
                         ],
                     },
                 ],
-                copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+                copyright: `Copyright © 2022 Bytecraft. Built with Docusaurus.`,
             },
             prism: {
                 theme: lightCodeTheme,

@@ -15,3 +15,7 @@ jobs:
                   heroku_api_key: ${{secrets.HEROKU_API_KEY}}
                   heroku_app_name: 'aalto-project'
                   heroku_email: 'tommehbananas@gmail.com'
+
+concurrency:
+    group: deploy
+    cancel-in-progress: false

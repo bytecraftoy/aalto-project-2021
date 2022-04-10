@@ -18,6 +18,12 @@ const dropdownButtonStyle: CSS.Properties = {
     top: '8px',
     right: '8px',
     borderRadius: '50%',
+    padding: 0,
+    display: 'flex',
+};
+const dropDownItemStyle: CSS.Properties = {
+    display: 'flex',
+    alignItems: 'center',
 };
 
 export const ProjectCard: FC<ProjectCardProps> = (props: ProjectCardProps) => {
@@ -76,12 +82,17 @@ export const ProjectCard: FC<ProjectCardProps> = (props: ProjectCardProps) => {
                 <Dropdown.Menu>
                     <Dropdown.Item
                         href="#"
+                        style={dropDownItemStyle}
                         onClick={() => setEditMode(!editMode)}
                     >
-                        <BsPencilFill /> Edit
+                        <BsPencilFill style={{ marginRight: '8px' }} /> Edit
                     </Dropdown.Item>
-                    <Dropdown.Item href="#" onClick={() => deleteProject()}>
-                        <BsXLg /> Delete
+                    <Dropdown.Item
+                        href="#"
+                        style={dropDownItemStyle}
+                        onClick={() => deleteProject()}
+                    >
+                        <BsXLg style={{ marginRight: '8px' }} /> Delete
                     </Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>

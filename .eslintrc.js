@@ -27,7 +27,7 @@ module.exports = {
         'sourceType': 'module',
     },
     'rules': {
-        'no-console': 'off',
+        'no-console': 1,
         'comma-dangle': 'off',
         'react/jsx-filename-extension': 'off',
         'import/prefer-default-export': 'off',
