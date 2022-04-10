@@ -5,7 +5,10 @@ import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
 import { NodeForm } from './NodeForm';
 import './styles/Sidebar.css';
-import { BsClipboardCheck, BsExclamationCircle, BsHash } from 'react-icons/bs';
+import {
+    BsClipboardCheck,
+    BsExclamationCircle /* BsHash */,
+} from 'react-icons/bs';
 
 interface NodeDetailProps {
     element: Node<INode>;
@@ -51,10 +54,10 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     <b className="title">Priority: </b>
                     {data.priority}
                 </p>
-                <p>
+                {/* <p>
                     <BsHash className="icon" /> <b className="title">ID: </b>
                     {data.id}
-                </p>
+                </p> */}
                 <AssignedUsers node={data} />
             </>
         );
@@ -62,7 +65,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
 
     return (
         <>
-            <h5>Node:</h5>
+            <h5>#{data.id}</h5>
             {content}
         </>
     );
