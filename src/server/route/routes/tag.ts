@@ -139,7 +139,7 @@ router
                 );
                 
                 if (insertTaggedNodeQuery.rowCount == 1) {
-                    return res.status(200).json({ tag: retTag});
+                    return res.status(200).json(retTag);
                 }
             }
         }
