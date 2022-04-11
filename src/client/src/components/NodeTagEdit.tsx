@@ -11,11 +11,11 @@ export const NodeTagEdit = (props: NodeTagEditProps): JSX.Element => {
     const [formText, setFormText] = useState<string>('');
 
     const handleSubmit = async (event: FormEvent) => {
+        event.preventDefault();
         const addTagSuccess = await props.addTag(formText);
         if (addTagSuccess) {
             setFormText('');
         }
-        event.preventDefault();
     };
 
     return (
