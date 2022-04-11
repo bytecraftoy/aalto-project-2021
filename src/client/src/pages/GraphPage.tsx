@@ -249,16 +249,21 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
 
     const addNodeTag = async (nodeId: number | undefined, tagName: string): Promise<boolean> => {
         if (nodeId) {
+            // TODO: check that a tag with the same name doesn't exist in the same node before adding
+
             const newTag: ITag | undefined = await tagService.addNodeTagName(projectId, nodeId, tagName);
 
             if (newTag) {
-                //toast('got newTag');
-                //setProjTags(projTags.concat(newTag));
-                //setNodeTags(nodeTags.concat(newTag));
+                setProjTags(projTags.concat(newTag));
+                
+                const resTaggedNode: ITaggedNode = {project_id: projectId, node_id: nodeId, tag_id: newTag.id};
+                setTaggedNodes(taggedNodes.concat(resTaggedNode));
 
-                return true;
-            } else {
-                //toast('no newTag');
+                const selNode = getINodeFromSelectedElement(selectedElement);
+                if (selNode && selNode.id == nodeId) {
+                    setNodeTags(nodeTags.concat(newTag));
+                    return true;
+                }
             }
         }
 
@@ -266,10 +271,14 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
         return false;
     };
 
-
+    const getINodeFromSelectedElement = (element: Node<INode> | Edge<IEdge> | null): INode | undefined => {
+        if (selectedDataType == 'Node') {
+            return (selectedElement as Node<INode>).data;
+        }
+    }
 
     const removeNodeTag = async (nodeId: number | undefined, tagId: number): Promise<void> => {
-        const TaggedNodeEq = (nodeA: ITaggedNode, nodeB: ITaggedNode): boolean => {
+        const taggedNodeEq = (nodeA: ITaggedNode, nodeB: ITaggedNode): boolean => {
             return (nodeA.tag_id == nodeB.tag_id) && (nodeA.node_id == nodeB.node_id) && (nodeA.project_id == nodeB.project_id);
         }
 
@@ -277,14 +286,13 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
             const retTaggedNode = await tagService.removeNodeTagId(projectId, nodeId, tagId);
 
             if (retTaggedNode) {
-                setTaggedNodes(taggedNodes.filter((taggedNode) => !TaggedNodeEq(taggedNode, retTaggedNode)));
+                setTaggedNodes(taggedNodes.filter((taggedNode) => !taggedNodeEq(taggedNode, retTaggedNode)));
+
+                const selNode: INode | undefined = getINodeFromSelectedElement(selectedElement);
                 
-                if (selectedDataType == 'Node') {
-                    const selNode: INode | undefined = (selectedElement as Node<INode>).data;
-                    if (selNode && selNode.id) {
-                        if (selNode.id == retTaggedNode.node_id) {
-                            setNodeTags(nodeTags.filter((tag) => tag.id = retTaggedNode.tag_id))
-                        }
+                if (selNode && selNode.id) {
+                    if (selNode.id == retTaggedNode.node_id) {
+                        setNodeTags(nodeTags.filter((tag) => tag.id != retTaggedNode.tag_id))
                     }
                 }
             }
