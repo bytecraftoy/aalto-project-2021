@@ -4,9 +4,6 @@ import { ITag, ITaggedNode } from '../../../../types';
 export const baseUrl = '/api/tag';
 import { getAuthConfig } from './userService';
 
-
-import toast from 'react-hot-toast';
-
 const getAllProjTags = async (projId: number): Promise<ITag[]> => {
     const response = await axiosWrapper(
         axios.post<ITag[]>(
@@ -62,12 +59,22 @@ const addNodeTagName = async (projId: number, nodeId: number, tagName: string): 
             getAuthConfig()
         )
     );
-    if (response) {
-        toast('response id: ' + response.id);
-    } else {
-        toast('response was undefined');
+
+    const isValidITag = (tag: ITag | undefined): tag is ITag => {
+        return (
+            (tag !== undefined) &&
+            (tag.id !== undefined) &&
+            (tag.project_id !== undefined) &&
+            (tag.label !== undefined) &&
+            (tag.color !== undefined)
+        )
     }
-    return response;
+
+    if (isValidITag(response)) {
+        return response;
+    }
+
+    return undefined;
 }
 
 const addNodeTagId = async (projId: number, nodeId: number, tagId: number): Promise<ITaggedNode | undefined> => {
