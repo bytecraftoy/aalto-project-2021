@@ -12,6 +12,7 @@ import {
     UserToken,
     UserData,
     ITag,
+    ITaggedNode,
 } from '../../../../types';
 import {
     ArrowHeadType,
@@ -82,6 +83,8 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
     
     const [projTags, setProjTags] = useState<ITag[]>([]);
     const [nodeTags, setNodeTags] = useState<ITag[]>([]);
+
+    const [taggedNodes, setTaggedNodes] = useState<ITaggedNode[]>([]);
 
     useEffect(() => {
         setIsLoadingProject(true);
@@ -171,10 +174,32 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
         }
     }, [elements]);
 
+    useEffect(() => {
+        if (selectedProject) {
+            const getProjTagsHook = async () => {
+                const gotProjTags = await tagService.getAllProjTags(selectedProject.id);
+                
+                setProjTags(gotProjTags);
+            }
+            const getTaggedNodesHook = async () => {
+                const gotTaggedNodes = await tagService.getAllProjTaggedNodes(selectedProject.id);
+
+                setTaggedNodes(gotTaggedNodes);
+            }
+            getProjTagsHook();
+            getTaggedNodesHook();
+        }
+    }, [selectedProject]);
+
     const onElementClick = (event: React.MouseEvent, element: FlowElement) => {
         if (isNode(element)) {
             setSelectedElement(element);
             setSelectedDataType('Node');
+
+            const elemData: INode = element.data;
+            if (elemData && elemData.id) {
+                setNodeTagsByNodeId(elemData.id);
+            }
         } else if (isEdge(element)) {
             setSelectedElement(element);
             setSelectedDataType('Edge');
@@ -214,15 +239,26 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
             </h2>
         );
     }
+    const setNodeTagsByNodeId = (nodeId: number) => {
+        const nodeTaggedNodes = taggedNodes.filter((taggedNode) => taggedNode.node_id == nodeId);
+        const nodeTagIds: number[] = nodeTaggedNodes.map((taggedNode) => taggedNode.tag_id);
+        const gotNodeTags = projTags.filter((tag) => nodeTagIds.includes(tag.id));
+
+        setNodeTags(gotNodeTags);
+    }
+
     const addNodeTag = async (nodeId: number | undefined, tagName: string): Promise<boolean> => {
         if (nodeId) {
             const newTag: ITag | undefined = await tagService.addNodeTagName(projectId, nodeId, tagName);
 
             if (newTag) {
-                setProjTags(projTags.concat(newTag));
-                setNodeTags(nodeTags.concat(newTag));
+                //toast('got newTag');
+                //setProjTags(projTags.concat(newTag));
+                //setNodeTags(nodeTags.concat(newTag));
 
                 return true;
+            } else {
+                //toast('no newTag');
             }
         }
 
@@ -230,7 +266,29 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
         return false;
     };
 
+
+
     const removeNodeTag = async (nodeId: number | undefined, tagId: number): Promise<void> => {
+        const TaggedNodeEq = (nodeA: ITaggedNode, nodeB: ITaggedNode): boolean => {
+            return (nodeA.tag_id == nodeB.tag_id) && (nodeA.node_id == nodeB.node_id) && (nodeA.project_id == nodeB.project_id);
+        }
+
+        if (nodeId) {
+            const retTaggedNode = await tagService.removeNodeTagId(projectId, nodeId, tagId);
+
+            if (retTaggedNode) {
+                setTaggedNodes(taggedNodes.filter((taggedNode) => !TaggedNodeEq(taggedNode, retTaggedNode)));
+                
+                if (selectedDataType == 'Node') {
+                    const selNode: INode | undefined = (selectedElement as Node<INode>).data;
+                    if (selNode && selNode.id) {
+                        if (selNode.id == retTaggedNode.node_id) {
+                            setNodeTags(nodeTags.filter((tag) => tag.id = retTaggedNode.tag_id))
+                        }
+                    }
+                }
+            }
+        }
         return;
     };
 
