@@ -35,8 +35,20 @@ function path(url: string): IPathRoute {
         '/tag': {
             methods: ['POST', 'GET', 'PUT', 'DELETE'],
         },
-        '/tag/proj/:proj': {
-            methods: ['GET'],
+        '/tag/node/tagname': {
+            methods: ['POST'],
+        },
+        '/tag/node/tagid': {
+            methods: ['POST'],
+        },
+        '/tag/node/tagid/remove': {
+            methods: ['POST'],
+        },
+        '/tag/proj': {
+            methods: ['POST'],
+        },
+        '/tag/taggednodes/proj': {
+            methods: ['POST'],
         },
         '/user/register': {
             methods: ['POST'],
@@ -54,8 +66,6 @@ function path(url: string): IPathRoute {
             return allRoutes['/edge/:source/:target'];
         } else if (url.includes('/node/')) {
             return allRoutes['/node/:id'];
-        } else if (url.includes('/tag/proj/')) {
-            return allRoutes['/tag/proj/:proj'];
         } else if (url.includes('/project/')) {
             if (url.includes('permission')) {
                 return allRoutes['/project/:id/permission'];
