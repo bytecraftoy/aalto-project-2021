@@ -1,6 +1,12 @@
 import React from 'react';
 import { Edge, Elements } from 'react-flow-renderer';
 import { IEdge, INode } from '../../../../types';
+import './styles/Sidebar.css';
+import {
+    BsClipboardCheck,
+    BsExclamationCircle,
+    BsCardHeading,
+} from 'react-icons/bs';
 
 interface EdgeDetailProps {
     element: Edge<IEdge>;
@@ -21,21 +27,47 @@ export const EdgeDetail = (props: EdgeDetailProps): JSX.Element => {
 
     return (
         <>
-            <h5>Edge:</h5>
+            <h5>
+                #{source ? source.id : 'null'} - #{target ? target.id : 'null'}
+            </h5>
             {source ? (
                 <>
-                    <h2>Source: {source.label}</h2>
-                    <p>Status: {source.status}</p>
-                    <p>Priority: {source.priority}</p>
-                    <p>ID: {source.id}</p>
+                    <h2>
+                        <BsCardHeading className="icon" />{' '}
+                        <b className="title">Source: </b>
+                        {source.label}
+                    </h2>
+                    <p>
+                        <BsClipboardCheck className="icon" />{' '}
+                        <b className="title">Status: </b>
+                        {source.status}
+                    </p>
+                    <p>
+                        <BsExclamationCircle className="icon" />{' '}
+                        <b className="title">Priority: </b>
+                        {source.priority}
+                    </p>
+                    {/* <p>ID: {source.id}</p> */}
                 </>
             ) : null}
             {target ? (
                 <>
-                    <h2>Target: {target.label}</h2>
-                    <p>Status: {target.status}</p>
-                    <p>Priority: {target.priority}</p>
-                    <p>ID: {target.id}</p>
+                    <h2>
+                        <BsCardHeading className="icon" />{' '}
+                        <b className="title">Target: </b>
+                        {target.label}
+                    </h2>
+                    <p>
+                        <BsClipboardCheck className="icon" />{' '}
+                        <b className="title">Status: </b>
+                        {target.status}
+                    </p>
+                    <p>
+                        <BsExclamationCircle className="icon" />{' '}
+                        <b className="title">Priority: </b>
+                        {target.priority}
+                    </p>
+                    {/* <p>ID: {target.id}</p> */}
                 </>
             ) : null}
         </>
