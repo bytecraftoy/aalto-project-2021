@@ -41,7 +41,7 @@ const graphStyle = {
 };
 
 export interface GraphProps {
-    selectedProject: IProject | undefined;
+    selectedProject: IProject;
     permissions: ProjectPermissions;
     elements: Elements;
     DefaultNodeType: string;
@@ -623,15 +623,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
             socket.removeAllListeners();
         };
     }, []);
-
-    if (!selectedProject || !permissions || !permissions.view) {
-        return <h2>No permissions or project doesn't exist</h2>;
-    }
-    //for hiding done nodes and edges
-
-    if (!selectedProject) {
-        return <></>;
-    }
 
     return (
         <div style={{ height: '100%' }}>
