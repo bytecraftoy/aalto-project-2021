@@ -4,14 +4,33 @@ import { ITag, ITaggedNode } from '../../../../types';
 export const baseUrl = '/api/tag';
 import { getAuthConfig } from './userService';
 
-const getAll = async (): Promise<ITag[]> => {
-    const tag = await axios.get<ITag[]>(baseUrl);
-    return tag.data;
+
+import toast from 'react-hot-toast';
+
+const getAllProjTags = async (projId: number): Promise<ITag[]> => {
+    const response = await axiosWrapper(
+        axios.post<ITag[]>(
+            `${baseUrl}/proj`,
+            {
+                projId: projId,
+            },
+            getAuthConfig()
+        )
+    );
+    return response || [];
 };
 
-const getAllForProj = async (projId: number): Promise<ITag[]> => {
-    const tag = await axios.get<ITag[]>(baseUrl + `/proj/${projId}`);
-    return tag.data;
+const getAllProjTaggedNodes = async (projId: number): Promise<ITaggedNode[]> => {
+    const response = await axiosWrapper(
+        axios.post<ITaggedNode[]>(
+            `${baseUrl}/taggednodes/proj`,
+            {
+                projId: projId,
+            },
+            getAuthConfig()
+        )
+    );
+    return response || [];
 };
 
 const sendTag = async (tag: ITag): Promise<number> => {
@@ -29,17 +48,25 @@ const updateTag = async (tag: ITag): Promise<void> => {
 };
 
 const addNodeTagName = async (projId: number, nodeId: number, tagName: string): Promise<ITag | undefined> => {
-    const response: ITag | undefined = await axiosWrapper(
+    const tagColor = 'red';
+
+    const response = await axiosWrapper(
         axios.post<ITag>(
             `${baseUrl}/node/tagname`,
             {
                 projId: projId,
                 nodeId: nodeId,
                 tagName: tagName,
+                tagColor: tagColor,
             },
             getAuthConfig()
         )
     );
+    if (response) {
+        toast('response id: ' + response.id);
+    } else {
+        toast('response was undefined');
+    }
     return response;
 }
 
@@ -58,4 +85,19 @@ const addNodeTagId = async (projId: number, nodeId: number, tagId: number): Prom
     return response;
 }
 
-export { getAll, getAllForProj, sendTag, deleteTag, updateTag, addNodeTagName, addNodeTagId };
+const removeNodeTagId = async (projId: number, nodeId: number, tagId: number): Promise<ITaggedNode | undefined> => {
+    const response: ITaggedNode | undefined = await axiosWrapper(
+        axios.post<ITaggedNode>(
+            `${baseUrl}/node/tagid/remove`,
+            {
+                projId: projId,
+                nodeId: nodeId,
+                tagId: tagId,
+            },
+            getAuthConfig()
+        )
+    );
+    return response;
+}
+
+export { getAllProjTags, sendTag, deleteTag, updateTag, addNodeTagName, addNodeTagId, getAllProjTaggedNodes, removeNodeTagId };
