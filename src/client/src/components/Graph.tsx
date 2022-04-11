@@ -467,10 +467,27 @@ export const Graph = (props: GraphProps): JSX.Element => {
         setConnectState(false);
     };
 
+    const layoutAnimationStart = () => {
+        document.body.style.setProperty('--node-transition', 'all 1s');
+        document.body.style.setProperty('--edge-transition', 'all 1s');
+    };
+
+    const layoutAnimationEnd = () => {
+        document.body.style.setProperty('--node-transition', 'all 0s');
+        document.body.style.setProperty('--edge-transition', 'all 0s');
+    };
+
+    const transition = document.querySelector('.react-flow__node');
+
+    transition?.addEventListener('transitionend', () => {
+        layoutAnimationEnd();
+    });
+
     const layoutWithDagre = async (direction: string) => {
         setIsCalculating(true);
 
         //applies the layout
+        layoutAnimationStart();
         const newElements = layoutService.dagreLayout(elements, direction);
 
         //sends updated node positions to backend
@@ -481,6 +498,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     //does force direced iterations, without scrambling the nodes
     const forceDirected = async () => {
+        layoutAnimationStart();
         setIsCalculating(true);
 
         const newElements = layoutService.forceDirectedLayout(elements, 5);
