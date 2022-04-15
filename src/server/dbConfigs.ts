@@ -1,5 +1,5 @@
 import { getConfig } from './configs';
-import { Pool, QueryConfig } from 'pg'; //PoolConfig was unused
+import { Pool, QueryConfig, QueryResultRow } from 'pg'; //PoolConfig was unused
 import { migrate } from 'postgres-migrations';
 import { logger } from './helper/logging';
 
@@ -11,7 +11,10 @@ export class Database {
     //handled in another way. Need to find at a later time whether it can be given a type.
 
     //eslint-disable-next-line @typescript-eslint/no-explicit-any -- /* eslint-disable ... */
-    async query(text: string | QueryConfig<any>, params?: unknown[]) {
+    async query<R extends QueryResultRow = any, I extends any[] = any[]>(
+        text: string | QueryConfig<any>,
+        params?: unknown[]
+    ) {
         if (this._waiting) {
             await this._waiting;
         }
@@ -20,7 +23,7 @@ export class Database {
         //console.log("Text: ", text)
         //console.log("Params: ", params)
         const pool = await this.getPool();
-        const res = await pool.query(text, params);
+        const res = await pool.query<R, I>(text, params as any);
         const duration = Date.now() - start;
         if (process.env.NODE_ENV === 'development') {
             logger.debug({

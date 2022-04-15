@@ -169,7 +169,7 @@ describe('Projects', () => {
             await api
                 .delete(`${baseUrl}/${p.id}`)
                 .set('Authorization', `bearer ${token}`)
-                .expect(200);
+                .expect(401);
         });
     });
 

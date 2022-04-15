@@ -6,6 +6,7 @@ import {
     IEdge,
     INode,
     IProject,
+    NoPermission,
     ProjectPermissions,
     RootState,
     UserData,
@@ -52,9 +53,12 @@ export const GraphPage = (): JSX.Element => {
     const [selectedProject, setSelectedProject] = useState<
         IProject | undefined
     >(undefined);
-    const [permissions, setPermissions] = useState<ProjectPermissions>({
+    const [permissions, setPermissions] = useState<
+        NoPermission | ProjectPermissions
+    >({
         view: false,
         edit: false,
+        projectId: undefined,
     });
     const [members, setMembers] = useState<UserData[]>([]);
     const [show, setShow] = useState(false);
@@ -96,7 +100,7 @@ export const GraphPage = (): JSX.Element => {
                 .then((permissions) => setPermissions(permissions))
                 .finally(() => setIsLoadingPermissions(false));
         } else {
-            setPermissions({ view: false, edit: false });
+            setPermissions({ view: false, edit: false, projectId: undefined });
         }
     }, [selectedProject]);
 
