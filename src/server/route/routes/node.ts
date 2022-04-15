@@ -114,7 +114,7 @@ router
             req.logger.info({
                 message: 'Creating node',
                 projectId: text.project_id,
-                label: text.label
+                label: text.label,
             });
 
             const q = await db.query(
@@ -194,7 +194,7 @@ router
             req.logger.info({
                 message: `Updating ${array.length} node(s)`,
                 projectId,
-                nodeIds: array.map(elem => elem.id)
+                nodeIds: array.map((elem) => elem.id),
             });
 
             await client.query('BEGIN');

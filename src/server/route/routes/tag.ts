@@ -25,7 +25,7 @@ router
             req.logger.info({
                 message: 'Adding tag to node',
                 projectId: tag.project_id,
-                label: tag.label
+                label: tag.label,
             });
 
             const q = await db.query(

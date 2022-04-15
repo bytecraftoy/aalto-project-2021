@@ -122,7 +122,6 @@ router
             nodeId,
         });
 
-
         await db.query(
             'DELETE FROM users__node WHERE users_id = $1 AND node_id = $2;',
             [userId, nodeId]

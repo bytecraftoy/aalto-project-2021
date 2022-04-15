@@ -133,7 +133,7 @@ router
             req.logger.info({
                 message: 'Creating project and assigning creator to it',
                 name: project.name,
-                ownerId
+                ownerId,
             });
 
             const q = await client.query(
@@ -276,7 +276,7 @@ router
             req.logger.info({
                 message: 'Adding user to project',
                 projectId: projectId,
-                addedUserId: user.id
+                addedUserId: user.id,
             });
 
             await db.query(
@@ -324,7 +324,7 @@ router
         req.logger.info({
             message: 'Removing user from project',
             projectId: projectId,
-            removedUserId: userId
+            removedUserId: userId,
         });
 
         await db.query(

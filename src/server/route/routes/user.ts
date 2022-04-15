@@ -38,7 +38,7 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
 
     req.logger.info({
         message: 'Creating user',
-        username: user.username
+        username: user.username,
     });
 
     const q = await db.query(
@@ -127,7 +127,7 @@ router.route('/user/login').post(async (req: Request, res: Response) => {
 
     req.logger.info({
         message: 'Logging in user',
-        userId: user.id
+        userId: user.id,
     });
 
     res.status(200).json({
