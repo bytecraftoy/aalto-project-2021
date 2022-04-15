@@ -304,7 +304,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
         if (event.key === 'Shift') {
             switchConnectState(false);
         }
-        if (event.key === 'Control') {
+        if (event.key === 'Control' || event.key === 'Meta') {
             switchCreateState(false);
         }
     };
