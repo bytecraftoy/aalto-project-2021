@@ -22,6 +22,12 @@ router
         const tag: ITag = req.body;
 
         try {
+            req.logger.info({
+                message: 'Adding tag to node',
+                projectId: tag.project_id,
+                label: tag.label
+            });
+
             const q = await db.query(
                 // ignores tag.id when inserting into table
                 'INSERT INTO tag (label, color, project_id) VALUES ($1, $2, $3) RETURNING id',
@@ -35,6 +41,13 @@ router
     })
     .put(async (req: Request, res: Response) => {
         const t: ITag = req.body;
+
+        req.logger.info({
+            message: 'Updating tag',
+            projectId: t.project_id,
+            tagId: t.id,
+        });
+
         const q = await db.query(
             'UPDATE tag SET label = $1, color = $2 WHERE id = $3 AND project_id = $4',
             [t.label, t.color, t.id, t.project_id]
@@ -43,6 +56,13 @@ router
     })
     .delete(async (req: Request, res: Response) => {
         const t: ITag = req.body;
+
+        req.logger.info({
+            message: 'Deleting tag',
+            projectId: t.project_id,
+            tagId: t.id,
+        });
+
         const q = await db.query(
             'DELETE FROM tag WHERE id = $1 AND project_id = $2',
             [t.id, t.project_id]

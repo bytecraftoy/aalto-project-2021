@@ -111,6 +111,12 @@ router
                 return res.status(401).json({ message: 'No permission' });
             }
 
+            req.logger.info({
+                message: 'Creating node',
+                projectId: text.project_id,
+                label: text.label
+            });
+
             const q = await db.query(
                 'INSERT INTO node (label, status, priority, project_id, x, y, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
                 [
@@ -146,10 +152,11 @@ router
      */
     .put(async (req: Request, res: Response) => {
         const data: INode | INode[] = req.body;
+        let projectId: number;
 
         let array: INode[];
         if (Array.isArray(data)) {
-            const projectId = data[0].project_id;
+            projectId = data[0].project_id;
 
             if (
                 !data.every(
@@ -168,14 +175,12 @@ router
 
             array = data;
         } else {
+            projectId = data.project_id;
             if (!nodeCheck(data)) {
                 return res.status(403).json({ message: 'Invalid node' });
             }
 
-            const permissions = await checkProjectPermission(
-                req,
-                data.project_id
-            );
+            const permissions = await checkProjectPermission(req, projectId);
 
             if (!permissions.edit) {
                 return res.status(401).json({ message: 'No permission' });
@@ -186,6 +191,12 @@ router
 
         const client = await db.getClient();
         try {
+            req.logger.info({
+                message: `Updating ${array.length} node(s)`,
+                projectId,
+                nodeIds: array.map(elem => elem.id)
+            });
+
             await client.query('BEGIN');
             for (const node of array) {
                 await client.query(
