@@ -2,8 +2,11 @@ import { router } from '../router';
 import { Request, Response } from 'express';
 import { INode } from '../../../../types';
 import { db } from '../../dbConfigs';
-import { checkProjectPermission } from '../../helper/permissionHelper';
 import { projectIo } from '../../helper/socket';
+import {
+    checkProjectPermissionByNodeId,
+    checkProjectPermissionByProjectId,
+} from '../../helper/permissionHelper';
 
 // Checks need to make sure the node is valid
 const nodeCheck = (node: INode): boolean => {
@@ -25,22 +28,23 @@ const nodeCheck = (node: INode): boolean => {
  * @summary Fetch nodes
  * @description Fetch all nodes belonging to the project
  * @pathParam {string} id - Id of the project of which to fetch nodes
- * @response 200 - OK
+ * @response 200 - OK: IEdge =
  * @response 401 - Unauthorized
  * @response 403 - Forbidden
  */
 router
     .route('/node/:id')
     .get(async (req: Request, res: Response) => {
-        const project_id = parseInt(req.params.id);
+        const { view, projectId } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.id)
+        );
 
-        const permissions = await checkProjectPermission(req, project_id);
-
-        if (!permissions.view) {
+        if (!projectId || !view) {
             return res.status(401).json({ message: 'No permission' });
         }
         const q = await db.query('SELECT * FROM node WHERE project_id = $1', [
-            project_id,
+            projectId,
         ]);
         res.json(q.rows);
     })
@@ -54,37 +58,29 @@ router
      * @response 403 - Forbidden
      */
     .delete(async (req: Request, res: Response) => {
-        const id = req.params.id;
+        const nodeId = parseInt(req.params.id);
 
-        const nodeQuery = await db.query(
-            'SELECT project_id FROM node WHERE id = $1',
-            [id]
+        const { edit, projectId } = await checkProjectPermissionByNodeId(
+            req,
+            nodeId
         );
-
-        if (nodeQuery.rowCount === 0) {
-            return res.status(403).json({ message: 'Node does not exist' });
-        }
-
-        const projectId = nodeQuery.rows[0].project_id;
-
-        const permissions = await checkProjectPermission(req, projectId);
-        if (!permissions.edit) {
+        if (!projectId || !edit) {
             return res.status(401).json({ message: 'No permission' });
         }
 
         req.logger.info({
             message: 'Deleting node',
             projectId,
-            nodeId: id,
+            nodeId,
         });
 
-        await db.query('DELETE FROM node WHERE id = $1', [id]);
+        await db.query('DELETE FROM node WHERE id = $1', [nodeId]);
         res.status(200).json();
 
         projectIo
             ?.except(req.get('socketId')!)
             .to(projectId.toString())
-            .emit('delete-node', { id });
+            .emit('delete-node', { id: nodeId });
     });
 
 /**
@@ -100,20 +96,21 @@ router
 router
     .route('/node')
     .post(async (req: Request, res: Response) => {
+        // todo: don't send the body over websocket as-is, it might have extra fields
         const text: INode = req.body; //Might have to parse this
 
         if (nodeCheck(text)) {
-            const permissions = await checkProjectPermission(
+            const { projectId, edit } = await checkProjectPermissionByProjectId(
                 req,
                 text.project_id
             );
-            if (!permissions.edit) {
+            if (!projectId || !edit) {
                 return res.status(401).json({ message: 'No permission' });
             }
 
             req.logger.info({
                 message: 'Creating node',
-                projectId: text.project_id,
+                projectId,
                 label: text.label,
             });
 
@@ -123,7 +120,7 @@ router
                     text.label,
                     text.status,
                     text.priority,
-                    text.project_id,
+                    projectId,
                     Math.round(text.x),
                     Math.round(text.y),
                     text.description,
@@ -134,7 +131,7 @@ router
 
             projectIo
                 ?.except(req.get('socketId')!)
-                .to(text.project_id.toString())
+                .to(projectId.toString())
                 .emit('add-node', { ...text, id: q.rows[0].id });
         } else {
             res.status(403).json({ message: 'Invalid node' });
@@ -168,8 +165,11 @@ router
                     .json({ message: 'Invalid nodes or multiple projectIds' });
             }
 
-            const permissions = await checkProjectPermission(req, projectId);
-            if (!permissions.edit) {
+            const { edit } = await checkProjectPermissionByProjectId(
+                req,
+                projectId
+            );
+            if (!edit) {
                 return res.status(401).json({ message: 'No permission' });
             }
 
@@ -180,9 +180,11 @@ router
                 return res.status(403).json({ message: 'Invalid node' });
             }
 
-            const permissions = await checkProjectPermission(req, projectId);
-
-            if (!permissions.edit) {
+            const { edit } = await checkProjectPermissionByProjectId(
+                req,
+                projectId
+            );
+            if (!edit) {
                 return res.status(401).json({ message: 'No permission' });
             }
 

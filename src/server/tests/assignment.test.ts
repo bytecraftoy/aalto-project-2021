@@ -95,7 +95,7 @@ describe('assignment', () => {
                         user.id
                     }`
                 )
-                .expect(403);
+                .expect(401);
 
             const q = await db.query('SELECT * FROM users__node');
 
@@ -163,7 +163,7 @@ describe('assignment', () => {
                         user.id
                     }`
                 )
-                .expect(403);
+                .expect(401);
 
             const q = await db.query('SELECT * FROM users__node');
 

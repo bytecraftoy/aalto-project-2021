@@ -170,7 +170,7 @@ describe('Edge', () => {
             };
             await api
                 .delete(`${baseUrl}/${e.source_id}/${e.target_id}`)
-                .expect(403);
+                .expect(401);
         });
     });
 });
