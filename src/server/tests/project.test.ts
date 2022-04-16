@@ -60,7 +60,7 @@ describe('Projects', () => {
         test('should give an empty array if there are no projects', async () => {
             const res = await api
                 .get(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
             expect(res.body).toHaveLength(0);
         });
@@ -79,7 +79,7 @@ describe('Projects', () => {
 
             await api
                 .post(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .send(p)
                 .expect(200);
         });
@@ -87,7 +87,7 @@ describe('Projects', () => {
         test('should save the project appropriately', async () => {
             const res = await api
                 .get(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
             expect(res.body).toHaveLength(1);
             const project = res.body[0];
@@ -103,7 +103,7 @@ describe('Projects', () => {
             };
             await api
                 .post(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .send(p)
                 .expect(401);
         });
@@ -115,7 +115,7 @@ describe('Projects', () => {
 
             let result = await api
                 .get(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
 
             const lenghtBeforeDelete = result.body.length;
@@ -125,11 +125,11 @@ describe('Projects', () => {
             const id = result.body[0].id;
             await api
                 .delete(`${baseUrl}/${id}`)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
             result = await api
                 .get(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
             expect(result.body).toHaveLength(lenghtBeforeDelete - 1);
         });
@@ -139,19 +139,19 @@ describe('Projects', () => {
 
             let res = await api
                 .get(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
 
             const id = res.body[0].id;
 
             await api
                 .delete(`${baseUrl}/${id}`)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
 
             res = await api
                 .get(baseUrl)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
             const found = res.body.find((x: IProject) => x.id == id);
             expect(found).toBeUndefined();
@@ -168,7 +168,7 @@ describe('Projects', () => {
             };
             await api
                 .delete(`${baseUrl}/${p.id}`)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
         });
     });
@@ -238,7 +238,7 @@ describe('Projects', () => {
         test('should be able to add an account to a project', async () => {
             await api
                 .post(`${baseUrl}/${noViewId}/members`)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .send({ member: anotherUser.email })
                 .expect(200);
         });
@@ -246,7 +246,7 @@ describe('Projects', () => {
         test('should be able to get project if account is invited', async () => {
             await api
                 .get(`${baseUrl}/${noViewId}`)
-                .set('Authorization', `bearer ${anotherToken}`)
+                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
                 .expect(200);
         });
 
@@ -263,7 +263,7 @@ describe('Projects', () => {
 
             await api
                 .post('/api/node')
-                .set('Authorization', `bearer ${anotherToken}`)
+                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
                 .send(n)
                 .expect(200);
         });
@@ -271,14 +271,14 @@ describe('Projects', () => {
         test('should be able to remove an account from a project', async () => {
             await api
                 .delete(`${baseUrl}/${noViewId}/members/${anotherUser.id}`)
-                .set('Authorization', `bearer ${token}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
                 .expect(200);
         });
 
         test('should not be able to get project if account is removed', async () => {
             await api
                 .get(`${baseUrl}/${noViewId}`)
-                .set('Authorization', `bearer ${anotherToken}`)
+                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
                 .expect(401);
         });
     });
