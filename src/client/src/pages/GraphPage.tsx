@@ -18,6 +18,7 @@ import {
     isEdge,
     isNode,
     Node,
+    Position,
 } from 'react-flow-renderer';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
@@ -129,6 +130,8 @@ export const GraphPage = (): JSX.Element => {
                     type: DefaultNodeType,
                     data: n,
                     position: { x: n.x, y: n.y },
+                    sourcePosition: Position.Right,
+                    targetPosition: Position.Left,
                 }));
                 // Edge Types: 'default' | 'step' | 'smoothstep' | 'straight'
                 const edgeElements: Elements = edges.map((e) => ({
