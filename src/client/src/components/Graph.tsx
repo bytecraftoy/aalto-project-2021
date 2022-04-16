@@ -87,6 +87,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
     const [reactFlowInstance, setReactFlowInstance] =
         useState<FlowInstance | null>(null);
     const [nodeHidden, setNodeHidden] = useState(false);
+    const [leavesHighlighted, setLeavesHighlighted] = useState(false);
 
     const ToolbarRef = useRef<ToolbarHandle>();
 
@@ -509,6 +510,8 @@ export const Graph = (props: GraphProps): JSX.Element => {
     };
 
     useEffect(() => {
+        if (!nodeHidden) setLeavesHighlighted(false);
+
         setElements((els) =>
             els.map((el) => {
                 if (isNode(el)) {
@@ -529,6 +532,53 @@ export const Graph = (props: GraphProps): JSX.Element => {
             })
         );
     }, [nodeHidden, setElements]);
+
+    useEffect(() => {
+        if (!leavesHighlighted) {
+            document.body.style.setProperty(
+                '--unhighlited-node-background-color',
+                'white'
+            );
+
+            return;
+        }
+
+        setNodeHidden(true);
+
+        const nonLeaves = new Set<string>();
+
+        elements.forEach((el) => {
+            if (isEdge(el) && !el.isHidden) nonLeaves.add(el.source);
+        });
+
+        const nonLeafIds = Array.from(nonLeaves);
+
+        const nodeElements =
+            document.body.getElementsByClassName('react-flow__nodes')[0];
+
+        if (!nodeElements) return;
+
+        elements.forEach((el) => {
+            if (!isNode(el)) return;
+
+            const element = nodeElements.querySelectorAll(
+                `[data-id="${el.id}"]`
+            )[0];
+
+            if (!element) return;
+
+            if (nonLeafIds.find((id) => id === el.id)) {
+                element.classList.add('unhighlited-node');
+            } else {
+                element.classList.remove('unhighlited-node');
+            }
+        });
+
+        document.body.style.setProperty(
+            '--unhighlited-node-background-color',
+            '#686559'
+        );
+    }, [leavesHighlighted, elements]);
 
     useEffect(() => {
         const href = window.location.href;
@@ -692,6 +742,8 @@ export const Graph = (props: GraphProps): JSX.Element => {
                     nodeHidden={nodeHidden}
                     ref={ToolbarRef}
                     forceDirected={forceDirected}
+                    leavesHighlited={leavesHighlighted}
+                    setLeavesHighlited={setLeavesHighlighted}
                 />
             )}
         </div>

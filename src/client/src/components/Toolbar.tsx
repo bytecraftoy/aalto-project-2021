@@ -82,12 +82,25 @@ export const Toolbar = forwardRef((props: ToolbarProps, ref): JSX.Element => {
             </button>
             <div>
                 <input
+                    id="hide-done-checkbox"
                     type="checkbox"
                     className="checkbox-toolbar"
                     checked={nodeHidden}
                     onChange={(evt) => hideNode(evt.target.checked)}
                 />{' '}
                 Hide done tasks
+            </div>
+            <div>
+                <input
+                    id="leaf-highlight-checkbox"
+                    type="checkbox"
+                    className="checkbox-toolbar"
+                    checked={props.leavesHighlited}
+                    onChange={(evt) =>
+                        props.setLeavesHighlited(evt.target.checked)
+                    }
+                />{' '}
+                Highlight doable tasks
             </div>
         </div>
     );

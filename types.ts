@@ -83,6 +83,8 @@ export interface ToolbarProps {
     setNodeHidden: (value: React.SetStateAction<boolean>) => void;
     nodeHidden: boolean;
     forceDirected: () => Promise<void>;
+    setLeavesHighlited: (value: React.SetStateAction<boolean>) => void;
+    leavesHighlited: boolean;
 }
 
 export interface ProjectPermissions {

@@ -120,3 +120,7 @@
     justify-content: center;
     margin-top: 75px;
 }
+
+.unhighlited-node {
+    background-color: var(--unhighlited-node-background-color);
+}
