@@ -65,7 +65,9 @@ export class Database {
 
         this._waiting = new Promise((resolve) => {
             logger.info({ message: 'Running migrations' });
-            migrate({ client }, './migrations')
+            migrate({ client }, './migration', {
+                logger: (message) => logger.info({ message }),
+            })
                 .then(() => {
                     logger.info('Migrations finished');
                 })
