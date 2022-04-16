@@ -130,6 +130,12 @@ router
         try {
             await client.query('BEGIN');
 
+            req.logger.info({
+                message: 'Creating project and assigning creator to it',
+                name: project.name,
+                ownerId,
+            });
+
             const q = await client.query(
                 'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
                 [
@@ -182,6 +188,11 @@ router
         if (!permissions.view) {
             return res.status(401).json({ message: 'No permission' });
         }
+
+        req.logger.info({
+            message: 'Updating project details',
+            projectId: p.id,
+        });
 
         const q = await db.query(
             'UPDATE project SET name = $1, description = $2, public_view = $3, public_edit = $4 WHERE id = $5 AND owner_id = $6',
@@ -262,6 +273,12 @@ router
                 )
             ).rows[0];
 
+            req.logger.info({
+                message: 'Adding user to project',
+                projectId: projectId,
+                addedUserId: user.id,
+            });
+
             await db.query(
                 'INSERT INTO users__project (users_id, project_id) VALUES ($1, $2)',
                 [user.id, projectId]
@@ -303,6 +320,12 @@ router
         if (q.rowCount > 0) {
             return res.status(403).json({ message: 'Cannot delete owner' });
         }
+
+        req.logger.info({
+            message: 'Removing user from project',
+            projectId: projectId,
+            removedUserId: userId,
+        });
 
         await db.query(
             'DELETE FROM users__project WHERE project_id = $1 AND users_id = $2',

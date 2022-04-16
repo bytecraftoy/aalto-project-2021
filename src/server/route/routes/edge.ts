@@ -48,6 +48,13 @@ router
             return res.status(401).json({ message: 'No permission' });
         }
 
+        req.logger.info({
+            message: 'Deleting edge',
+            projectId: edge.project_id,
+            source,
+            target,
+        });
+
         await db.query(
             'DELETE FROM edge WHERE source_id = $1 AND target_id = $2',
             [source, target]
@@ -101,6 +108,13 @@ router
 
         if (oldEdge.rowCount > 0) {
             //if opposite edge exists, flip it around
+            req.logger.info({
+                message: 'Replacing existing edge with a reversed one',
+                projectId: newEdge.project_id,
+                source,
+                target,
+            });
+
             const oppositeEdge = await db.query(
                 'UPDATE edge SET source_id=$1, target_id=$2 WHERE source_id=$2 AND target_id=$1 RETURNING *',
                 [source, target]
@@ -117,6 +131,13 @@ router
                 res.status(403).json({ message: 'no duplicate edges allowed' });
             }
         } else {
+            req.logger.info({
+                message: 'Creating edge',
+                projectId: newEdge.project_id,
+                source,
+                target,
+            });
+
             await db.query(
                 'INSERT INTO edge (source_id, target_id, project_id) VALUES ($1, $2, $3)',
                 [source, target, newEdge.project_id]

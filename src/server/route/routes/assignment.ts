@@ -93,6 +93,13 @@ router
 
         //assign user
 
+        req.logger.info({
+            message: 'Assigning user to node',
+            projectId,
+            userId,
+            nodeId,
+        });
+
         await db.query(
             'INSERT INTO users__node (users_id, node_id) VALUES ($1, $2);',
             [userId, nodeId]
@@ -104,9 +111,16 @@ router
         const result = await assignmentCheck(req, res);
         if (!result) return;
 
-        const [userId, nodeId] = result;
+        const [userId, nodeId, projectId] = result;
 
         //unassign user
+
+        req.logger.info({
+            message: 'Deleting user from node',
+            projectId,
+            userId,
+            nodeId,
+        });
 
         await db.query(
             'DELETE FROM users__node WHERE users_id = $1 AND node_id = $2;',
