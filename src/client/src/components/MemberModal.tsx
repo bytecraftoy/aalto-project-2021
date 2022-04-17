@@ -1,9 +1,10 @@
-import React, { FC, FormEvent, useState } from 'react';
+import React, { FC, FormEvent, useState, useEffect } from 'react';
 import { Form, Button, Modal, ListGroup } from 'react-bootstrap';
-import { IProject, UserData } from '../../../../types';
+import { IProject, UserData, UserToken } from '../../../../types';
 import { BsFillTrashFill } from 'react-icons/bs';
 import { FaCrown } from 'react-icons/fa';
 import CSS from 'csstype';
+import { checkLogin } from '../services/userService';
 
 interface MemberModalProps {
     project: IProject;
@@ -28,6 +29,24 @@ const buttonStyle: CSS.Properties = {
 export const MemberModal: FC<MemberModalProps> = (props: MemberModalProps) => {
     const [member, setMember] = useState<string>('');
     const [showForm, setShowForm] = useState<boolean>(false);
+    const [loggedUser, setLoggedUser] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (props.members.length !== 0) {
+            const user = window.localStorage.getItem('loggedGraphUser');
+            if (user) {
+                const parsed: UserToken = JSON.parse(user);
+                checkLogin(parsed).then((x) => {
+                    if (
+                        x &&
+                        props.members.map((l) => l.email).includes(parsed.email)
+                    ) {
+                        setLoggedUser(true);
+                    }
+                });
+            }
+        }
+    }, [props.members]);
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -44,9 +63,13 @@ export const MemberModal: FC<MemberModalProps> = (props: MemberModalProps) => {
 
     const getUserRow = (user: UserData) => (
         <ListGroup.Item key={user.id}>
-            <span>
-                {user.username} ({user.email})
-            </span>
+            {loggedUser ? (
+                <span>
+                    {user.username} ({user.email})
+                </span>
+            ) : (
+                <span>{user.username}</span>
+            )}
             {props.project.owner_id === user.id ? (
                 <FaCrown
                     style={Object.assign({}, buttonStyle, {
