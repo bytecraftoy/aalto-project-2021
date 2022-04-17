@@ -23,6 +23,7 @@ import { Toolbar, ToolbarHandle } from './Toolbar';
 import { basicNode } from '../App';
 import { socket } from '../services/socket';
 import { Spinner } from 'react-bootstrap';
+import './styles/Graph.css';
 
 // This is left here as a possible tip. You can check here whenever
 // the socket connects to the server. Right now it happens even though graph is no rendered
