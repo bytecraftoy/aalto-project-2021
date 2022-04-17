@@ -20,14 +20,22 @@ router
     .get(async (req: Request, res: Response) => {
         const project_id = parseInt(req.params.id);
 
-        const permissions = await checkProjectPermission(req, project_id);
-
-        if (!permissions.view) {
-            return res.status(401).json({ message: 'No permission' });
-        }
         const q = await db.query('SELECT * FROM project WHERE id = $1', [
             project_id,
         ]);
+
+        if (q.rowCount == 0) {
+            res.status(403).json({ message: 'Project does not exist' });
+            return;
+        }
+
+        const permissions = await checkProjectPermission(req, project_id);
+
+        if (!permissions.view) {
+            res.status(401).json({ message: 'No permission' });
+            return;
+        }
+
         res.json(q.rows[0]);
     })
     /**
