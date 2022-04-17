@@ -109,7 +109,8 @@ describe('node highlighting', () => {
         cy.get('#statusId').select('Done');
         cy.get('#node-form-button-row').get('.btn:contains(Save)').click();
         cy.get('.detail-sidebar-content b').contains('Status:');
-        cy.get('.detail-sidebar-topbar').find('.icon-button').last().click();
+        cy.get('.detail-sidebar-topbar').get('[aria-label="Close sidebar"]').click();
+        cy.get('.detail-sidebar-topbar').should('not.exist');
 
         highlight_cb().check();
 

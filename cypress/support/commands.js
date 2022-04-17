@@ -82,6 +82,7 @@ Cypress.Commands.add('removeAllTestNodes', () => {
     cy.get('body').then(($body) => {
         $body.find(`.react-flow__node-default:contains(${nodeNamePrefix})`).each((index, $div, $list) => {
             cy.removeNodeDiv(index, $div, $list);
+            cy.get('.detail-sidebar-topbar').should('not.exist');
         });
     });
 });

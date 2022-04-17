@@ -86,7 +86,11 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         }
     }
     buttonRow.push(
-        <button className="icon-button" onClick={() => props.closeSidebar()}>
+        <button
+            className="icon-button"
+            onClick={() => props.closeSidebar()}
+            aria-label="Close sidebar"
+        >
             <BsXLg />
         </button>
     );
