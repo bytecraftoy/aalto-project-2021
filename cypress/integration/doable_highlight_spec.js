@@ -108,6 +108,7 @@ describe('node highlighting', () => {
         cy.get('#edit-button').click();
         cy.get('#statusId').select('Done');
         cy.get('#node-form-button-row').get('.btn:contains(Save)').click();
+        cy.get('.detail-sidebar-content b').contains('Status:');
         cy.get('.detail-sidebar-topbar').find('.icon-button').last().click();
 
         highlight_cb().check();
