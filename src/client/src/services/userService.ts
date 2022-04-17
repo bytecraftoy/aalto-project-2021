@@ -11,15 +11,15 @@ const setToken = (newToken: string): void => {
     token = `bearer ${newToken}`;
 };
 
-const getAuthHeader = (): { Authorization: string } => {
+const getAuthHeader = (): { 'X-Depsee-Auth': string } => {
     const auth = {
-        Authorization: token,
+        'X-Depsee-Auth': token,
         socketId: socket.id,
     };
     return auth;
 };
 
-const getAuthConfig = (): { headers: { Authorization: string } } => ({
+const getAuthConfig = (): { headers: { 'X-Depsee-Auth': string } } => ({
     headers: getAuthHeader(),
 });
 
