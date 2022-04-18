@@ -279,7 +279,9 @@ router
 
         const permissions = await checkProjectPermission(req, projectId);
         if (!permissions.edit || !req.user) {
-            return res.status(401).json({ message: 'No permission or not an user' });
+            return res
+                .status(401)
+                .json({ message: 'No permission or not an user' });
         }
 
         const userId = req.user.id;

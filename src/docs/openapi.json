@@ -1,1 +1,467 @@
-{"openapi":"","info":{"title":"","version":""},"paths":{"/api/edge/:id":{"get":{"summary":"Get edges","description":"Fetch edges from the project 'id'","responses":{"200":{"description":"OK"}}}},"/api/edge/:source/:target":{"delete":{"description":"Delete an edge connected to 'source' and 'target'","summary":"Delete an edge","responses":{"200":{"description":"OK"}}}},"/api/edge":{"post":{"summary":"Create an edge","description":"Create a new  **edge**","requestBody":{"required":true},"responses":{"200":{"description":"OK"},"403":{"description":"Forbidden"}}}},"/api/node/:id":{"get":{"summary":"Fetch nodes","description":"Fetch all nodes belonging to the project","parameters":[{"name":"id","in":"path","description":"Id of the project of which to fetch nodes","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"},"403":{"description":"Forbidden"}}},"delete":{"summary":"Delete a node","description":"Deletes the specific node with id ':id' and all edges connected to that node","parameters":[{"name":"id","in":"path","description":"Node id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"},"403":{"description":"Forbidden"}}}},"/api/node":{"post":{"summary":"Create a node","description":"Create a new **node** for a **project**. You may need certain privilages to be able to add a node","requestBody":{"content":{"-":{"schema":{"$ref":"#/components/schemas/Node"}}},"required":true},"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"},"403":{"description":"Forbidden"}}},"put":{"requestBody":{"required":true,"content":{"-":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/FullNode"}}}}},"summary":"Update node(s)","description":"Updates the value of a node(s).","responses":{"200":{"description":"OK"},"403":{"description":"Forbidden"}}}},"/api/node/:id/:nodeId/comment":{"post":{"summary":"Create a comment","description":"Create a new **comment** for a **node**. You may need certain privileges to be able to add a node","requestBody":{"content":{"-":{"schema":{"type":"string"}}},"required":true},"parameters":[{"name":"id","in":"path","description":"Id of the project where the node belongs","required":true,"schema":{"type":"string"}},{"name":"nodeId","in":"path","description":"Id of the node","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"}}}},"/api/project/:id":{"get":{"summary":"Get a project","description":"Get a project where the user has access to.","parameters":[{"name":"id","in":"path","description":"Id of the project","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"}}},"delete":{"summary":"Delete a project","description":"Deletes the specific project with id ':id'.","parameters":[{"name":"id","in":"path","description":"Project id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"},"403":{"description":"Forbidden"}}}},"/api/project/:id/permission":{"get":{"summary":"Get permissions of a project","description":"Depending on whether the user has been added to the project, they may view and/or edit the project","parameters":[{"name":"id","in":"path","description":"Id of the project to check permissions from","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"}}}},"/api/project":{"get":{"summary":"Get all projects","description":"Get all projects where the user has access to.","responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"}}},"post":{"summary":"Create a project","description":"Create a **project** with predefined permissions. The given user in the body will automatically be the owner","requestBody":{"content":{"-":{"schema":{"$ref":"#/components/schemas/Project"}}},"required":true},"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"},"403":{"description":"Forbidden"}}},"put":{"summary":"Update project details","description":"Update details of the **project** with the given id in the body with the settings in the body","requestBody":{"required":true,"content":{"-":{"schema":{"$ref":"#/components/schemas/Project"}}}},"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"}}}},"/api/project/:id/members":{"get":{"summary":"Get members that belong to the project","description":"Gets every member that belongs to the corresponding project","parameters":[{"name":"id","in":"path","description":"Project id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"}}},"post":{"summary":"Add a member to the project","description":"Adds a member to a existing project. The added user gets the right to edit the project and invite users.","parameters":[{"name":"id","in":"path","description":"Project id","required":true,"schema":{"type":"string"}}],"requestBody":{"content":{"-":{"schema":{"type":"string"}}},"required":true},"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"}}}},"/api/user/register":{"post":{"summary":"Create a user","description":"Register a new user in the application. Emails and Usernames are unique. In addition usernames are not case sensitive","responses":{"200":{"description":"OK"},"403":{"description":"Forbidden"}},"requestBody":{"required":true,"content":{"-":{"schema":{"$ref":"#/components/schemas/Register"}}}}}},"/api/user/login":{"post":{"summary":"Login to the application","description":"Given correct credentials server sends back a json web token which is then used to authenticate the user.","requestBody":{"content":{"-":{"schema":{"$ref":"#/components/schemas/Login"}}},"required":true},"responses":{"200":{"description":"OK"},"401":{"description":"Unauthorized"},"403":{"description":"Forbidden"}}}},"/api/user/validity":{"post":{"summary":"Check JSON web tokens validity","description":"Endpoint used to check whether the JSON web token on the clients side is still valid.","requestBody":{"required":true,"content":{"-":{"schema":{"$ref":"#/components/schemas/Token"}}}},"responses":{"200":{"description":"OK"}}}}},"components":{"schemas":{"Node":{"type":"object","properties":{"label":{"type":"string","description":"Text seen in the middle of the node"},"status":{"type":"string","description":"Current status of the node. Can be one of the following -> Product Backlog | Sprint Backlog | ToDo | Doing | Code Review | Done | Done Done"},"priority":{"type":"string","description":"A small description about how urgent the task of the node is"},"x":{"type":"float","description":"x position of the node in the 2D graph. Though a float it will be rounded when a node is created"},"y":{"type":"float","description":"y position of the node in the 2D graph. Though a float it will be rounded when a node is created"}}},"FullNode":{"type":"object","properties":{"id":{"type":"string","description":"Id of the to be updated node"},"label":{"type":"string","description":"Text seen in the middle of the node"},"status":{"type":"string","description":"Current status of the node. Can be one of the following -> Product Backlog | Sprint Backlog | ToDo | Doing | Code Review | Done | Done Done"},"priority":{"type":"string","description":"A small description about how urgent the task of the node is"},"x":{"type":"float","description":"x position of the node in the 2D graph. Though a float it will be rounded when a node is created"},"y":{"type":"float","description":"y position of the node in the 2D graph. Though a float it will be rounded when a node is created"}}},"Project":{"type":"object","properties":{"name":{"type":"string","description":"Name of the project."},"owner_id":{"type":"number","description":"UserId of the creator of the project."},"description":{"type":"string","description":"Description of the project."},"public_view":{"type":"boolean","description":"Whether the project is open for public viewing or not."},"public_edit":{"type":"string","description":"Whether the project is open for public editing or not."}},"xml":{"name":"Project"}},"Register":{"type":"object","properties":{"username":{"type":"string","description":"Username for the account. Usernames are unique and not case sensitive. Can be used to login"},"password":{"type":"string","description":"Password for the account. The server will then hash it and save it in the database."},"email":{"type":"string","description":"Email of the account. Emails are unique and can later be used to log in."}},"xml":{"name":"Register"}},"Login":{"type":"object","properties":{"email":{"type":"string | null","description":"Email address that is connected to an already registered account. Will be primarily used to login. If value is null, login will be done using the username"},"username":{"type":"string | null","description":"Username that was used to create the account. If email is not given, username will be used to authenticate the user"},"password":{"type":"string","description":"Password of the account in plain text. Hashing of this password and comparison with the registered hash will happen on the server"}},"xml":{"name":"Login"}},"Token":{"type":"object","properties":{"email":{"type":"string","description":"Email of the logged in user."},"username":{"type":"string","description":"Username of the logged in user."},"token":{"type":"string","description":"The token created by the backend when the user logged in the first time."}},"xml":{"name":"Token"}}}}}
+{
+    "openapi": "",
+    "info": { "title": "", "version": "" },
+    "paths": {
+        "/api/edge/:id": {
+            "get": {
+                "summary": "Get edges",
+                "description": "Fetch edges from the project 'id'",
+                "responses": { "200": { "description": "OK" } }
+            }
+        },
+        "/api/edge/:source/:target": {
+            "delete": {
+                "description": "Delete an edge connected to 'source' and 'target'",
+                "summary": "Delete an edge",
+                "responses": { "200": { "description": "OK" } }
+            }
+        },
+        "/api/edge": {
+            "post": {
+                "summary": "Create an edge",
+                "description": "Create a new  **edge**",
+                "requestBody": { "required": true },
+                "responses": {
+                    "200": { "description": "OK" },
+                    "403": { "description": "Forbidden" }
+                }
+            }
+        },
+        "/api/node/:id": {
+            "get": {
+                "summary": "Fetch nodes",
+                "description": "Fetch all nodes belonging to the project",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id of the project of which to fetch nodes",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" }
+                }
+            },
+            "delete": {
+                "summary": "Delete a node",
+                "description": "Deletes the specific node with id ':id' and all edges connected to that node",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Node id",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" }
+                }
+            }
+        },
+        "/api/node": {
+            "post": {
+                "summary": "Create a node",
+                "description": "Create a new **node** for a **project**. You may need certain privilages to be able to add a node",
+                "requestBody": {
+                    "content": {
+                        "-": {
+                            "schema": { "$ref": "#/components/schemas/Node" }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" }
+                }
+            },
+            "put": {
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "-": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/FullNode"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Update node(s)",
+                "description": "Updates the value of a node(s).",
+                "responses": {
+                    "200": { "description": "OK" },
+                    "403": { "description": "Forbidden" }
+                }
+            }
+        },
+        "/api/node/:id/:nodeId/comment": {
+            "post": {
+                "summary": "Create a comment",
+                "description": "Create a new **comment** for a **node**. You may need certain privileges to be able to add a node",
+                "requestBody": {
+                    "content": { "-": { "schema": { "type": "string" } } },
+                    "required": true
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id of the project where the node belongs",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "nodeId",
+                        "in": "path",
+                        "description": "Id of the node",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/api/project/:id": {
+            "get": {
+                "summary": "Get a project",
+                "description": "Get a project where the user has access to.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id of the project",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            },
+            "delete": {
+                "summary": "Delete a project",
+                "description": "Deletes the specific project with id ':id'.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project id",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" }
+                }
+            }
+        },
+        "/api/project/:id/permission": {
+            "get": {
+                "summary": "Get permissions of a project",
+                "description": "Depending on whether the user has been added to the project, they may view and/or edit the project",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id of the project to check permissions from",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": { "200": { "description": "OK" } }
+            }
+        },
+        "/api/project": {
+            "get": {
+                "summary": "Get all projects",
+                "description": "Get all projects where the user has access to.",
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            },
+            "post": {
+                "summary": "Create a project",
+                "description": "Create a **project** with predefined permissions. The given user in the body will automatically be the owner",
+                "requestBody": {
+                    "content": {
+                        "-": {
+                            "schema": { "$ref": "#/components/schemas/Project" }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" }
+                }
+            },
+            "put": {
+                "summary": "Update project details",
+                "description": "Update details of the **project** with the given id in the body with the settings in the body",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "-": {
+                            "schema": { "$ref": "#/components/schemas/Project" }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/api/project/:id/members": {
+            "get": {
+                "summary": "Get members that belong to the project",
+                "description": "Gets every member that belongs to the corresponding project",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project id",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            },
+            "post": {
+                "summary": "Add a member to the project",
+                "description": "Adds a member to a existing project. The added user gets the right to edit the project and invite users.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Project id",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "requestBody": {
+                    "content": { "-": { "schema": { "type": "string" } } },
+                    "required": true
+                },
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
+        "/api/user/register": {
+            "post": {
+                "summary": "Create a user",
+                "description": "Register a new user in the application. Emails and Usernames are unique. In addition usernames are not case sensitive",
+                "responses": {
+                    "200": { "description": "OK" },
+                    "403": { "description": "Forbidden" }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "-": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Register"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/login": {
+            "post": {
+                "summary": "Login to the application",
+                "description": "Given correct credentials server sends back a json web token which is then used to authenticate the user.",
+                "requestBody": {
+                    "content": {
+                        "-": {
+                            "schema": { "$ref": "#/components/schemas/Login" }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" },
+                    "403": { "description": "Forbidden" }
+                }
+            }
+        },
+        "/api/user/validity": {
+            "post": {
+                "summary": "Check JSON web tokens validity",
+                "description": "Endpoint used to check whether the JSON web token on the clients side is still valid.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "-": {
+                            "schema": { "$ref": "#/components/schemas/Token" }
+                        }
+                    }
+                },
+                "responses": { "200": { "description": "OK" } }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Node": {
+                "type": "object",
+                "properties": {
+                    "label": {
+                        "type": "string",
+                        "description": "Text seen in the middle of the node"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Current status of the node. Can be one of the following -> Product Backlog | Sprint Backlog | ToDo | Doing | Code Review | Done | Done Done"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "description": "A small description about how urgent the task of the node is"
+                    },
+                    "x": {
+                        "type": "float",
+                        "description": "x position of the node in the 2D graph. Though a float it will be rounded when a node is created"
+                    },
+                    "y": {
+                        "type": "float",
+                        "description": "y position of the node in the 2D graph. Though a float it will be rounded when a node is created"
+                    }
+                }
+            },
+            "FullNode": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "description": "Id of the to be updated node"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "Text seen in the middle of the node"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Current status of the node. Can be one of the following -> Product Backlog | Sprint Backlog | ToDo | Doing | Code Review | Done | Done Done"
+                    },
+                    "priority": {
+                        "type": "string",
+                        "description": "A small description about how urgent the task of the node is"
+                    },
+                    "x": {
+                        "type": "float",
+                        "description": "x position of the node in the 2D graph. Though a float it will be rounded when a node is created"
+                    },
+                    "y": {
+                        "type": "float",
+                        "description": "y position of the node in the 2D graph. Though a float it will be rounded when a node is created"
+                    }
+                }
+            },
+            "Project": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the project."
+                    },
+                    "owner_id": {
+                        "type": "number",
+                        "description": "UserId of the creator of the project."
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description of the project."
+                    },
+                    "public_view": {
+                        "type": "boolean",
+                        "description": "Whether the project is open for public viewing or not."
+                    },
+                    "public_edit": {
+                        "type": "string",
+                        "description": "Whether the project is open for public editing or not."
+                    }
+                },
+                "xml": { "name": "Project" }
+            },
+            "Register": {
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string",
+                        "description": "Username for the account. Usernames are unique and not case sensitive. Can be used to login"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Password for the account. The server will then hash it and save it in the database."
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Email of the account. Emails are unique and can later be used to log in."
+                    }
+                },
+                "xml": { "name": "Register" }
+            },
+            "Login": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string | null",
+                        "description": "Email address that is connected to an already registered account. Will be primarily used to login. If value is null, login will be done using the username"
+                    },
+                    "username": {
+                        "type": "string | null",
+                        "description": "Username that was used to create the account. If email is not given, username will be used to authenticate the user"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "Password of the account in plain text. Hashing of this password and comparison with the registered hash will happen on the server"
+                    }
+                },
+                "xml": { "name": "Login" }
+            },
+            "Token": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "description": "Email of the logged in user."
+                    },
+                    "username": {
+                        "type": "string",
+                        "description": "Username of the logged in user."
+                    },
+                    "token": {
+                        "type": "string",
+                        "description": "The token created by the backend when the user logged in the first time."
+                    }
+                },
+                "xml": { "name": "Token" }
+            }
+        }
+    }
+}
