@@ -229,6 +229,15 @@ router
         }
     });
 
+/**
+ * POST /api/node/:id/:nodeId/comment
+ * @summary Fetch comments
+ * @description Fetch **comment(s)** for a **node**. You may need certain privileges to be able to add a node
+ * @pathParam {string} id - Id of the project where the node belongs
+ * @pathParam {string} nodeId - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ */
 router
     .route('/node/:id/:nodeId/comment')
     .get(async (req: Request, res: Response) => {
@@ -254,6 +263,17 @@ router
         const q = await db.query(query, [nodeId, userId]);
         res.json(q.rows);
     })
+    /**
+     * POST /api/node/:id/:nodeId/comment
+     * @summary Create a comment
+     * @description Create a new **comment** for a **node**. You may need certain privileges to be able to add a node
+     * @bodyContent {string} - Content of the comment
+     * @bodyRequired
+     * @pathParam {string} id - Id of the project where the node belongs
+     * @pathParam {string} nodeId - Id of the node
+     * @response 200 - OK
+     * @response 401 - Unauthorized
+     */
     .post(async (req: Request, res: Response) => {
         const projectId = parseInt(req.params.id);
         const nodeId = parseInt(req.params.nodeId);
