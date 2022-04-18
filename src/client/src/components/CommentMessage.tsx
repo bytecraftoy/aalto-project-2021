@@ -37,7 +37,11 @@ export const CommentMessage = (props: CommentMessageProps): JSX.Element => {
     return (
         <div style={{ margin: '8px 0' }}>
             <p style={{ margin: 0 }}>
-                <strong>{ props.user?.id === comment.users_id ? 'Me' : comment.username}</strong>
+                <strong>
+                    {props.user?.id === comment.users_id
+                        ? 'Me'
+                        : comment.username}
+                </strong>
             </p>
             <div style={commentStyle} className="speech-bubble">
                 <span style={{ margin: '0 0 8px 0' }}>{comment.content}</span>

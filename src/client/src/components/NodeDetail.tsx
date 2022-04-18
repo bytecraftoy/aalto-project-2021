@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Elements, Node } from 'react-flow-renderer';
-import { Comment, INode, ProjectPermissions, UserToken } from '../../../../types';
+import {
+    Comment,
+    INode,
+    ProjectPermissions,
+    UserToken,
+} from '../../../../types';
 import * as nodeService from '../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';

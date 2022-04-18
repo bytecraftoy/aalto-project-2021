@@ -31,32 +31,40 @@ export const CommentSection = (props: CommentSectionProps): JSX.Element => {
         <>
             <h5>Comments:</h5>
             <div style={containerStyle}>
-                { props.user && props.permissions.edit && <Form onSubmit={handleSubmit} className="comment-form">
-                    <Form.Group
-                        id="comment-field"
-                        style={{ display: 'flex', marginTop: '8px' }}
-                        className="mb-3"
-                        controlId={'commentId'}
-                    >
-                        <Form.Control
-                            type="text"
-                            placeholder="Enter comment"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                        />
-                        <Button variant="primary" onClick={handleSubmit}>
-                            Send
-                        </Button>
-                    </Form.Group>
-                </Form> }
-                {props.comments.length > 0 ?
+                {props.user && props.permissions.edit && (
+                    <Form onSubmit={handleSubmit} className="comment-form">
+                        <Form.Group
+                            id="comment-field"
+                            style={{ display: 'flex', marginTop: '8px' }}
+                            className="mb-3"
+                            controlId={'commentId'}
+                        >
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter comment"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                            />
+                            <Button variant="primary" onClick={handleSubmit}>
+                                Send
+                            </Button>
+                        </Form.Group>
+                    </Form>
+                )}
+                {props.comments.length > 0 ? (
                     props.comments
                         .slice()
                         .reverse()
                         .map((comment, i) => (
-                            <CommentMessage key={i} comment={comment} user={props.user} />
+                            <CommentMessage
+                                key={i}
+                                comment={comment}
+                                user={props.user}
+                            />
                         ))
-                    : <p style={{textAlign: 'center'}}>No comments</p>}
+                ) : (
+                    <p style={{ textAlign: 'center' }}>No comments</p>
+                )}
             </div>
         </>
     );
