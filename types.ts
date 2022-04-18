@@ -18,6 +18,7 @@ export interface INode {
     x: number;
     y: number;
     project_id: number;
+    description: string;
 }
 
 export interface IEdge {

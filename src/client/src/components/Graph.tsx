@@ -22,8 +22,8 @@ import { NodeNaming } from './NodeNaming';
 import { Toolbar, ToolbarHandle } from './Toolbar';
 import { basicNode } from '../App';
 import { socket } from '../services/socket';
-import { toast } from 'react-hot-toast';
-import 'setimmediate';
+import { Spinner } from 'react-bootstrap';
+import './styles/Graph.css';
 
 // This is left here as a possible tip. You can check here whenever
 // the socket connects to the server. Right now it happens even though graph is no rendered
@@ -42,7 +42,7 @@ const graphStyle = {
 };
 
 export interface GraphProps {
-    selectedProject: IProject | undefined;
+    selectedProject: IProject;
     permissions: ProjectPermissions;
     elements: Elements;
     DefaultNodeType: string;
@@ -89,10 +89,9 @@ export const Graph = (props: GraphProps): JSX.Element => {
         useState<FlowInstance | null>(null);
     const [nodeHidden, setNodeHidden] = useState(false);
 
-    const href = window.location.href;
-    const url = href.substring(href.indexOf('project'), href.length);
-
     const ToolbarRef = useRef<ToolbarHandle>();
+
+    const [isCalculating, setIsCalculating] = useState(false);
 
     // For detecting the os
     const platform = navigator.userAgent;
@@ -110,6 +109,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                 '--connect-btn-bckg-color',
                 '#310062'
             );
+            document.body.style.setProperty('--right-handle-size', '100%');
             document.body.style.setProperty('--bottom-handle-size', '100%');
             document.body.style.setProperty(
                 '--source-handle-border-radius',
@@ -124,6 +124,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                 '--connect-btn-bckg-color',
                 '#686559'
             );
+            document.body.style.setProperty('--right-handle-size', '6px');
             document.body.style.setProperty('--bottom-handle-size', '6px');
             document.body.style.setProperty(
                 '--source-handle-border-radius',
@@ -198,7 +199,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
                 })
             );
             props.updateNode(n);
-            socket.emit('anything', {}, url);
         } else {
             // eslint-disable-next-line no-console
             console.error('INode data not found');
@@ -234,8 +234,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
             };
 
             props.sendNode(data, node, setElements);
-
-            socket.emit('anything', {}, url);
         }
     };
 
@@ -309,7 +307,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
         if (event.key === 'Shift') {
             switchConnectState(false);
         }
-        if (event.key === 'Control') {
+        if (event.key === 'Control' || event.key === 'Meta') {
             switchCreateState(false);
         }
     };
@@ -336,6 +334,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     const onConnectStart = () => {
         document.body.style.setProperty('--top-handle-size', '100%');
+        document.body.style.setProperty('--left-handle-size', '100%');
         document.body.style.setProperty('--source-handle-visibility', 'none');
         document.body.style.setProperty('--target-handle-border-radius', '0');
         document.body.style.setProperty('--target-handle-opacity', '0');
@@ -343,6 +342,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     const onConnectEnd = () => {
         document.body.style.setProperty('--top-handle-size', '6px');
+        document.body.style.setProperty('--left-handle-size', '6px');
         document.body.style.setProperty('--source-handle-visibility', 'block');
         document.body.style.setProperty(
             '--target-handle-border-radius',
@@ -386,7 +386,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
             if (isNode(e)) {
                 try {
                     props.deleteNode(parseInt(e.id));
-                    socket.emit('anything', {}, url);
                 } catch (e) {
                     // eslint-disable-next-line no-console
                     console.error('Error in node deletion', e);
@@ -398,7 +397,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
                         // eslint-disable-next-line no-console
                         console.error('Error when deleting edge', e)
                     );
-                socket.emit('anything', {}, url);
             }
         }
 
@@ -452,7 +450,6 @@ export const Graph = (props: GraphProps): JSX.Element => {
             );
 
             props.sendEdge(edge);
-            socket.emit('anything', {}, url);
         } else {
             // eslint-disable-next-line no-console
             console.error(
@@ -475,22 +472,47 @@ export const Graph = (props: GraphProps): JSX.Element => {
         setConnectState(false);
     };
 
+    const layoutAnimationStart = () => {
+        document.body.style.setProperty('--node-transition', 'all 1s');
+        document.body.style.setProperty('--edge-transition', 'all 1s');
+    };
+
+    const layoutAnimationEnd = () => {
+        document.body.style.setProperty('--node-transition', 'all 0s');
+        document.body.style.setProperty('--edge-transition', 'all 0s');
+    };
+
+    const transition = document.querySelector('.react-flow__node');
+
+    transition?.addEventListener('transitionend', () => {
+        layoutAnimationEnd();
+    });
+
     const layoutWithDagre = async (direction: string) => {
+        setIsCalculating(true);
+
         //applies the layout
+        layoutAnimationStart();
         const newElements = layoutService.dagreLayout(elements, direction);
 
         //sends updated node positions to backend
-        props.updateNodes(newElements, setElements);
-        socket.emit('anything', {}, url);
+        await props.updateNodes(newElements, setElements);
+
+        setIsCalculating(false);
     };
 
     //does force direced iterations, without scrambling the nodes
     const forceDirected = async () => {
+        layoutAnimationStart();
+        setIsCalculating(true);
+
         const newElements = layoutService.forceDirectedLayout(elements, 5);
 
-        props.updateNodes(newElements, setElements);
-        socket.emit('anything', {}, url);
+        await props.updateNodes(newElements, setElements);
+
+        setIsCalculating(false);
     };
+
     useEffect(() => {
         setElements((els) =>
             els.map((el) => {
@@ -514,26 +536,98 @@ export const Graph = (props: GraphProps): JSX.Element => {
     }, [nodeHidden, setElements]);
 
     useEffect(() => {
-        socket.emit('join-project', url);
+        const href = window.location.href;
+        let x = href.length - 1;
+        let projectId = '';
+        while (href[x] !== '/') {
+            projectId = href[x].concat(projectId);
+            x--;
+        }
 
-        socket.on('anything', () => {
-            toast('A change was done in this project! Please refresh!');
+        socket.emit('join-project', projectId);
+
+        socket.on('add-node', (node) => {
+            const n: Node = {
+                id: String(node.id),
+                data: node,
+                type: 'default',
+                position: { x: node.x, y: node.y },
+                draggable: true,
+            };
+
+            setElements((els) => els.concat(n));
+        });
+
+        socket.on('delete-node', ({ id }) => {
+            setElements((els) => els.filter((e) => e.id !== String(id)));
+        });
+
+        socket.on('add-edge', (edge: IEdge) => {
+            setElements((els) =>
+                els.concat({
+                    id: String(edge.source_id) + '-' + String(edge.target_id),
+                    source: String(edge.source_id),
+                    target: String(edge.target_id),
+                    type: 'straight',
+                    arrowHeadType: ArrowHeadType.ArrowClosed,
+                    data: edge,
+                })
+            );
+        });
+
+        socket.on('delete-edge', (edge: IEdge) => {
+            setElements((els) => {
+                return els.filter((e) => {
+                    return (
+                        !isEdge(e) ||
+                        e.id !== `${edge.source_id}-${edge.target_id}`
+                    );
+                });
+            });
+        });
+
+        socket.on('reverse-edge', (edge: IEdge) => {
+            setElements((els) => {
+                return els.map((e) => {
+                    if (
+                        isEdge(e) &&
+                        e.id === `${edge.target_id}-${edge.source_id}`
+                    ) {
+                        return {
+                            ...e,
+                            id: `${edge.source_id}-${edge.target_id}`,
+                            source: e.target,
+                            target: e.source,
+                            data: edge,
+                        };
+                    }
+
+                    return e;
+                });
+            });
+        });
+
+        socket.on('update-node', (nodes: INode[]) => {
+            setElements((els) =>
+                els.map((el) => {
+                    const node = nodes.find((n) => n.id === el.data.id);
+
+                    if (!node) return el;
+
+                    return {
+                        ...el,
+                        data: node,
+                        position: { x: node.x, y: node.y },
+                    };
+                })
+            );
         });
 
         return () => {
-            socket.emit('leave-project', url);
+            socket.emit('leave-project', projectId);
             socket.removeAllListeners();
         };
     }, []);
-
-    if (!selectedProject || !permissions || !permissions.view) {
-        return <h2>No permissions or project doesn't exist</h2>;
-    }
-    //for hiding done nodes and edges
-
-    if (!selectedProject) {
-        return <></>;
-    }
 
     return (
         <div style={{ height: '100%' }}>
@@ -583,6 +677,14 @@ export const Graph = (props: GraphProps): JSX.Element => {
                             nodeBorderRadius={2}
                             maskColor="#69578c"
                         />
+                        {isCalculating ? (
+                            <Spinner
+                                animation="border"
+                                className="calculating-spinner"
+                            />
+                        ) : (
+                            <></>
+                        )}
                     </ReactFlow>
                 </div>
             </ReactFlowProvider>

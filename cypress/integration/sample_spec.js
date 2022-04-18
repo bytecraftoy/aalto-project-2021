@@ -231,5 +231,25 @@ describe('Graph', () => {
                 cy.get(`.react-flow__node-default:contains(${new_node_name})`).should('not.exist');
             }
         });
+
+        it('Can add description on the sidebar', () => {
+            const node_name_1 = '__test__1';
+            const new_node_description = '__test__NEW_DESCRIPTION';
+
+            cy.get('.flow-wrapper').should('exist');
+
+            cy.insertNode(node_name_1);
+
+            cy.get(`.react-flow__node-default:contains(${node_name_1})`).dblclick('center')
+            cy.get('#edit-button').click();
+            cy.get('#description-field').click().type('{selectall}{backspace}' + new_node_description + '{enter}')
+            
+            cy.get(`.node-description:contains(${new_node_description})`).should('exist')
+
+            if (!myConsts.global_clean) {
+                cy.removeAllTestNodes();
+                cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('not.exist');
+            }
+        });
     });
 });

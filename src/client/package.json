@@ -34,7 +34,9 @@
     },
     "scripts": {
         "start": "cross-env CHOKIDAR_USEPOLLING=true react-scripts start",
+        "start:coverage": "cross-env CHOKIDAR_USEPOLLING=true react-scripts -r @cypress/instrument-cra start",
         "build": "rm -rf build && react-scripts build",
+        "build:coverage": "rm -rf build && cross-env CYPRESS_INSTRUMENT_PRODUCTION=true react-scripts -r @cypress/instrument-cra build",
         "eject": "react-scripts eject",
         "lint": "eslint \"**/*.{ts,tsx}\"",
         "test": "jest",
@@ -54,12 +56,15 @@
     },
     "proxy": "http://localhost:8050",
     "devDependencies": {
+        "@cypress/instrument-cra": "^1.4.0",
         "@testing-library/react": "^12.1.2",
         "@types/dagre": "^0.7.47",
         "@types/node": "^12.20.37",
         "axios-mock-adapter": "^1.20.0",
         "cross-env": "^7.0.3",
         "jest": "^26.6.0",
+        "jest-html-reporter": "^3.4.2",
+        "nyc": "^15.1.0",
         "prettier": "2.5.1",
         "tslib": "^2.3.1",
         "use-resize-observer": "^8.0.0"

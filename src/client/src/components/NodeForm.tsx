@@ -5,6 +5,13 @@ import { Elements, isNode, Node } from 'react-flow-renderer';
 import * as nodeService from '../services/nodeService';
 import toast from 'react-hot-toast';
 import { socket } from '../services/socket';
+import './styles/Sidebar.css';
+import {
+    BsCardHeading,
+    BsCardText,
+    BsClipboardCheck,
+    BsExclamationCircle,
+} from 'react-icons/bs';
 
 export interface NodeFormProps {
     element: Node<INode>;
@@ -22,6 +29,7 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
     const [label, setLabel] = useState<string>(data.label);
     const [status, setStatus] = useState<Status>(data.status);
     const [priority, setPriority] = useState<string>(data.priority);
+    const [description, setDescription] = useState<string>(data.description);
     const [validated, setValidated] = useState<boolean>(false);
 
     //const socket = React.useContext(SocketContext)
@@ -38,6 +46,7 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
                 label,
                 status,
                 priority,
+                description,
             };
 
             props.setElements((els) =>
@@ -72,7 +81,9 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
     return (
         <Form noValidate validated={validated} onSubmit={handleSubmit}>
             <Form.Group id="label-field" className="mb-3" controlId="labelId">
-                <Form.Label>Label</Form.Label>
+                <Form.Label>
+                    <BsCardHeading className="icon" /> Label
+                </Form.Label>
                 <Form.Control
                     required
                     type="text"
@@ -81,8 +92,25 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
                     onChange={(e) => setLabel(e.target.value)}
                 />
             </Form.Group>
+            <Form.Group
+                id="description-field"
+                className="mb-3"
+                controlId="descriptionId"
+            >
+                <Form.Label>
+                    <BsCardText className="icon" /> Description
+                </Form.Label>
+                <Form.Control
+                    type="text"
+                    placeholder="Enter description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+            </Form.Group>
             <Form.Group className="mb-3" controlId="statusId">
-                <Form.Label>Status</Form.Label>
+                <Form.Label>
+                    <BsClipboardCheck className="icon" /> Status
+                </Form.Label>
                 <Form.Select
                     aria-label="Default select example"
                     defaultValue={status}
@@ -98,7 +126,9 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
                 </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3" controlId="priorityId">
-                <Form.Label>Priority</Form.Label>
+                <Form.Label>
+                    <BsExclamationCircle className="icon" /> Priority
+                </Form.Label>
                 <Form.Select
                     aria-label="Default select example"
                     defaultValue={priority}
