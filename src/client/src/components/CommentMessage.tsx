@@ -1,19 +1,22 @@
 import React from 'react';
-import { Comment } from '../../../../types';
+import { Comment, UserToken } from '../../../../types';
 import CSS from 'csstype';
 
 interface CommentMessageProps {
     comment: Comment;
+    user?: UserToken;
 }
 
 const commentStyle: CSS.Properties = {
-    background: '#919191',
+    background: 'white',
+    color: 'black',
     borderRadius: '8px',
     padding: '8px',
     maxWidth: '75%',
     minWidth: '120px',
     position: 'relative',
     display: 'inline-block',
+    marginLeft: '4px',
 };
 
 const timestampStyle: CSS.Properties = {
@@ -34,7 +37,7 @@ export const CommentMessage = (props: CommentMessageProps): JSX.Element => {
     return (
         <div style={{ margin: '8px 0' }}>
             <p style={{ margin: 0 }}>
-                <strong>{comment.username}</strong>
+                <strong>{ props.user?.id === comment.users_id ? 'Me' : comment.username}</strong>
             </p>
             <div style={commentStyle} className="speech-bubble">
                 <span style={{ margin: '0 0 8px 0' }}>{comment.content}</span>

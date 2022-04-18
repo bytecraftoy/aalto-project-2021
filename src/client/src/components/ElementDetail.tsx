@@ -103,6 +103,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                         setElements={props.setElements}
                         setEditMode={setEditMode}
                         user={props.user}
+                        permissions={props.permissions}
                     />
                 )}
                 {element && isEdge(element) && (

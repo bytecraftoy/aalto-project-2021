@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Elements, Node } from 'react-flow-renderer';
-import { Comment, INode, UserToken } from '../../../../types';
+import { Comment, INode, ProjectPermissions, UserToken } from '../../../../types';
 import * as nodeService from '../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
@@ -17,6 +17,7 @@ interface NodeDetailProps {
     editMode: boolean;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     setEditMode: React.Dispatch<React.SetStateAction<boolean>>;
+    permissions: ProjectPermissions;
     user?: UserToken;
 }
 
@@ -92,7 +93,9 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                 <CommentSection
                     comments={comments}
                     sendComment={sendComment}
-                ></CommentSection>
+                    user={props.user}
+                    permissions={props.permissions}
+                />
             </>
         );
     }

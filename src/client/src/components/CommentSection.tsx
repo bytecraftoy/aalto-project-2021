@@ -1,12 +1,14 @@
 import React, { FormEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { Comment } from '../../../../types';
+import { Comment, ProjectPermissions, UserToken } from '../../../../types';
 import { CommentMessage } from './CommentMessage';
 import CSS from 'csstype';
 
 interface CommentSectionProps {
     comments: Comment[];
     sendComment: (content: string) => Promise<void>;
+    permissions: ProjectPermissions;
+    user?: UserToken;
 }
 
 const containerStyle: CSS.Properties = {
@@ -29,7 +31,7 @@ export const CommentSection = (props: CommentSectionProps): JSX.Element => {
         <>
             <h5>Comments:</h5>
             <div style={containerStyle}>
-                <Form onSubmit={handleSubmit} className="comment-form">
+                { props.user && props.permissions.edit && <Form onSubmit={handleSubmit} className="comment-form">
                     <Form.Group
                         id="comment-field"
                         style={{ display: 'flex', marginTop: '8px' }}
@@ -46,14 +48,15 @@ export const CommentSection = (props: CommentSectionProps): JSX.Element => {
                             Send
                         </Button>
                     </Form.Group>
-                </Form>
-                {props.comments.length > 0 &&
+                </Form> }
+                {props.comments.length > 0 ?
                     props.comments
                         .slice()
                         .reverse()
                         .map((comment, i) => (
-                            <CommentMessage key={i} comment={comment} />
-                        ))}
+                            <CommentMessage key={i} comment={comment} user={props.user} />
+                        ))
+                    : <p style={{textAlign: 'center'}}>No comments</p>}
             </div>
         </>
     );
