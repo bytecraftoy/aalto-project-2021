@@ -2,7 +2,7 @@ import { User, UserToken } from './types';
 
 export const mockUser: User = {
     username: 'username',
-    password: 'password',
+    password: 'password123456',
     email: 'email@example.com',
     id: 0,
 };

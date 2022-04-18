@@ -2,6 +2,9 @@ import express, { Request, Response, Router, Express } from 'express';
 require('express-async-errors'); //This needs to be imported before 'router' at least
 import * as router from './route';
 import { RequestHandler } from 'express-serve-static-core';
+import { Server } from 'socket.io';
+import { initSockets } from './helper/socket';
+import { logger } from './helper/logging';
 
 // call express
 export const app: Express = express(); // define our app using express
@@ -26,35 +29,14 @@ app.get('/*', (req: Request, res: Response) => {
     res.sendFile('/dist/index.html', { root: __dirname });
 });
 
+let io: Server | undefined;
+
 // START THE SERVER
 // =============================================================================
 if (process.env.NODE_ENV !== 'test') {
-    app.listen(port);
+    const server = app.listen(port);
+    io = new Server(server);
+    initSockets(io);
 
-    // eslint-disable-next-line no-console
-    console.log(`App listening on ${port}`);
-
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const io = require('socket.io')(8051, {
-        cors: {
-            origin: ['http://localhost:3000', 'http://localhost:8050'],
-        },
-    });
-
-    const projectIo = io.of('/project');
-
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    projectIo.on('connection', (socket: any) => {
-        socket.on('anything', (message: any, room: any) => {
-            //socket.broadcast.emit('anything', message)
-            socket.to(room).emit('anything', message);
-        });
-        socket.on('join-project', (room: any) => {
-            socket.join(room);
-        });
-
-        socket.on('leave-project', (room: any) => {
-            socket.leave(room);
-        });
-    });
+    logger.info(`App listening on ${port}`);
 }

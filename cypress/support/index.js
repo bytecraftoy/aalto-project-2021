@@ -25,3 +25,5 @@ Cypress.on('uncaught:exception', (err) => {
         return false
     }
 })
+
+import '@cypress/code-coverage/support'

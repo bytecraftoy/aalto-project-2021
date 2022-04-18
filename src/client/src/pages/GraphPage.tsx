@@ -18,6 +18,7 @@ import {
     isEdge,
     isNode,
     Node,
+    Position,
 } from 'react-flow-renderer';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
@@ -27,6 +28,7 @@ import * as edgeService from '../services/edgeService';
 import * as projectService from '../services/projectService';
 import * as graphProps from '../components/GraphProps';
 import CSS from 'csstype';
+import { Spinner } from 'react-bootstrap';
 
 const buttonStyle: CSS.Properties = {
     position: 'absolute',
@@ -64,25 +66,36 @@ export const GraphPage = (): JSX.Element => {
 
     const projects = useSelector((state: RootState) => state.project);
 
+    const [isLoadingProject, setIsLoadingProject] = useState(true);
+    const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
+
     useEffect(() => {
+        setIsLoadingProject(true);
+
         const project = projects.find((p) => p.id === projectId);
         if (project) {
             setSelectedProject(project);
+            setIsLoadingProject(false);
         } else if (projectId) {
             projectService
                 .getProject(projectId)
                 .then((project) => setSelectedProject(project))
-                .catch(() => setSelectedProject(undefined));
+                .catch(() => setSelectedProject(undefined))
+                .finally(() => setIsLoadingProject(false));
         } else {
             setSelectedProject(undefined);
+            setIsLoadingProject(false);
         }
     }, [projectId]);
 
     useEffect(() => {
         if (selectedProject) {
+            setIsLoadingPermissions(true);
+
             projectService
                 .getProjectPermissions(projectId)
-                .then((permissions) => setPermissions(permissions));
+                .then((permissions) => setPermissions(permissions))
+                .finally(() => setIsLoadingPermissions(false));
         } else {
             setPermissions({ view: false, edit: false });
         }
@@ -117,6 +130,8 @@ export const GraphPage = (): JSX.Element => {
                     type: DefaultNodeType,
                     data: n,
                     position: { x: n.x, y: n.y },
+                    sourcePosition: Position.Right,
+                    targetPosition: Position.Left,
                 }));
                 // Edge Types: 'default' | 'step' | 'smoothstep' | 'straight'
                 const edgeElements: Elements = edges.map((e) => ({
@@ -168,6 +183,23 @@ export const GraphPage = (): JSX.Element => {
         setSelectedElement(null);
         setSelectedDataType(null);
     };
+
+    if (isLoadingPermissions || isLoadingProject) {
+        return (
+            <div className="project-loading-container">
+                <Spinner animation="border" style={{ margin: '10px' }} />
+                <h2>Loading</h2>
+            </div>
+        );
+    }
+
+    if (!selectedProject || !permissions.view) {
+        return (
+            <h2 style={{ marginTop: '75px' }}>
+                No permissions or project doesn't exist
+            </h2>
+        );
+    }
 
     return (
         <>

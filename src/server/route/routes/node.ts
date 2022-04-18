@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { INode } from '../../../../types';
 import { db } from '../../dbConfigs';
 import { checkProjectPermission } from '../../helper/permissionHelper';
+import { projectIo } from '../../helper/socket';
 
 // Checks need to make sure the node is valid
 const nodeCheck = (node: INode): boolean => {
@@ -64,16 +65,26 @@ router
             return res.status(403).json({ message: 'Node does not exist' });
         }
 
-        const permissions = await checkProjectPermission(
-            req,
-            nodeQuery.rows[0].project_id
-        );
+        const projectId = nodeQuery.rows[0].project_id;
+
+        const permissions = await checkProjectPermission(req, projectId);
         if (!permissions.edit) {
             return res.status(401).json({ message: 'No permission' });
         }
 
+        req.logger.info({
+            message: 'Deleting node',
+            projectId,
+            nodeId: id,
+        });
+
         await db.query('DELETE FROM node WHERE id = $1', [id]);
         res.status(200).json();
+
+        projectIo
+            ?.except(req.get('socketId')!)
+            .to(projectId.toString())
+            .emit('delete-node', { id });
     });
 
 /**
@@ -100,8 +111,14 @@ router
                 return res.status(401).json({ message: 'No permission' });
             }
 
+            req.logger.info({
+                message: 'Creating node',
+                projectId: text.project_id,
+                label: text.label,
+            });
+
             const q = await db.query(
-                'INSERT INTO node (label, status, priority, project_id, x, y) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+                'INSERT INTO node (label, status, priority, project_id, x, y, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
                 [
                     text.label,
                     text.status,
@@ -109,9 +126,16 @@ router
                     text.project_id,
                     Math.round(text.x),
                     Math.round(text.y),
+                    text.description,
                 ]
             );
+
             res.status(200).json({ id: q.rows[0].id });
+
+            projectIo
+                ?.except(req.get('socketId')!)
+                .to(text.project_id.toString())
+                .emit('add-node', { ...text, id: q.rows[0].id });
         } else {
             res.status(403).json({ message: 'Invalid node' });
         }
@@ -128,10 +152,11 @@ router
      */
     .put(async (req: Request, res: Response) => {
         const data: INode | INode[] = req.body;
+        let projectId: number;
 
         let array: INode[];
         if (Array.isArray(data)) {
-            const projectId = data[0].project_id;
+            projectId = data[0].project_id;
 
             if (
                 !data.every(
@@ -140,7 +165,7 @@ router
             ) {
                 return res
                     .status(403)
-                    .json({ message: 'Invalid node or multiple projectIds' });
+                    .json({ message: 'Invalid nodes or multiple projectIds' });
             }
 
             const permissions = await checkProjectPermission(req, projectId);
@@ -150,10 +175,12 @@ router
 
             array = data;
         } else {
-            const permissions = await checkProjectPermission(
-                req,
-                data.project_id
-            );
+            projectId = data.project_id;
+            if (!nodeCheck(data)) {
+                return res.status(403).json({ message: 'Invalid node' });
+            }
+
+            const permissions = await checkProjectPermission(req, projectId);
 
             if (!permissions.edit) {
                 return res.status(401).json({ message: 'No permission' });
@@ -164,22 +191,35 @@ router
 
         const client = await db.getClient();
         try {
+            req.logger.info({
+                message: `Updating ${array.length} node(s)`,
+                projectId,
+                nodeIds: array.map((elem) => elem.id),
+            });
+
             await client.query('BEGIN');
             for (const node of array) {
                 await client.query(
-                    'UPDATE node SET label = $1, status = $2, priority = $3, x = $4, y = $5 WHERE id = $6',
+                    'UPDATE node SET label = $1, status = $2, priority = $3, x = $4, y = $5, description = $6 WHERE id = $7',
                     [
                         node.label,
                         node.status,
                         node.priority,
                         Math.round(node.x),
                         Math.round(node.y),
+                        node.description,
                         node.id,
                     ]
                 );
             }
             client.query('COMMIT');
+
             res.status(200).json();
+
+            projectIo
+                ?.except(req.get('socketId')!)
+                .to(array[0].project_id.toString())
+                .emit('update-node', array);
         } catch (e) {
             // eslint-disable-next-line no-console
             await client.query('ROLLBACK');
