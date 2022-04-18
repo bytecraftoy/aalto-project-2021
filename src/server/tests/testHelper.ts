@@ -7,7 +7,7 @@ export const registerRandomUser = async (
 ) => {
     const user: User = {
         username: (Math.random() + 1).toString(36).substring(7),
-        password: (Math.random() + 1).toString(36).substring(7),
+        password: (Math.random() + 1).toString(30),
         email: (Math.random() + 1).toString(36).substring(7) + '@test.com',
         id: 0,
     };
@@ -104,6 +104,7 @@ export const addDummyNodes = async (
             x: 0,
             y: 0,
             project_id: projectId,
+            description: 'this is the first node',
         },
         {
             label: 'Second-node',
@@ -112,13 +113,14 @@ export const addDummyNodes = async (
             x: 1,
             y: 1,
             project_id: projectId,
+            description: 'this is the second node',
         },
     ];
 
     const ids: number[] = [];
     for (const node of n) {
         const res = await db.query(
-            'INSERT INTO node (label, priority, status, x, y, project_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;',
+            'INSERT INTO node (label, priority, status, x, y, project_id, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;',
             [
                 node.label,
                 node.priority,
@@ -126,6 +128,7 @@ export const addDummyNodes = async (
                 node.x,
                 node.y,
                 node.project_id,
+                node.description,
             ]
         );
         ids.push(res.rows[0].id);

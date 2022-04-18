@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Login, Registration, UserToken } from '../../../../types';
 import { axiosWrapper } from './axiosWrapper';
+import { socket } from './socket';
 
 const baseUrl = '/api/user';
 
@@ -10,11 +11,15 @@ const setToken = (newToken: string): void => {
     token = `bearer ${newToken}`;
 };
 
-const getAuthHeader = (): { Authorization: string } => {
-    return { Authorization: token };
+const getAuthHeader = (): { 'X-Depsee-Auth': string } => {
+    const auth = {
+        'X-Depsee-Auth': token,
+        socketId: socket.id,
+    };
+    return auth;
 };
 
-const getAuthConfig = (): { headers: { Authorization: string } } => ({
+const getAuthConfig = (): { headers: { 'X-Depsee-Auth': string } } => ({
     headers: getAuthHeader(),
 });
 

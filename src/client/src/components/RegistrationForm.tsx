@@ -42,6 +42,16 @@ export const RegistrationForm: ({
             return;
         }
 
+        if (password.length < 12) {
+            setErr(
+                errMessage.concat(
+                    'Password must be at least 12 characters long'
+                )
+            );
+            errTimeout();
+            return;
+        }
+
         if (password !== confirm) {
             setErr(
                 errMessage

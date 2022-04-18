@@ -5,7 +5,7 @@ export const tokenExtractor = (
     res: Response,
     next: (param?: unknown) => void
 ): void => {
-    const authorization = req.get('authorization');
+    const authorization = req.get('x-depsee-auth');
     if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
         req.token = authorization.substring(7);
     }

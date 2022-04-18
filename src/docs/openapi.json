@@ -105,6 +105,36 @@
                 }
             }
         },
+        "/api/node/:id/:nodeId/comment": {
+            "post": {
+                "summary": "Create a comment",
+                "description": "Create a new **comment** for a **node**. You may need certain privileges to be able to add a node",
+                "requestBody": {
+                    "content": { "-": { "schema": { "type": "string" } } },
+                    "required": true
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Id of the project where the node belongs",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    },
+                    {
+                        "name": "nodeId",
+                        "in": "path",
+                        "description": "Id of the node",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "OK" },
+                    "401": { "description": "Unauthorized" }
+                }
+            }
+        },
         "/api/project/:id": {
             "get": {
                 "summary": "Get a project",

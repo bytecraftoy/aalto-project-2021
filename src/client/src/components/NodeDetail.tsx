@@ -6,6 +6,11 @@ import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
 import { CommentSection } from './CommentSection';
 import { NodeForm } from './NodeForm';
+import './styles/Sidebar.css';
+import {
+    BsClipboardCheck,
+    BsExclamationCircle /* BsHash */,
+} from 'react-icons/bs';
 
 interface NodeDetailProps {
     element: Node<INode>;
@@ -66,9 +71,23 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
         content = (
             <>
                 <h2>{data.label}</h2>
-                <p>Status: {data.status}</p>
-                <p>Priority: {data.priority}</p>
-                <p>ID: {data.id}</p>
+                {data.description && (
+                    <p className="node-description">{data.description}</p>
+                )}
+                <p>
+                    <BsClipboardCheck className="icon" />{' '}
+                    <b className="title">Status: </b>
+                    {data.status}
+                </p>
+                <p>
+                    <BsExclamationCircle className="icon" />{' '}
+                    <b className="title">Priority: </b>
+                    {data.priority}
+                </p>
+                {/* <p>
+                    <BsHash className="icon" /> <b className="title">ID: </b>
+                    {data.id}
+                </p> */}
                 <AssignedUsers node={data} />
                 <CommentSection
                     comments={comments}
@@ -80,7 +99,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
 
     return (
         <>
-            <h5>Node:</h5>
+            <h5>#{data.id}</h5>
             {content}
         </>
     );

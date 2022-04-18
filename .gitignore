@@ -112,3 +112,4 @@ dist
 .tern-port
 
 build
+unit-test-report.html

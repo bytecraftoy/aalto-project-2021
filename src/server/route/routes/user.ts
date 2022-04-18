@@ -24,8 +24,23 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
         return;
     }
 
+    if (user.password.length < 12) {
+        res.status(403)
+            .json({
+                message: 'Password must be at least 12 characters long',
+            })
+            .end();
+        return;
+    }
+
     const saltRounds = 10;
     const hash = await bcrypt.hash(user.password, saltRounds);
+
+    req.logger.info({
+        message: 'Creating user',
+        username: user.username,
+    });
+
     const q = await db.query(
         'INSERT INTO users (username, password, email) VALUES (LOWER($1), $2, LOWER($3)) ON CONFLICT DO NOTHING RETURNING (id)',
         [user.username, hash, user.email]
@@ -109,6 +124,11 @@ router.route('/user/login').post(async (req: Request, res: Response) => {
         userForToken,
         process.env.SECRET ? process.env.SECRET : 'secret'
     );
+
+    req.logger.info({
+        message: 'Logging in user',
+        userId: user.id,
+    });
 
     res.status(200).json({
         token,

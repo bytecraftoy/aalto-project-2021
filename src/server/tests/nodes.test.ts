@@ -41,6 +41,7 @@ describe('Node', () => {
                 x: 0,
                 y: 0,
                 project_id: pId,
+                description: 'this is a test node',
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -54,6 +55,7 @@ describe('Node', () => {
                 x: 0,
                 y: 0,
                 project_id: pId,
+                description: 'this is a test node',
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -67,6 +69,7 @@ describe('Node', () => {
             expect(node).toHaveProperty('x');
             expect(node).toHaveProperty('y');
             expect(node).toHaveProperty('project_id');
+            expect(node).toHaveProperty('description');
         });
 
         test('A node should have the proper values that were sent', async () => {
@@ -77,6 +80,7 @@ describe('Node', () => {
                 x: 1,
                 y: 2,
                 project_id: pId,
+                description: 'this is a test node',
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -90,6 +94,7 @@ describe('Node', () => {
             expect(n.x).toBe(1);
             expect(n.y).toBe(2);
             expect(n.project_id).toBe(pId);
+            expect(n.description).toBe('this is a test node');
         });
 
         test('an invalid node should not be added to the database', async () => {
@@ -212,6 +217,8 @@ describe('Node', () => {
                 x: 0,
                 y: 0,
                 project_id: pId,
+                // eslint-disable-next-line quotes
+                description: "'this is a test node); DROP TABLE nodes; --'",
             };
 
             await api.post('/api/node').send(node).expect(200);
