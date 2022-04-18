@@ -184,7 +184,7 @@ router
             );
 
             if (selectTaggedNodeQuery.rowCount == 1) {
-                const q = await db.query(
+                await db.query(
                     'DELETE FROM tagged_nodes WHERE node_id = $1 AND tag_id = $2 AND project_id = $3',
                     [nodeId, tagId, projId]
                 );
