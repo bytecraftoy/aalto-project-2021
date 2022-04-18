@@ -246,21 +246,19 @@ router
 
         const permissions = await checkProjectPermission(req, projectId);
 
-        if (!permissions.view || !req.user) {
+        if (!permissions.view) {
             return res.status(401).json({ message: 'No permission' });
         }
-
-        const userId = req.user.id;
 
         const query = `
             SELECT username, users_id, node_id, created, content
             FROM comment
             LEFT JOIN users ON users_id = users.id
-            WHERE node_id = $1 AND users_id = $2
+            WHERE node_id = $1
             ORDER BY created ASC
         `;
 
-        const q = await db.query(query, [nodeId, userId]);
+        const q = await db.query(query, [nodeId]);
         res.json(q.rows);
     })
     /**
@@ -281,7 +279,7 @@ router
 
         const permissions = await checkProjectPermission(req, projectId);
         if (!permissions.edit || !req.user) {
-            return res.status(401).json({ message: 'No permission' });
+            return res.status(401).json({ message: 'No permission or not an user' });
         }
 
         const userId = req.user.id;
