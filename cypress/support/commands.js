@@ -73,6 +73,10 @@ Cypress.Commands.add('insertNode', (nodeName, location) => {
         // nodeName should be prefixed by '__test__'
         expect(nodeName).match(/^__test__/);
     }
+    cy.get('.react-flow__node').should(($div) => {
+        expect(Array.from($div, elem => elem.innerText)).to.include(nodeName)
+    })
+
 });
 
 // remove nodes prefixed with __test__
