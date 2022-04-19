@@ -34,8 +34,8 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
                 <Spinner animation="border" />
             ) : (
                 <ul>
-                    {assigned.map((user) => (
-                        <li>{user.username}</li>
+                    {assigned.map((user, i) => (
+                        <li key={i}>{user.username}</li>
                     ))}
                 </ul>
             )}

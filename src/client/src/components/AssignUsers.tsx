@@ -52,8 +52,8 @@ export const AssignUsers = (props: assignUsersProps): JSX.Element => {
                         <BsFillPeopleFill className="icon" /> Assigned users:
                     </p>
                     <ul>
-                        {assigned.map((user) => (
-                            <li>
+                        {assigned.map((user, i) => (
+                            <li key={i}>
                                 {user.username}{' '}
                                 <button
                                     onClick={async () => {
@@ -76,8 +76,8 @@ export const AssignUsers = (props: assignUsersProps): JSX.Element => {
                         <BsFillPersonPlusFill className="icon" /> Assign users:
                     </p>
                     <ul>
-                        {assignable.map((user) => (
-                            <li>
+                        {assignable.map((user, i) => (
+                            <li key={i}>
                                 {user.username}{' '}
                                 <button
                                     onClick={async () => {
