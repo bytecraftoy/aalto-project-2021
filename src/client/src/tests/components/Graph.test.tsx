@@ -95,6 +95,7 @@ describe('<Graph>', () => {
         const permissions: ProjectPermissions = {
             view: selectedProject.public_view,
             edit: selectedProject.public_edit,
+            projectId: 1,
         };
 
         const graphProps: GraphProps = {
