@@ -86,8 +86,15 @@ export interface ToolbarProps {
 }
 
 export interface ProjectPermissions {
+    projectId: number;
     view: boolean;
     edit: boolean;
+}
+
+export interface NoPermission {
+    projectId: undefined;
+    view: false;
+    edit: false;
 }
 
 export interface ITag {
