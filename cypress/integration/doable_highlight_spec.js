@@ -22,12 +22,16 @@ describe('node highlighting', () => {
         cy.insertNode(node_1_name, 'left')
         cy.insertNode(node_2_name, 'center')
         cy.insertNode(node_3_name, 'bottom')
-    })
+    });
 
     afterEach(() => {
         cy.get('#hide-done-checkbox').uncheck();
-        cy.removeAllTestNodes()
-    })
+        cy.removeAllTestNodes();
+    });
+
+    after(() => {
+        cy.deleteAllProjects();
+    });
 
     it('highlight checkbox should exist', () => {
         cy.get('#leaf-highlight-checkbox').should('exist');
