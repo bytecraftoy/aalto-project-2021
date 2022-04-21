@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Elements, Node } from 'react-flow-renderer';
 import { INode } from '../../../../types';
 import { AssignedUsers } from './AssignedUsers';
@@ -35,7 +35,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
     const [editStatus, setEditStatus] = useState<boolean>(false);
     const [editPriority, setEditPriority] = useState<boolean>(false);
 
-    /* const handleCancel = () => {
+    const handleCancel = () => {
         setEditLabel(false);
         setEditDescription(false);
         setEditStatus(false);
@@ -43,9 +43,11 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
         props.setEditAssign(false);
     };
 
-    if(!props.editOne){
-        handleCancel();
-    } */
+    useEffect(() => {
+        if(!props.editOne){
+            handleCancel();
+        }
+    }, [props.editOne])
 
     if (props.editAll) {
         content = (
@@ -75,6 +77,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     setEditStatus={setEditStatus}
                     setEditPriority={setEditPriority}
                     setEditAssign={props.setEditAssign}
+                    setEditOne={props.setEditOne}
                 />
             </>
         )

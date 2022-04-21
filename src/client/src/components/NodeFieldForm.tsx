@@ -26,6 +26,7 @@ export interface NodeFieldFormProps {
     setEditStatus: React.Dispatch<React.SetStateAction<boolean>>;
     setEditPriority: React.Dispatch<React.SetStateAction<boolean>>;
     setEditAssign: React.Dispatch<React.SetStateAction<boolean>>;
+    setEditOne: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
@@ -46,11 +47,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
     const url = href.substring(href.indexOf('project'), href.length);
 
     const handleCancel = () => {
-        props.setEditLabel(false);
-        props.setEditDescription(false);
-        props.setEditStatus(false);
-        props.setEditPriority(false);
-        props.setEditAssign(false);
+        props.setEditOne(false);
     };
 
     const handleSubmit = async (event: FormEvent) => {
