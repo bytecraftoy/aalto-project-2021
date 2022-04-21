@@ -214,10 +214,12 @@ code {
 
 .form-box-login,
 .form-box-reg {
-    display: block;
-    margin-top: 200px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    display: absolute;
+    margin-top: 100px !important;
+    width: 190px;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
 }
 
 .form-box-login > input,
@@ -334,4 +336,13 @@ code {
 .tag-disptag:hover {
     background-color: #2d0061;
     color: #ffffff;
+}
+
+.app-name {
+    display: absolute;
+    width: auto;
+    margin-top: 7%;
+    font-size: 100px;
+    text-align: center;
+
 }

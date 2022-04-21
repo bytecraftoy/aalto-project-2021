@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Login, UserToken } from '../../../../types';
+import { Logo } from './Logo';
 
 export interface LoginFormProps {
     loginUser: (user: Login) => Promise<UserToken | undefined>;
@@ -58,43 +59,48 @@ export const LoginForm = (props: LoginFormProps): JSX.Element => {
     };
 
     return (
-        <div className="form-box-login">
-            <form onSubmit={handleSubmit}>
-                <h1>Login</h1>
-                {errMessage.map((e) => (
-                    <p id="login-error" key={e}>
-                        {e}
-                    </p>
-                ))}
-                <div>
-                    <label htmlFor="email"></label>
-                    <input
-                        placeholder="Enter Email or username"
-                        name="emailUser"
-                        id="emailUser"
-                        value={emailUser}
-                        onChange={({ target }) => setEmail(target.value)}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="psw"></label>
-                    <input
-                        type="password"
-                        placeholder="Enter Password"
-                        name="psw"
-                        id="psw"
-                        value={password}
-                        onChange={({ target }) => setPassword(target.value)}
-                    />
-                </div>
-                <button
-                    id="login-button"
-                    type="submit"
-                    className="button-action-one"
-                >
-                    Login
-                </button>
-            </form>
+        <div>
+            <div>
+                <Logo/>
+            </div>
+            <div className="form-box-login">
+                <form onSubmit={handleSubmit}>
+                    <h1>Login</h1>
+                    {errMessage.map((e) => (
+                        <p id="login-error" key={e}>
+                            {e}
+                        </p>
+                    ))}
+                    <div>
+                        <label htmlFor="email"></label>
+                        <input
+                            placeholder="Enter Email or username"
+                            name="emailUser"
+                            id="emailUser"
+                            value={emailUser}
+                            onChange={({ target }) => setEmail(target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="psw"></label>
+                        <input
+                            type="password"
+                            placeholder="Enter Password"
+                            name="psw"
+                            id="psw"
+                            value={password}
+                            onChange={({ target }) => setPassword(target.value)}
+                        />
+                    </div>
+                    <button
+                        id="login-button"
+                        type="submit"
+                        className="button-action-one"
+                    >
+                        Login
+                    </button>
+                </form>
+            </div>
         </div>
     );
 };
