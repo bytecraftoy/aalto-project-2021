@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IEdge, INode, ProjectPermissions } from '../../../../types';
 import { NodeDetail } from './NodeDetail';
-import { BsXLg, BsPencilFill, BsFillTrashFill } from 'react-icons/bs';
+import { BsXLg, BsPencilFill, BsFillTrashFill, BsFillCheckCircleFill } from 'react-icons/bs';
 import {
     Edge,
     Elements,
@@ -24,7 +24,9 @@ interface ElementDetailProps {
 }
 
 export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
-    const [editMode, setEditMode] = useState<boolean>(false);
+    const [editAll, setEditAll] = useState<boolean>(false);
+    const [editOne, setEditOne] = useState<boolean>(false);
+    const [editAssign, setEditAssign] = useState<boolean>(false);
 
     const element = props.element;
 
@@ -74,15 +76,27 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         );
 
         if (props.type === 'Node') {
-            buttonRow.push(
-                <button
-                    className="icon-button"
-                    onClick={() => setEditMode(!editMode)}
-                    id="edit-button"
-                >
-                    <BsPencilFill />
-                </button>
-            );
+            if(editOne){
+                buttonRow.push(
+                    <button
+                        className="icon-button"
+                        onClick={() => setEditOne(false)}
+                        id="confirm-button"
+                    >
+                        <BsFillCheckCircleFill />
+                    </button>
+                );
+            } else {
+                buttonRow.push(
+                    <button
+                        className="icon-button"
+                        onClick={() => setEditAll(!editAll)}
+                        id="edit-button"
+                    >
+                        <BsPencilFill />
+                    </button>
+                );
+            } 
         }
     }
     buttonRow.push(
@@ -98,9 +112,13 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                 {element && isNode(element) && (
                     <NodeDetail
                         element={element}
-                        editMode={editMode}
+                        editAll={editAll}
+                        editOne={editOne}
+                        editAssign={editAssign}
                         setElements={props.setElements}
-                        setEditMode={setEditMode}
+                        setEditAll={setEditAll}
+                        setEditOne={setEditOne}
+                        setEditAssign={setEditAssign}
                     />
                 )}
                 {element && isEdge(element) && (
