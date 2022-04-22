@@ -3,6 +3,7 @@ import { Button, Form } from 'react-bootstrap';
 import { Comment, ProjectPermissions, UserToken } from '../../../../types';
 import { CommentMessage } from './CommentMessage';
 import CSS from 'csstype';
+import toast from 'react-hot-toast';
 
 interface CommentSectionProps {
     comments: Comment[];
@@ -22,9 +23,13 @@ export const CommentSection = (props: CommentSectionProps): JSX.Element => {
     const [content, setContent] = useState<string>('');
 
     const handleSubmit = async (event: FormEvent) => {
-        event.preventDefault();
-        await props.sendComment(content);
-        setContent('');
+        if (content) {
+            event.preventDefault();
+            await props.sendComment(content);
+            setContent('');
+        } else {
+            toast('❌ Comment must have text');
+        }
     };
 
     return (
