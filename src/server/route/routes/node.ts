@@ -286,7 +286,9 @@ router
         }
 
         if (!content) {
-            return res.status(403).json({ message: 'No text in comment content' });
+            return res
+                .status(403)
+                .json({ message: 'No text in comment content' });
         }
 
         const userId = req.user.id;
