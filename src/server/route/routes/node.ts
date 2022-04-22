@@ -271,6 +271,7 @@ router
      * @pathParam {string} nodeId - Id of the node
      * @response 200 - OK
      * @response 401 - Unauthorized
+     * @response 403 - Forbidden
      */
     .post(async (req: Request, res: Response) => {
         const projectId = parseInt(req.params.id);
@@ -282,6 +283,10 @@ router
             return res
                 .status(401)
                 .json({ message: 'No permission or not an user' });
+        }
+
+        if (!content) {
+            return res.status(403).json({ message: 'No text in comment content' });
         }
 
         const userId = req.user.id;
