@@ -1,5 +1,6 @@
-import React, { FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { ITag } from '../../../../types';
+import { BsJournalAlbum } from 'react-icons/bs';
 
 interface NodeTagEditProps {
     tags: ITag[];
@@ -20,31 +21,38 @@ export const NodeTagEdit = (props: NodeTagEditProps): JSX.Element => {
 
     return (
         <div className="node-tag-edit-view">
+            <p>
+                <BsJournalAlbum className="icon" /> Assign tags:
+            </p>
             <form onSubmit={handleSubmit}>
                 <input
                     autoFocus
                     style={{ width: '100%' }}
                     type="text"
-                    placeholder="Enter Tag Name"
+                    placeholder="Enter tag name"
                     value={formText}
                     onChange={(e) => {
                         setFormText(e.target.value);
                     }}
                 />
             </form>
-            
+
             <div className="node-tag-edit-list">
-                {props.tags.map((tag) => (
-                    <button
-                        className="node-disp-tag"
-                        key={tag.id}
-                        onClick={async () => {
-                            await props.removeTag(tag.id);
-                        }}
-                    >
-                        {tag.label}
-                    </button>
-                ))}
+                <ul>
+                    {props.tags.map((tag) => (
+                        <li>
+                            <button
+                                className="node-disp-tag"
+                                key={tag.id}
+                                onClick={async () => {
+                                    await props.removeTag(tag.id);
+                                }}
+                            >
+                                {tag.label}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
             </div>
         </div>
     );
