@@ -28,7 +28,8 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
     return assigned.length ? (
         <div>
             <p>
-                <BsFillPeopleFill className="icon" /> <b className="title">Assigned users: </b>
+                <BsFillPeopleFill className="icon" />{' '}
+                <b className="title">Assigned users: </b>
             </p>
             {isLoading ? (
                 <Spinner animation="border" />

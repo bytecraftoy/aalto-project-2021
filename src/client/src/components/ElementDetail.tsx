@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
 import { IEdge, INode, ProjectPermissions } from '../../../../types';
 import { NodeDetail } from './NodeDetail';
-import { BsXLg, BsPencilFill, BsFillTrashFill, BsFillCheckCircleFill } from 'react-icons/bs';
+import {
+    BsXLg,
+    BsPencilFill,
+    BsFillTrashFill,
+    BsFillCheckCircleFill,
+} from 'react-icons/bs';
 import {
     Edge,
     Elements,
@@ -76,7 +81,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         );
 
         if (props.type === 'Node') {
-            if(editOne !== null){
+            if (editOne !== null) {
                 buttonRow.push(
                     <button
                         className="icon-button"
@@ -96,7 +101,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                         <BsPencilFill />
                     </button>
                 );
-            } 
+            }
         }
     }
     buttonRow.push(

@@ -1,4 +1,4 @@
-import React/* , { useEffect, useState } */ from 'react';
+import React /* , { useEffect, useState } */ from 'react';
 import { Elements, Node } from 'react-flow-renderer';
 import { INode } from '../../../../types';
 import { AssignedUsers } from './AssignedUsers';
@@ -54,10 +54,10 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                 <AssignUsers node={data} />
             </>
         );
-    } else if(props.editAssign || props.editOne) {
+    } else if (props.editAssign || props.editOne) {
         content = (
             <>
-                <NodeFieldForm 
+                <NodeFieldForm
                     element={props.element}
                     editOne={props.editOne}
                     editAssign={props.editAssign}
@@ -66,35 +66,48 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     setEditOne={props.setEditOne}
                 />
             </>
-        )
+        );
     } else {
         content = (
             <>
-                <h2><span onClick={() => {
-                    props.setEditOne('label')
-                }}>{data.label}</span></h2>
-                <p className="node-description" onClick={() => {
-                    props.setEditOne('description')
-                }}>
-                    {data.description ? (
-                        data.description
-                    ) : (
-                        'No description'
-                    )}
+                <h2>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('label');
+                        }}
+                    >
+                        {data.label}
+                    </span>
+                </h2>
+                <p
+                    className="node-description"
+                    onClick={() => {
+                        props.setEditOne('description');
+                    }}
+                >
+                    {data.description ? data.description : 'No description'}
                 </p>
                 <p>
                     <BsClipboardCheck className="icon" />{' '}
                     <b className="title">Status: </b>
-                    <span onClick={() => {
-                        props.setEditOne('status')
-                    }}>{data.status}</span>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('status');
+                        }}
+                    >
+                        {data.status}
+                    </span>
                 </p>
                 <p>
                     <BsExclamationCircle className="icon" />{' '}
                     <b className="title">Priority: </b>
-                    <span onClick={() => {
-                        props.setEditOne('priority')
-                    }}>{data.priority}</span>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('priority');
+                        }}
+                    >
+                        {data.priority}
+                    </span>
                 </p>
                 {/* <p>
                     <BsHash className="icon" /> <b className="title">ID: </b>
