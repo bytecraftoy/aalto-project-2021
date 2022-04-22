@@ -15,11 +15,9 @@ interface NodeDetailProps {
     element: Node<INode>;
     editAll: boolean;
     editOne: string | null;
-    editAssign: boolean;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     setEditAll: React.Dispatch<React.SetStateAction<boolean>>;
     setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
-    setEditAssign: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
@@ -54,15 +52,13 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                 <AssignUsers node={data} />
             </>
         );
-    } else if (props.editAssign || props.editOne) {
+    } else if (props.editOne !== null) {
         content = (
             <>
                 <NodeFieldForm
                     element={props.element}
                     editOne={props.editOne}
-                    editAssign={props.editAssign}
                     setElements={props.setElements}
-                    setEditAssign={props.setEditAssign}
                     setEditOne={props.setEditOne}
                 />
             </>
@@ -109,11 +105,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                         {data.priority}
                     </span>
                 </p>
-                {/* <p>
-                    <BsHash className="icon" /> <b className="title">ID: </b>
-                    {data.id}
-                </p> */}
-                <AssignedUsers node={data} />
+                <AssignedUsers node={data} setEditOne={props.setEditOne} />
             </>
         );
     }

@@ -3,6 +3,8 @@ import { INode, Status } from '../../../../types';
 import { Form } from 'react-bootstrap';
 import { Elements, isNode, Node } from 'react-flow-renderer';
 import * as nodeService from '../services/nodeService';
+import { AssignedUsers } from './AssignedUsers';
+import { AssignUsers } from './AssignUsers';
 import toast from 'react-hot-toast';
 import { socket } from '../services/socket';
 import './styles/Sidebar.css';
@@ -16,9 +18,7 @@ import {
 export interface NodeFieldFormProps {
     element: Node<INode>;
     editOne: string | null;
-    editAssign: boolean;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
-    setEditAssign: React.Dispatch<React.SetStateAction<boolean>>;
     setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
@@ -150,7 +150,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             {data.priority}
                         </span>
                     </p>
-                    {/* <AssignedUsers node={data} /> */}
+                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
                 </div>
             ) : props.editOne === 'description' ? (
                 <div>
@@ -207,7 +207,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             {data.priority}
                         </span>
                     </p>
-                    {/* <AssignedUsers node={data} /> */}
+                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
                 </div>
             ) : props.editOne === 'status' ? (
                 <div>
@@ -272,7 +272,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             {data.priority}
                         </span>
                     </p>
-                    {/* <AssignedUsers node={data} /> */}
+                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
                 </div>
             ) : props.editOne === 'priority' ? (
                 <div>
@@ -326,10 +326,51 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             </Form.Select>
                         </Form.Group>
                     </Form>
-                    {/* <AssignedUsers node={data} /> */}
+                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
                 </div>
-            ) : props.editAssign ? (
-                <></>
+            ) : props.editOne === 'user' ? (
+                <div>
+                    <h2>
+                        <span
+                            onClick={() => {
+                                props.setEditOne('label');
+                            }}
+                        >
+                            {data.label}
+                        </span>
+                    </h2>
+                    <p
+                        className="node-description"
+                        onClick={() => {
+                            props.setEditOne('description');
+                        }}
+                    >
+                        {data.description ? data.description : 'No description'}
+                    </p>
+                    <p>
+                        <BsClipboardCheck className="icon" />{' '}
+                        <b className="title">Status: </b>
+                        <span
+                            onClick={() => {
+                                props.setEditOne('status');
+                            }}
+                        >
+                            {data.status}
+                        </span>
+                    </p>
+                    <p>
+                        <BsExclamationCircle className="icon" />{' '}
+                        <b className="title">Priority: </b>
+                        <span
+                            onClick={() => {
+                                props.setEditOne('priority');
+                            }}
+                        >
+                            {data.priority}
+                        </span>
+                    </p>
+                    <AssignUsers node={data} />
+                </div>
             ) : (
                 <></>
             )}

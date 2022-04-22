@@ -6,6 +6,7 @@ import {
     BsPencilFill,
     BsFillTrashFill,
     BsFillCheckCircleFill,
+    BsFillPeopleFill,
 } from 'react-icons/bs';
 import {
     Edge,
@@ -31,7 +32,6 @@ interface ElementDetailProps {
 export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
     const [editAll, setEditAll] = useState<boolean>(false);
     const [editOne, setEditOne] = useState<string | null>(null);
-    const [editAssign, setEditAssign] = useState<boolean>(false);
 
     const element = props.element;
 
@@ -101,11 +101,27 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                         <BsPencilFill />
                     </button>
                 );
+                buttonRow.push(
+                    <button
+                        className="icon-button"
+                        onClick={() => setEditOne('user')}
+                        id="user-button"
+                    >
+                        <BsFillPeopleFill />
+                    </button>
+                );
             }
         }
     }
     buttonRow.push(
-        <button className="icon-button" onClick={() => props.closeSidebar()}>
+        <button
+            className="icon-button"
+            onClick={() => {
+                props.closeSidebar();
+                setEditAll(false);
+                setEditOne(null);
+            }}
+        >
             <BsXLg />
         </button>
     );
@@ -119,11 +135,9 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                         element={element}
                         editAll={editAll}
                         editOne={editOne}
-                        editAssign={editAssign}
                         setElements={props.setElements}
                         setEditAll={setEditAll}
                         setEditOne={setEditOne}
-                        setEditAssign={setEditAssign}
                     />
                 )}
                 {element && isEdge(element) && (
