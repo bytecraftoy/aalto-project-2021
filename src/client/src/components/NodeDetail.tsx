@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React/* , { useEffect, useState } */ from 'react';
 import { Elements, Node } from 'react-flow-renderer';
 import { INode } from '../../../../types';
 import { AssignedUsers } from './AssignedUsers';
@@ -14,11 +14,11 @@ import {
 interface NodeDetailProps {
     element: Node<INode>;
     editAll: boolean;
-    editOne: boolean;
+    editOne: string | null;
     editAssign: boolean;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     setEditAll: React.Dispatch<React.SetStateAction<boolean>>;
-    setEditOne: React.Dispatch<React.SetStateAction<boolean>>;
+    setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
     setEditAssign: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -30,24 +30,17 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
     }
 
     let content;
-    const [editLabel, setEditLabel] = useState<boolean>(false);
-    const [editDescription, setEditDescription] = useState<boolean>(false);
-    const [editStatus, setEditStatus] = useState<boolean>(false);
-    const [editPriority, setEditPriority] = useState<boolean>(false);
 
-    const handleCancel = () => {
-        setEditLabel(false);
-        setEditDescription(false);
-        setEditStatus(false);
-        setEditPriority(false);
+    /* const handleCancel = () => {
+        props.setEditOne('null');
         props.setEditAssign(false);
-    };
+    }; */
 
-    useEffect(() => {
-        if(!props.editOne){
+    /* useEffect(() => {
+        if(props.editOne === null){
             handleCancel();
         }
-    }, [props.editOne])
+    }, [props.editOne]) */
 
     if (props.editAll) {
         content = (
@@ -66,16 +59,9 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
             <>
                 <NodeFieldForm 
                     element={props.element}
-                    editLabel={editLabel}
-                    editDescription={editDescription}
-                    editStatus={editStatus}
-                    editPriority={editPriority}
+                    editOne={props.editOne}
                     editAssign={props.editAssign}
                     setElements={props.setElements}
-                    setEditLabel={setEditLabel}
-                    setEditDescription={setEditDescription}
-                    setEditStatus={setEditStatus}
-                    setEditPriority={setEditPriority}
                     setEditAssign={props.setEditAssign}
                     setEditOne={props.setEditOne}
                 />
@@ -85,12 +71,10 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
         content = (
             <>
                 <h2><span onClick={() => {
-                    setEditLabel(true)
-                    props.setEditOne(true)
+                    props.setEditOne('label')
                 }}>{data.label}</span></h2>
                 <p className="node-description" onClick={() => {
-                    setEditDescription(!editDescription)
-                    props.setEditOne(true)
+                    props.setEditOne('description')
                 }}>
                     {data.description ? (
                         data.description
@@ -102,16 +86,14 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     <BsClipboardCheck className="icon" />{' '}
                     <b className="title">Status: </b>
                     <span onClick={() => {
-                        setEditStatus(!editStatus)
-                        props.setEditOne(true)
+                        props.setEditOne('status')
                     }}>{data.status}</span>
                 </p>
                 <p>
                     <BsExclamationCircle className="icon" />{' '}
                     <b className="title">Priority: </b>
                     <span onClick={() => {
-                        setEditPriority(!editPriority)
-                        props.setEditOne(true)
+                        props.setEditOne('priority')
                     }}>{data.priority}</span>
                 </p>
                 {/* <p>

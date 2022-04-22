@@ -25,7 +25,7 @@ interface ElementDetailProps {
 
 export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
     const [editAll, setEditAll] = useState<boolean>(false);
-    const [editOne, setEditOne] = useState<boolean>(false);
+    const [editOne, setEditOne] = useState<string | null>(null);
     const [editAssign, setEditAssign] = useState<boolean>(false);
 
     const element = props.element;
@@ -76,11 +76,11 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         );
 
         if (props.type === 'Node') {
-            if(editOne){
+            if(editOne !== null){
                 buttonRow.push(
                     <button
                         className="icon-button"
-                        onClick={() => setEditOne(false)}
+                        onClick={() => setEditOne(null)}
                         id="confirm-button"
                     >
                         <BsFillCheckCircleFill />

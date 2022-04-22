@@ -15,18 +15,11 @@ import {
 
 export interface NodeFieldFormProps {
     element: Node<INode>;
-    editLabel: boolean;
-    editDescription: boolean;
-    editStatus: boolean;
-    editPriority: boolean;
+    editOne: string | null;
     editAssign: boolean;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
-    setEditLabel: React.Dispatch<React.SetStateAction<boolean>>;
-    setEditDescription: React.Dispatch<React.SetStateAction<boolean>>;
-    setEditStatus: React.Dispatch<React.SetStateAction<boolean>>;
-    setEditPriority: React.Dispatch<React.SetStateAction<boolean>>;
     setEditAssign: React.Dispatch<React.SetStateAction<boolean>>;
-    setEditOne: React.Dispatch<React.SetStateAction<boolean>>;
+    setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
@@ -47,7 +40,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
     const url = href.substring(href.indexOf('project'), href.length);
 
     const handleCancel = () => {
-        props.setEditOne(false);
+        props.setEditOne(null);
     };
 
     const handleSubmit = async (event: FormEvent) => {
@@ -104,7 +97,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
 
     return (
         <div>
-            {props.editLabel ? (
+            {props.editOne === 'label' ? (
                 <div>
                     <Form noValidate validated={validated} onBlur={handleSubmit}>
                         <Form.Group id="label-field" className="mb-3" controlId="labelId">
@@ -122,8 +115,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                         </Form.Group>
                     </Form>
                     <p className="node-description" onClick={() => {
-                        props.setEditDescription(!props.editDescription)
-                        /* props.setEditOne(true) */
+                        props.setEditOne('description')
                     }}>
                         {data.description ? (
                             data.description
@@ -135,23 +127,24 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                         <BsClipboardCheck className="icon" />{' '}
                         <b className="title">Status: </b>
                         <span onClick={() => {
-                            props.setEditStatus(!props.editStatus)
-                            /* props.setEditOne(true) */
+                            props.setEditOne('status')
                         }}>{data.status}</span>
                     </p>
                     <p>
                         <BsExclamationCircle className="icon" />{' '}
                         <b className="title">Priority: </b>
                         <span onClick={() => {
-                            props.setEditPriority(!props.editPriority)
-                            /* props.setEditOne(true) */
+                            props.setEditOne('priority')
                         }}>{data.priority}</span>
                     </p>
                     {/* <AssignedUsers node={data} /> */}
                 </div>
                 
-            ) : props.editDescription ? (
-                <div onBlur={handleCancel}>
+            ) : props.editOne === 'description' ? (
+                <div>
+                    <h2><span onClick={() => {
+                        props.setEditOne('label')
+                    }}>{data.label}</span></h2>
                     <Form noValidate validated={validated} onBlur={handleSubmit}>
                         <Form.Group
                             id="description-field"
@@ -170,10 +163,36 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             />
                         </Form.Group>
                     </Form>
-                    <p>hellow</p>
+                    <p>
+                        <BsClipboardCheck className="icon" />{' '}
+                        <b className="title">Status: </b>
+                        <span onClick={() => {
+                            props.setEditOne('status')
+                        }}>{data.status}</span>
+                    </p>
+                    <p>
+                        <BsExclamationCircle className="icon" />{' '}
+                        <b className="title">Priority: </b>
+                        <span onClick={() => {
+                            props.setEditOne('priority')
+                        }}>{data.priority}</span>
+                    </p>
+                    {/* <AssignedUsers node={data} /> */}
                 </div>
-            ) : props.editStatus ? (
-                <div onBlur={handleCancel}>
+            ) : props.editOne === 'status' ? (
+                <div>
+                    <h2><span onClick={() => {
+                        props.setEditOne('label')
+                    }}>{data.label}</span></h2>
+                    <p className="node-description" onClick={() => {
+                        props.setEditOne('description')
+                    }}>
+                        {data.description ? (
+                            data.description
+                        ) : (
+                            'No description'
+                        )}
+                    </p>
                     <Form noValidate validated={validated} onBlur={handleSubmit}>
                         <Form.Group className="mb-3" controlId="statusId">
                             <Form.Label>
@@ -195,10 +214,36 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             </Form.Select>
                         </Form.Group>
                     </Form>
-                    <p>hellow</p>
+                    <p>
+                        <BsExclamationCircle className="icon" />{' '}
+                        <b className="title">Priority: </b>
+                        <span onClick={() => {
+                            props.setEditOne('priority')
+                        }}>{data.priority}</span>
+                    </p>
+                    {/* <AssignedUsers node={data} /> */}
                 </div>
-            ) : props.editPriority ? (
-                <div onBlur={handleCancel}>
+            ) : props.editOne === 'priority' ? (
+                <div>
+                    <h2><span onClick={() => {
+                        props.setEditOne('label')
+                    }}>{data.label}</span></h2>
+                    <p className="node-description" onClick={() => {
+                        props.setEditOne('description')
+                    }}>
+                        {data.description ? (
+                            data.description
+                        ) : (
+                            'No description'
+                        )}
+                    </p>
+                    <p>
+                        <BsClipboardCheck className="icon" />{' '}
+                        <b className="title">Status: </b>
+                        <span onClick={() => {
+                            props.setEditOne('status')
+                        }}>{data.status}</span>
+                    </p>
                     <Form noValidate validated={validated} onBlur={handleSubmit}>
                         <Form.Group className="mb-3" controlId="priorityId">
                             <Form.Label>
@@ -216,7 +261,7 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                             </Form.Select>
                         </Form.Group>
                     </Form>
-                    <p>hellow</p>
+                    {/* <AssignedUsers node={data} /> */}
                 </div>
             ) : props.editAssign ? (
                 <></>
