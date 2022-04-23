@@ -6,8 +6,8 @@ import { createUser } from '../services/userService';
 export const Registration: React.FC = () => {
     return (
         <div>
-            <Logo/>
+            <Logo />
             <RegistrationForm createUser={createUser} />
         </div>
-    )
+    );
 };

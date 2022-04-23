@@ -61,7 +61,7 @@ export const LoginForm = (props: LoginFormProps): JSX.Element => {
     return (
         <div>
             <div>
-                <Logo/>
+                <Logo />
             </div>
             <div className="form-box-login">
                 <form onSubmit={handleSubmit}>
