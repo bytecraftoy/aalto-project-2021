@@ -65,7 +65,9 @@ Cypress.Commands.add('insertNode', (nodeName, location) => {
     var b_NodeNamePrefixed = true;
 
     cy.get('#createBtn').click(); // Toggle on
+    cy.wait(100);
     cy.get('.react-flow__renderer').click(location)
+    cy.wait(100);
     cy.get('.react-flow input').type(nodeName + '{enter}')
     cy.get('#createBtn').click(); // Toggle off
 
