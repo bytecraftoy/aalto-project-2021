@@ -168,8 +168,8 @@ describe('Projects', () => {
             };
             await api
                 .delete(`${baseUrl}/${p.id}`)
-                .set('X-Depsee-Auth', `bearer ${token}`)
-                .expect(200);
+                .set('Authorization', `bearer ${token}`)
+                .expect(401);
         });
     });
 
