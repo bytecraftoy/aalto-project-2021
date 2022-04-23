@@ -26,4 +26,6 @@ Cypress.on('uncaught:exception', (err) => {
     }
 })
 
+require('cypress-terminal-report/src/installLogsCollector')();
+
 import '@cypress/code-coverage/support'

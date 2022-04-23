@@ -21,7 +21,8 @@ module.exports = (on, config) => {
     // `config` is the resolved Cypress config
 
   require('@cypress/code-coverage/task')(on, config)
-  // include any other plugin code...
+
+  require('cypress-terminal-report/src/installLogsPrinter')(on);
 
   // It's IMPORTANT to return the config object
   // with any changed environment variables
