@@ -23,13 +23,14 @@ jobs:
             - uses: actions/setup-node@v1
               with:
                   node-version: 12
+            - name: Lockfile version check
+              uses: sergeysova/jq-action@v2
+              with:
+                  cmd: jq .lockfileVersion package-lock.json -eq 2
             - name: Install dependencies in the root
               run: npm ci
             - name: Install dependencies in the client folder
               run: npm ci
-              working-directory: ./src/client
-            - name: Check lockfile version
-              run: $(jq .lockfileVersion package-lock.json) -eq 2
               working-directory: ./src/client
             - name: Run front end tests
               run: npm test
