@@ -46,12 +46,10 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                 )}
                 <p>
                     <BsClipboardCheck className="icon" />{' '}
-                    <b className="title">Status: </b>
                     {data.status}
                 </p>
                 <p>
                     <BsExclamationCircle className="icon" />{' '}
-                    <b className="title">Priority: </b>
                     {data.priority}
                 </p>
                 {/* <p>
