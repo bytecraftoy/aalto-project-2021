@@ -129,8 +129,8 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                     </span>
                 </h2>
             )}
-            
-            { props.editOne === 'description' ? (
+
+            {props.editOne === 'description' ? (
                 <Form.Group
                     id="description-field"
                     className="mb-3"
@@ -157,8 +157,8 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                     {data.description ? data.description : 'No description'}
                 </p>
             )}
-            
-            { props.editOne === 'status' ? (
+
+            {props.editOne === 'status' ? (
                 <Form.Group className="mb-3" controlId="statusId">
                     <Form.Label>
                         <BsClipboardCheck className="icon" /> Status
@@ -166,22 +166,16 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                     <Form.Select
                         aria-label="Default select example"
                         defaultValue={status}
-                        onChange={(e) =>
-                            setStatus(e.target.value as Status)
-                        }
+                        onChange={(e) => setStatus(e.target.value as Status)}
                         onKeyDown={handleSelectKeyDown}
                     >
                         <option value={'Product Backlog'}>
                             Product Backlog
                         </option>
-                        <option value={'Sprint Backlog'}>
-                            Sprint Backlog
-                        </option>
+                        <option value={'Sprint Backlog'}>Sprint Backlog</option>
                         <option value={'ToDo'}>ToDo</option>
                         <option value={'Doing'}>Doing</option>
-                        <option value={'Code Review'}>
-                            Code Review
-                        </option>
+                        <option value={'Code Review'}>Code Review</option>
                         <option value={'Done'}>Done</option>
                         <option value={'Done Done'}>Done Done</option>
                     </Form.Select>
@@ -199,12 +193,11 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                     </span>
                 </p>
             )}
-            
-            { props.editOne === 'priority' ? (
+
+            {props.editOne === 'priority' ? (
                 <Form.Group className="mb-3" controlId="priorityId">
                     <Form.Label>
-                        <BsExclamationCircle className="icon" />{' '}
-                        Priority
+                        <BsExclamationCircle className="icon" /> Priority
                     </Form.Label>
                     <Form.Select
                         aria-label="Default select example"
@@ -229,9 +222,9 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
                         {data.priority}
                     </span>
                 </p>
-            )} 
-            
-            { props.editOne === 'user' ? (
+            )}
+
+            {props.editOne === 'user' ? (
                 <AssignUsers node={data} />
             ) : (
                 <AssignedUsers node={data} setEditOne={props.setEditOne} />
