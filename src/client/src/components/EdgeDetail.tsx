@@ -5,7 +5,7 @@ import './styles/Sidebar.css';
 import {
     BsClipboardCheck,
     BsExclamationCircle,
-    BsArrowDown
+    BsArrowDown,
 } from 'react-icons/bs';
 
 interface EdgeDetailProps {
@@ -32,12 +32,9 @@ export const EdgeDetail = (props: EdgeDetailProps): JSX.Element => {
             </h5>
             {source ? (
                 <>
-                    <h2>
-                        {source.label}
-                    </h2>
+                    <h2>{source.label}</h2>
                     <p>
-                        <BsClipboardCheck className="icon" />{' '}
-                        {source.status}
+                        <BsClipboardCheck className="icon" /> {source.status}
                     </p>
                     <p>
                         <BsExclamationCircle className="icon" />{' '}
@@ -46,15 +43,12 @@ export const EdgeDetail = (props: EdgeDetailProps): JSX.Element => {
                     {/* <p>ID: {source.id}</p> */}
                 </>
             ) : null}
-            <BsArrowDown className='icon' id='edge-detail-arrow' size='70'/>
+            <BsArrowDown className="icon" id="edge-detail-arrow" size="70" />
             {target ? (
                 <>
-                    <h2>
-                        {target.label}
-                    </h2>
+                    <h2>{target.label}</h2>
                     <p>
-                        <BsClipboardCheck className="icon" />{' '}
-                        {target.status}
+                        <BsClipboardCheck className="icon" /> {target.status}
                     </p>
                     <p>
                         <BsExclamationCircle className="icon" />{' '}

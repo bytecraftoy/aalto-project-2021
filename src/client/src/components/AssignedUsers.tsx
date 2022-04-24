@@ -30,9 +30,12 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
             {isLoading ? (
                 <Spinner animation="border" />
             ) : (
-                <ul className='assigned-users-list'>
+                <ul className="assigned-users-list">
                     {assigned.map((user) => (
-                        <li><BsFillPersonFill />{' ' + user.username}</li>
+                        <li>
+                            <BsFillPersonFill />
+                            {' ' + user.username}
+                        </li>
                     ))}
                 </ul>
             )}
