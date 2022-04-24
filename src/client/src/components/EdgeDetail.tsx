@@ -2,11 +2,8 @@ import React from 'react';
 import { Edge, Elements } from 'react-flow-renderer';
 import { IEdge, INode } from '../../../../types';
 import './styles/Sidebar.css';
-import {
-    BsClipboardCheck,
-    BsExclamationCircle,
-    BsArrowDown,
-} from 'react-icons/bs';
+import { BsClipboardCheck, BsExclamationCircle } from 'react-icons/bs';
+import { HiOutlineArrowNarrowDown } from 'react-icons/hi';
 
 interface EdgeDetailProps {
     element: Edge<IEdge>;
@@ -43,7 +40,11 @@ export const EdgeDetail = (props: EdgeDetailProps): JSX.Element => {
                     {/* <p>ID: {source.id}</p> */}
                 </>
             ) : null}
-            <BsArrowDown className="icon" id="edge-detail-arrow" size="70" />
+            <HiOutlineArrowNarrowDown
+                className="icon"
+                id="edge-detail-arrow"
+                size="70"
+            />
             {target ? (
                 <>
                     <h2>{target.label}</h2>
