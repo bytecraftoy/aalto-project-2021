@@ -26,7 +26,7 @@ jobs:
             - name: Lockfile version check
               uses: sergeysova/jq-action@v2
               with:
-                  cmd: jq .lockfileVersion package-lock.json -eq 2
+                  cmd: jq '.lockfileVersion package-lock.json == 2'
             - name: Install dependencies in the root
               run: npm ci
             - name: Install dependencies in the client folder
