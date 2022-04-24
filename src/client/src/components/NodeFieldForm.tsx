@@ -94,286 +94,148 @@ export const NodeFieldForm = (props: NodeFieldFormProps): JSX.Element => {
     }
 
     return (
-        <div>
+        <Form
+            noValidate
+            validated={validated}
+            onBlur={handleSubmit}
+            onSubmit={handleSubmit}
+        >
             {props.editOne === 'label' ? (
-                <div>
-                    <Form
-                        noValidate
-                        validated={validated}
-                        onBlur={handleSubmit}
-                    >
-                        <Form.Group
-                            id="label-field"
-                            className="mb-3"
-                            controlId="labelId"
-                        >
-                            <Form.Label>
-                                <BsCardHeading className="icon" /> Label
-                            </Form.Label>
-                            <Form.Control
-                                required
-                                type="text"
-                                placeholder="Enter label"
-                                value={label}
-                                onChange={(e) => setLabel(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                            />
-                        </Form.Group>
-                    </Form>
-                    <p
-                        className="node-description"
-                        onClick={() => {
-                            props.setEditOne('description');
-                        }}
-                    >
-                        {data.description ? data.description : 'No description'}
-                    </p>
-                    <p>
-                        <BsClipboardCheck className="icon" />{' '}
-                        <b className="title">Status: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('status');
-                            }}
-                        >
-                            {data.status}
-                        </span>
-                    </p>
-                    <p>
-                        <BsExclamationCircle className="icon" />{' '}
-                        <b className="title">Priority: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('priority');
-                            }}
-                        >
-                            {data.priority}
-                        </span>
-                    </p>
-                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
-                </div>
-            ) : props.editOne === 'description' ? (
-                <div>
-                    <h2>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('label');
-                            }}
-                        >
-                            {data.label}
-                        </span>
-                    </h2>
-                    <Form
-                        noValidate
-                        validated={validated}
-                        onBlur={handleSubmit}
-                    >
-                        <Form.Group
-                            id="description-field"
-                            className="mb-3"
-                            controlId="descriptionId"
-                        >
-                            <Form.Label>
-                                <BsCardText className="icon" /> Description
-                            </Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter description"
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                            />
-                        </Form.Group>
-                    </Form>
-                    <p>
-                        <BsClipboardCheck className="icon" />{' '}
-                        <b className="title">Status: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('status');
-                            }}
-                        >
-                            {data.status}
-                        </span>
-                    </p>
-                    <p>
-                        <BsExclamationCircle className="icon" />{' '}
-                        <b className="title">Priority: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('priority');
-                            }}
-                        >
-                            {data.priority}
-                        </span>
-                    </p>
-                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
-                </div>
-            ) : props.editOne === 'status' ? (
-                <div>
-                    <h2>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('label');
-                            }}
-                        >
-                            {data.label}
-                        </span>
-                    </h2>
-                    <p
-                        className="node-description"
-                        onClick={() => {
-                            props.setEditOne('description');
-                        }}
-                    >
-                        {data.description ? data.description : 'No description'}
-                    </p>
-                    <Form
-                        noValidate
-                        validated={validated}
-                        onBlur={handleSubmit}
-                    >
-                        <Form.Group className="mb-3" controlId="statusId">
-                            <Form.Label>
-                                <BsClipboardCheck className="icon" /> Status
-                            </Form.Label>
-                            <Form.Select
-                                aria-label="Default select example"
-                                defaultValue={status}
-                                onChange={(e) =>
-                                    setStatus(e.target.value as Status)
-                                }
-                                onKeyDown={handleSelectKeyDown}
-                            >
-                                <option value={'Product Backlog'}>
-                                    Product Backlog
-                                </option>
-                                <option value={'Sprint Backlog'}>
-                                    Sprint Backlog
-                                </option>
-                                <option value={'ToDo'}>ToDo</option>
-                                <option value={'Doing'}>Doing</option>
-                                <option value={'Code Review'}>
-                                    Code Review
-                                </option>
-                                <option value={'Done'}>Done</option>
-                                <option value={'Done Done'}>Done Done</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Form>
-                    <p>
-                        <BsExclamationCircle className="icon" />{' '}
-                        <b className="title">Priority: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('priority');
-                            }}
-                        >
-                            {data.priority}
-                        </span>
-                    </p>
-                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
-                </div>
-            ) : props.editOne === 'priority' ? (
-                <div>
-                    <h2>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('label');
-                            }}
-                        >
-                            {data.label}
-                        </span>
-                    </h2>
-                    <p
-                        className="node-description"
-                        onClick={() => {
-                            props.setEditOne('description');
-                        }}
-                    >
-                        {data.description ? data.description : 'No description'}
-                    </p>
-                    <p>
-                        <BsClipboardCheck className="icon" />{' '}
-                        <b className="title">Status: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('status');
-                            }}
-                        >
-                            {data.status}
-                        </span>
-                    </p>
-                    <Form
-                        noValidate
-                        validated={validated}
-                        onBlur={handleSubmit}
-                    >
-                        <Form.Group className="mb-3" controlId="priorityId">
-                            <Form.Label>
-                                <BsExclamationCircle className="icon" />{' '}
-                                Priority
-                            </Form.Label>
-                            <Form.Select
-                                aria-label="Default select example"
-                                defaultValue={priority}
-                                onChange={(e) => setPriority(e.target.value)}
-                                onKeyDown={handleSelectKeyDown}
-                            >
-                                <option value={'Urgent'}>Urgent</option>
-                                <option value={'Normal'}>Normal</option>
-                                <option value={'Lax'}>Lax</option>
-                            </Form.Select>
-                        </Form.Group>
-                    </Form>
-                    <AssignedUsers node={data} setEditOne={props.setEditOne} />
-                </div>
-            ) : props.editOne === 'user' ? (
-                <div>
-                    <h2>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('label');
-                            }}
-                        >
-                            {data.label}
-                        </span>
-                    </h2>
-                    <p
-                        className="node-description"
-                        onClick={() => {
-                            props.setEditOne('description');
-                        }}
-                    >
-                        {data.description ? data.description : 'No description'}
-                    </p>
-                    <p>
-                        <BsClipboardCheck className="icon" />{' '}
-                        <b className="title">Status: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('status');
-                            }}
-                        >
-                            {data.status}
-                        </span>
-                    </p>
-                    <p>
-                        <BsExclamationCircle className="icon" />{' '}
-                        <b className="title">Priority: </b>
-                        <span
-                            onClick={() => {
-                                props.setEditOne('priority');
-                            }}
-                        >
-                            {data.priority}
-                        </span>
-                    </p>
-                    <AssignUsers node={data} />
-                </div>
+                <Form.Group
+                    id="label-field"
+                    className="mb-3"
+                    controlId="labelId"
+                >
+                    <Form.Label>
+                        <BsCardHeading className="icon" /> Label
+                    </Form.Label>
+                    <Form.Control
+                        required
+                        type="text"
+                        placeholder="Enter label"
+                        value={label}
+                        onChange={(e) => setLabel(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                    />
+                </Form.Group>
             ) : (
-                <></>
+                <h2>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('label');
+                        }}
+                    >
+                        {data.label}
+                    </span>
+                </h2>
             )}
-        </div>
+            
+            { props.editOne === 'description' ? (
+                <Form.Group
+                    id="description-field"
+                    className="mb-3"
+                    controlId="descriptionId"
+                >
+                    <Form.Label>
+                        <BsCardText className="icon" /> Description
+                    </Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Enter description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                    />
+                </Form.Group>
+            ) : (
+                <p
+                    className="node-description"
+                    onClick={() => {
+                        props.setEditOne('description');
+                    }}
+                >
+                    {data.description ? data.description : 'No description'}
+                </p>
+            )}
+            
+            { props.editOne === 'status' ? (
+                <Form.Group className="mb-3" controlId="statusId">
+                    <Form.Label>
+                        <BsClipboardCheck className="icon" /> Status
+                    </Form.Label>
+                    <Form.Select
+                        aria-label="Default select example"
+                        defaultValue={status}
+                        onChange={(e) =>
+                            setStatus(e.target.value as Status)
+                        }
+                        onKeyDown={handleSelectKeyDown}
+                    >
+                        <option value={'Product Backlog'}>
+                            Product Backlog
+                        </option>
+                        <option value={'Sprint Backlog'}>
+                            Sprint Backlog
+                        </option>
+                        <option value={'ToDo'}>ToDo</option>
+                        <option value={'Doing'}>Doing</option>
+                        <option value={'Code Review'}>
+                            Code Review
+                        </option>
+                        <option value={'Done'}>Done</option>
+                        <option value={'Done Done'}>Done Done</option>
+                    </Form.Select>
+                </Form.Group>
+            ) : (
+                <p>
+                    <BsClipboardCheck className="icon" />{' '}
+                    <b className="title">Status: </b>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('status');
+                        }}
+                    >
+                        {data.status}
+                    </span>
+                </p>
+            )}
+            
+            { props.editOne === 'priority' ? (
+                <Form.Group className="mb-3" controlId="priorityId">
+                    <Form.Label>
+                        <BsExclamationCircle className="icon" />{' '}
+                        Priority
+                    </Form.Label>
+                    <Form.Select
+                        aria-label="Default select example"
+                        defaultValue={priority}
+                        onChange={(e) => setPriority(e.target.value)}
+                        onKeyDown={handleSelectKeyDown}
+                    >
+                        <option value={'Urgent'}>Urgent</option>
+                        <option value={'Normal'}>Normal</option>
+                        <option value={'Lax'}>Lax</option>
+                    </Form.Select>
+                </Form.Group>
+            ) : (
+                <p>
+                    <BsExclamationCircle className="icon" />{' '}
+                    <b className="title">Priority: </b>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('priority');
+                        }}
+                    >
+                        {data.priority}
+                    </span>
+                </p>
+            )} 
+            
+            { props.editOne === 'user' ? (
+                <AssignUsers node={data} />
+            ) : (
+                <AssignedUsers node={data} setEditOne={props.setEditOne} />
+            )}
+        </Form>
     );
 };
