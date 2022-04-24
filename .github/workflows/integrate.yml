@@ -28,6 +28,9 @@ jobs:
             - name: Install dependencies in the client folder
               run: npm ci
               working-directory: ./src/client
+            - name: Check lockfile version
+              run: $(jq .lockfileVersion package-lock.json) -eq 2
+              working-directory: ./src/client
             - name: Run front end tests
               run: npm test
               working-directory: ./src/client
