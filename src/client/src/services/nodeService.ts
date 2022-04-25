@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { INode } from '../../../../types';
+import { Comment, INode } from '../../../../types';
 import { axiosWrapper } from './axiosWrapper';
 import { getAuthConfig } from './userService';
 export const baseUrl = '/api/node';
@@ -34,4 +34,40 @@ const updateNodes = async (nodes: INode[]): Promise<void> => {
     await axiosWrapper(axios.put(baseUrl, nodes, getAuthConfig()));
 };
 
-export { getAll, sendNode, deleteNode, updateNode, updateNodes };
+const getComments = async (
+    project_id: number,
+    node_id: number
+): Promise<Comment[]> => {
+    return (
+        (await axiosWrapper(
+            axios.get<Comment[]>(
+                `${baseUrl}/${project_id}/${node_id}/comment`,
+                getAuthConfig()
+            )
+        )) || []
+    );
+};
+
+const sendComment = async (
+    project_id: number,
+    node_id: number,
+    content: string
+): Promise<void> => {
+    await axiosWrapper(
+        axios.post(
+            `${baseUrl}/${project_id}/${node_id}/comment`,
+            { content },
+            getAuthConfig()
+        )
+    );
+};
+
+export {
+    getAll,
+    sendNode,
+    deleteNode,
+    updateNode,
+    updateNodes,
+    getComments,
+    sendComment,
+};

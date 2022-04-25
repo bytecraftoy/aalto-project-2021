@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IEdge, INode, ProjectPermissions } from '../../../../types';
+import { IEdge, INode, ProjectPermissions, UserToken } from '../../../../types';
 import { NodeDetail } from './NodeDetail';
 import { BsXLg, BsPencilFill, BsFillTrashFill } from 'react-icons/bs';
 import {
@@ -21,6 +21,7 @@ interface ElementDetailProps {
     type: 'Node' | 'Edge' | null;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     closeSidebar: () => void;
+    user?: UserToken;
 }
 
 export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
@@ -101,6 +102,8 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                         editMode={editMode}
                         setElements={props.setElements}
                         setEditMode={setEditMode}
+                        user={props.user}
+                        permissions={props.permissions}
                     />
                 )}
                 {element && isEdge(element) && (
