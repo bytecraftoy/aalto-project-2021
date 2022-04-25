@@ -109,3 +109,11 @@ export interface ITaggedNode {
     tag_id: number;
     project_id: number;
 }
+
+export interface Comment {
+    username: string;
+    users_id: number;
+    node_id: number;
+    created: string;
+    content: string;
+}

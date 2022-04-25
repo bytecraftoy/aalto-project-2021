@@ -13,12 +13,14 @@ const api = supertest(app);
 
 let pId: number;
 let user: User;
+let token: string;
 
 describe('Node', () => {
     beforeAll(async () => {
         await db.initDatabase();
         const login = await registerRandomUser(api);
         user = login.user;
+        token = login.token;
     });
 
     beforeEach(async () => {
@@ -239,6 +241,85 @@ describe('Node', () => {
                 node.label,
             ]);
             expect(q.rowCount).toBeGreaterThan(0);
+        });
+    });
+
+    describe('Comments', () => {
+        test('should send comment to node with access', async () => {
+            const n: INode = {
+                label: 'comment node',
+                priority: 'Urgent',
+                status: 'Doing',
+                x: 0,
+                y: 0,
+                project_id: pId,
+                description: 'desc',
+            };
+
+            const nodeId = (await api.post('/api/node').send(n).expect(200))
+                .body.id;
+
+            const comment = { content: 'This is a comment' };
+            await api
+                .post(`/api/node/${pId}/${nodeId}/comment`)
+                .send(comment)
+                .set('X-Depsee-Auth', `bearer ${token}`)
+                .expect(200);
+        });
+
+        test('should fetch comments from node with access', async () => {
+            const n: INode = {
+                label: 'comment node',
+                priority: 'Urgent',
+                status: 'Doing',
+                x: 0,
+                y: 0,
+                project_id: pId,
+                description: 'desc',
+            };
+
+            const nodeId = (await api.post('/api/node').send(n).expect(200))
+                .body.id;
+
+            // Send 2 comments
+            await api
+                .post(`/api/node/${pId}/${nodeId}/comment`)
+                .send({ content: '1' })
+                .set('X-Depsee-Auth', `bearer ${token}`)
+                .expect(200);
+            await api
+                .post(`/api/node/${pId}/${nodeId}/comment`)
+                .send({ content: '2' })
+                .set('X-Depsee-Auth', `bearer ${token}`)
+                .expect(200);
+
+            const result = await api
+                .get(`/api/node/${pId}/${nodeId}/comment`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
+                .expect(200);
+            expect(result.body).toBeDefined();
+            expect(result.body).toHaveLength(2);
+        });
+
+        test('should not send comment without an account', async () => {
+            const n: INode = {
+                label: 'comment node',
+                priority: 'Urgent',
+                status: 'Doing',
+                x: 0,
+                y: 0,
+                project_id: pId,
+                description: 'desc',
+            };
+
+            const nodeId = (await api.post('/api/node').send(n).expect(200))
+                .body.id;
+
+            const comment = { content: 'This comment should not be sent' };
+            await api
+                .post(`/api/node/${pId}/${nodeId}/comment`)
+                .send(comment)
+                .expect(401);
         });
     });
 });

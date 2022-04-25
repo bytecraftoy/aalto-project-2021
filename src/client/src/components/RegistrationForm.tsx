@@ -90,48 +90,52 @@ export const RegistrationForm: ({
                     </p>
                 ))}
                 <div>
-                    <label htmlFor="email"></label>
-                    <input
-                        placeholder="Enter Email"
-                        name="email"
-                        id="email"
-                        value={email}
-                        onChange={({ target }) => setEmail(target.value)}
-                    />
+                    <label htmlFor="email">Email</label>
+                    <div>
+                        <input
+                            name="email"
+                            id="email"
+                            value={email}
+                            onChange={({ target }) => setEmail(target.value)}
+                        />
+                    </div>
                 </div>
                 <div>
-                    <label htmlFor="username"></label>
-                    <input
-                        placeholder="Enter Username"
-                        name="username"
-                        id="username"
-                        value={username}
-                        onChange={({ target }) => setUsername(target.value)}
-                    />
+                    <label htmlFor="username">Username</label>
+                    <div>
+                        <input
+                            name="username"
+                            id="username"
+                            value={username}
+                            onChange={({ target }) => setUsername(target.value)}
+                        />
+                    </div>
                 </div>
                 <div>
-                    <label htmlFor="psw"></label>
-                    <input
-                        type="password"
-                        placeholder="Enter Password"
-                        name="psw"
-                        id="psw"
-                        value={password}
-                        onChange={({ target }) => setPassword(target.value)}
-                        required
-                    />
+                    <label htmlFor="psw">Password</label>
+                    <div>
+                        <input
+                            type="password"
+                            name="psw"
+                            id="psw"
+                            value={password}
+                            onChange={({ target }) => setPassword(target.value)}
+                            required
+                        />
+                    </div>
                 </div>
                 <div>
-                    <label htmlFor="psw-repeat"></label>
-                    <input
-                        type="password"
-                        placeholder="Repeat Password"
-                        name="psw-repeat"
-                        id="psw-repeat"
-                        value={confirm}
-                        onChange={({ target }) => setConfirm(target.value)}
-                        required
-                    />
+                    <label htmlFor="psw-repeat">Confirm Password</label>
+                    <div>
+                        <input
+                            type="password"
+                            name="psw-repeat"
+                            id="psw-repeat"
+                            value={confirm}
+                            onChange={({ target }) => setConfirm(target.value)}
+                            required
+                        />
+                    </div>
                 </div>
 
                 <button

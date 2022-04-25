@@ -231,4 +231,81 @@ router
         }
     });
 
+/**
+ * POST /api/node/:id/:nodeId/comment
+ * @summary Fetch comments
+ * @description Fetch **comment(s)** for a **node**. You may need certain privileges to be able to add a node
+ * @pathParam {string} id - Id of the project where the node belongs
+ * @pathParam {string} nodeId - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ */
+router
+    .route('/node/:id/:nodeId/comment')
+    .get(async (req: Request, res: Response) => {
+        const projectId = parseInt(req.params.id);
+        const nodeId = parseInt(req.params.nodeId);
+
+        const permissions = await checkProjectPermissionByProjectId(
+            req,
+            projectId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        const query = `
+            SELECT username, users_id, node_id, created, content
+            FROM comment
+            LEFT JOIN users ON users_id = users.id
+            WHERE node_id = $1
+            ORDER BY created ASC
+        `;
+
+        const q = await db.query(query, [nodeId]);
+        res.json(q.rows);
+    })
+    /**
+     * POST /api/node/:id/:nodeId/comment
+     * @summary Create a comment
+     * @description Create a new **comment** for a **node**. You may need certain privileges to be able to add a node
+     * @bodyContent {string} - Content of the comment
+     * @bodyRequired
+     * @pathParam {string} id - Id of the project where the node belongs
+     * @pathParam {string} nodeId - Id of the node
+     * @response 200 - OK
+     * @response 401 - Unauthorized
+     * @response 403 - Forbidden
+     */
+    .post(async (req: Request, res: Response) => {
+        const projectId = parseInt(req.params.id);
+        const nodeId = parseInt(req.params.nodeId);
+        const content: string = req.body.content;
+
+        const permissions = await checkProjectPermissionByProjectId(
+            req,
+            projectId
+        );
+        if (!permissions.edit || !req.user) {
+            return res
+                .status(401)
+                .json({ message: 'No permission or not an user' });
+        }
+
+        if (!content) {
+            return res
+                .status(403)
+                .json({ message: 'No text in comment content' });
+        }
+
+        const userId = req.user.id;
+
+        await db.query(
+            'INSERT INTO comment (users_id, node_id, content) VALUES ($1, $2, $3)',
+            [userId, nodeId, content]
+        );
+        res.status(200).json();
+    });
+
 export { router as node };

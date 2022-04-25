@@ -9,7 +9,7 @@ function path(url: string): IPathRoute {
             methods: ['POST', 'PUT'],
         },
         '/node/:id': {
-            methods: ['GET', 'DELETE'],
+            methods: ['GET', 'POST', 'DELETE'],
         },
         '/assignment': {
             methods: ['GET', 'POST', 'DELETE'],

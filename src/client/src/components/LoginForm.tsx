@@ -67,25 +67,27 @@ export const LoginForm = (props: LoginFormProps): JSX.Element => {
                     </p>
                 ))}
                 <div>
-                    <label htmlFor="email"></label>
-                    <input
-                        placeholder="Enter Email or username"
-                        name="emailUser"
-                        id="emailUser"
-                        value={emailUser}
-                        onChange={({ target }) => setEmail(target.value)}
-                    />
+                    <label htmlFor="email">Email or Username</label>
+                    <div>
+                        <input
+                            name="emailUser"
+                            id="emailUser"
+                            value={emailUser}
+                            onChange={({ target }) => setEmail(target.value)}
+                        />
+                    </div>
                 </div>
                 <div>
-                    <label htmlFor="psw"></label>
-                    <input
-                        type="password"
-                        placeholder="Enter Password"
-                        name="psw"
-                        id="psw"
-                        value={password}
-                        onChange={({ target }) => setPassword(target.value)}
-                    />
+                    <label htmlFor="psw">Password</label>
+                    <div>
+                        <input
+                            type="password"
+                            name="psw"
+                            id="psw"
+                            value={password}
+                            onChange={({ target }) => setPassword(target.value)}
+                        />
+                    </div>
                 </div>
                 <button
                     id="login-button"
