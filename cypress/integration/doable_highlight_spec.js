@@ -19,6 +19,8 @@ describe('node highlighting', () => {
     })
 
     beforeEach(() => {
+        cy.get('.detail-sidebar-topbar').should('not.exist');    
+
         cy.insertNode(node_1_name, 'left')
         cy.insertNode(node_2_name, 'center')
         cy.insertNode(node_3_name, 'bottom')
@@ -83,6 +85,7 @@ describe('node highlighting', () => {
         cy.get('#connectBtn').click();
 
         highlight_cb().check();
+        highlight_cb().should('be.checked');
 
         node1().should('have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(104, 101, 89)');
         node2().should('have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(104, 101, 89)');
