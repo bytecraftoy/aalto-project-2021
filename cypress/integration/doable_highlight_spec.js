@@ -87,42 +87,14 @@ describe('node highlighting', () => {
         highlight_cb().check();
         highlight_cb().should('be.checked');
 
-        node1().should('have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(104, 101, 89)');
-        node2().should('have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(104, 101, 89)');
-        node3().should('not.have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(255, 255, 255)');
+        node1().should('have.class', 'unhighlited-node')
+        node2().should('have.class', 'unhighlited-node')
+        node3().should('not.have.class', 'unhighlited-node')
     
         hide_cb().uncheck();
 
         node1().should('have.css', 'background-color', 'rgb(255, 255, 255)');
         node2().should('have.css', 'background-color', 'rgb(255, 255, 255)');
         node3().should('have.css', 'background-color', 'rgb(255, 255, 255)');
-    })
-
-    it('should work with hiding nodes', () => {
-        const node1 = () => cy.get(`.react-flow__node-default:contains(${node_1_name})`);
-        const node2 = () => cy.get(`.react-flow__node-default:contains(${node_2_name})`);
-        const node3 = () => cy.get(`.react-flow__node-default:contains(${node_3_name})`);
-        const highlight_cb = () => cy.get('#leaf-highlight-checkbox');
-
-        cy.get('#connectBtn').click();
-        node1().trigger('mousedown', 'center');
-        node2().trigger('mouseup', 'center');
-        node2().trigger('mousedown', 'center');
-        node3().trigger('mouseup', 'center');
-        cy.get('#connectBtn').click();
-
-        node3().click('center');
-        cy.get('#edit-button').click();
-        cy.get('#statusId').select('Done');
-        cy.get('#node-form-button-row').get('.btn:contains(Save)').click();
-        cy.get('.detail-sidebar-content b').contains('Status:');
-        cy.get('.detail-sidebar-topbar').get('[aria-label="Close sidebar"]').click();
-        cy.get('.detail-sidebar-topbar').should('not.exist');
-
-        highlight_cb().check();
-
-        node1().should('have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(104, 101, 89)');
-        node2().should('not.have.class', 'unhighlited-node').should('have.css', 'background-color', 'rgb(255, 255, 255)');
-        node3().should('not.exist');
     })
 })
