@@ -246,7 +246,7 @@ router
         const projectId = parseInt(req.params.id);
         const nodeId = parseInt(req.params.nodeId);
 
-        const permissions = await checkProjectPermission(req, projectId);
+        const permissions = await checkProjectPermissionByProjectId(req, projectId);
 
         if (!permissions.view) {
             return res.status(401).json({ message: 'No permission' });
@@ -280,7 +280,7 @@ router
         const nodeId = parseInt(req.params.nodeId);
         const content: string = req.body.content;
 
-        const permissions = await checkProjectPermission(req, projectId);
+        const permissions = await checkProjectPermissionByProjectId(req, projectId);
         if (!permissions.edit || !req.user) {
             return res
                 .status(401)
