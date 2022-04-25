@@ -37,6 +37,8 @@
 }
 
 .detail-sidebar {
+    overflow-y: auto;
+    overflow-x: hidden;
     position: absolute;
     right: 0;
     top: 0;

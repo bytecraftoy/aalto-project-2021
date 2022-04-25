@@ -1,8 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Elements, Node } from 'react-flow-renderer';
-import { INode } from '../../../../types';
+import {
+    Comment,
+    INode,
+    ProjectPermissions,
+    UserToken,
+} from '../../../../types';
+import * as nodeService from '../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
+import { CommentSection } from './CommentSection';
 import { NodeForm } from './NodeForm';
 import './styles/Sidebar.css';
 import {
@@ -15,14 +22,43 @@ interface NodeDetailProps {
     editMode: boolean;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     setEditMode: React.Dispatch<React.SetStateAction<boolean>>;
+    permissions: ProjectPermissions;
+    user?: UserToken;
 }
 
 export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
     const data = props.element.data;
+    const [comments, setComments] = useState<Comment[]>([]);
+
+    useEffect(() => {
+        if (data?.id) {
+            nodeService
+                .getComments(data.project_id, data.id)
+                .then((comments) => setComments(comments));
+        } else {
+            setComments([]);
+        }
+    }, [data]);
 
     if (!data) {
         return <></>;
     }
+
+    const sendComment = async (content: string) => {
+        if (data.id) {
+            const comment: Comment = {
+                username: props.user?.username || '',
+                users_id: props.user?.id || 0,
+                node_id: data.id || 0,
+                created: new Date().toISOString(),
+                content,
+            };
+
+            await nodeService.sendComment(data.project_id, data.id, content);
+
+            setComments(comments.concat(comment));
+        }
+    };
 
     let content;
     if (props.editMode) {
@@ -59,6 +95,12 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     {data.id}
                 </p> */}
                 <AssignedUsers node={data} />
+                <CommentSection
+                    comments={comments}
+                    sendComment={sendComment}
+                    user={props.user}
+                    permissions={props.permissions}
+                />
             </>
         );
     }

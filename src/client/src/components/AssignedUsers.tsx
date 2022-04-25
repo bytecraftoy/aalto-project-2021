@@ -17,13 +17,14 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        setAssigned([]);
         getAssignedUsers(nodeId)
             .then(async (users) => {
                 setAssigned(users);
                 setIsLoading(false);
             })
             .catch(() => setAssigned([]));
-    }, []);
+    }, [nodeId]);
 
     return assigned.length ? (
         <div>
@@ -34,8 +35,8 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
                 <Spinner animation="border" />
             ) : (
                 <ul>
-                    {assigned.map((user) => (
-                        <li>{user.username}</li>
+                    {assigned.map((user, i) => (
+                        <li key={i}>{user.username}</li>
                     ))}
                 </ul>
             )}

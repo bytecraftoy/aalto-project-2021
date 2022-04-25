@@ -41,7 +41,7 @@ Cypress.Commands.add('registerLogin', () => {
 });
 
 Cypress.Commands.add('deleteAllProjects', () => {
-    cy.contains('Home').scrollIntoView()
+    cy.contains('Depsee').scrollIntoView()
     cy.get('#home-link').click()
     cy.get("body").then($body => {
         if ($body.find(".project-card").length > 0) {   
