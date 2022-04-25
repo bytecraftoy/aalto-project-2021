@@ -2,8 +2,11 @@ import { router } from '../router';
 import { Request, Response } from 'express';
 import { INode } from '../../../../types';
 import { db } from '../../dbConfigs';
-import { checkProjectPermission } from '../../helper/permissionHelper';
 import { projectIo } from '../../helper/socket';
+import {
+    checkProjectPermissionByNodeId,
+    checkProjectPermissionByProjectId,
+} from '../../helper/permissionHelper';
 
 // Checks need to make sure the node is valid
 const nodeCheck = (node: INode): boolean => {
@@ -25,22 +28,23 @@ const nodeCheck = (node: INode): boolean => {
  * @summary Fetch nodes
  * @description Fetch all nodes belonging to the project
  * @pathParam {string} id - Id of the project of which to fetch nodes
- * @response 200 - OK
+ * @response 200 - OK: IEdge =
  * @response 401 - Unauthorized
  * @response 403 - Forbidden
  */
 router
     .route('/node/:id')
     .get(async (req: Request, res: Response) => {
-        const project_id = parseInt(req.params.id);
+        const { view, projectId } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.id)
+        );
 
-        const permissions = await checkProjectPermission(req, project_id);
-
-        if (!permissions.view) {
+        if (!projectId || !view) {
             return res.status(401).json({ message: 'No permission' });
         }
         const q = await db.query('SELECT * FROM node WHERE project_id = $1', [
-            project_id,
+            projectId,
         ]);
         res.json(q.rows);
     })
@@ -54,37 +58,29 @@ router
      * @response 403 - Forbidden
      */
     .delete(async (req: Request, res: Response) => {
-        const id = req.params.id;
+        const nodeId = parseInt(req.params.id);
 
-        const nodeQuery = await db.query(
-            'SELECT project_id FROM node WHERE id = $1',
-            [id]
+        const { edit, projectId } = await checkProjectPermissionByNodeId(
+            req,
+            nodeId
         );
-
-        if (nodeQuery.rowCount === 0) {
-            return res.status(403).json({ message: 'Node does not exist' });
-        }
-
-        const projectId = nodeQuery.rows[0].project_id;
-
-        const permissions = await checkProjectPermission(req, projectId);
-        if (!permissions.edit) {
+        if (!projectId || !edit) {
             return res.status(401).json({ message: 'No permission' });
         }
 
         req.logger.info({
             message: 'Deleting node',
             projectId,
-            nodeId: id,
+            nodeId,
         });
 
-        await db.query('DELETE FROM node WHERE id = $1', [id]);
+        await db.query('DELETE FROM node WHERE id = $1', [nodeId]);
         res.status(200).json();
 
         projectIo
             ?.except(req.get('socketId')!)
             .to(projectId.toString())
-            .emit('delete-node', { id });
+            .emit('delete-node', { id: nodeId });
     });
 
 /**
@@ -100,16 +96,23 @@ router
 router
     .route('/node')
     .post(async (req: Request, res: Response) => {
+        // todo: don't send the body over websocket as-is, it might have extra fields
         const text: INode = req.body; //Might have to parse this
 
         if (nodeCheck(text)) {
-            const permissions = await checkProjectPermission(
+            const { projectId, edit } = await checkProjectPermissionByProjectId(
                 req,
                 text.project_id
             );
-            if (!permissions.edit) {
+            if (!projectId || !edit) {
                 return res.status(401).json({ message: 'No permission' });
             }
+
+            req.logger.info({
+                message: 'Creating node',
+                projectId,
+                label: text.label,
+            });
 
             const q = await db.query(
                 'INSERT INTO node (label, status, priority, project_id, x, y, description) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
@@ -117,7 +120,7 @@ router
                     text.label,
                     text.status,
                     text.priority,
-                    text.project_id,
+                    projectId,
                     Math.round(text.x),
                     Math.round(text.y),
                     text.description,
@@ -128,7 +131,7 @@ router
 
             projectIo
                 ?.except(req.get('socketId')!)
-                .to(text.project_id.toString())
+                .to(projectId.toString())
                 .emit('add-node', { ...text, id: q.rows[0].id });
         } else {
             res.status(403).json({ message: 'Invalid node' });
@@ -146,10 +149,11 @@ router
      */
     .put(async (req: Request, res: Response) => {
         const data: INode | INode[] = req.body;
+        let projectId: number;
 
         let array: INode[];
         if (Array.isArray(data)) {
-            const projectId = data[0].project_id;
+            projectId = data[0].project_id;
 
             if (
                 !data.every(
@@ -161,23 +165,26 @@ router
                     .json({ message: 'Invalid nodes or multiple projectIds' });
             }
 
-            const permissions = await checkProjectPermission(req, projectId);
-            if (!permissions.edit) {
+            const { edit } = await checkProjectPermissionByProjectId(
+                req,
+                projectId
+            );
+            if (!edit) {
                 return res.status(401).json({ message: 'No permission' });
             }
 
             array = data;
         } else {
+            projectId = data.project_id;
             if (!nodeCheck(data)) {
                 return res.status(403).json({ message: 'Invalid node' });
             }
 
-            const permissions = await checkProjectPermission(
+            const { edit } = await checkProjectPermissionByProjectId(
                 req,
-                data.project_id
+                projectId
             );
-
-            if (!permissions.edit) {
+            if (!edit) {
                 return res.status(401).json({ message: 'No permission' });
             }
 
@@ -186,6 +193,12 @@ router
 
         const client = await db.getClient();
         try {
+            req.logger.info({
+                message: `Updating ${array.length} node(s)`,
+                projectId,
+                nodeIds: array.map((elem) => elem.id),
+            });
+
             await client.query('BEGIN');
             for (const node of array) {
                 await client.query(
@@ -216,6 +229,77 @@ router
         } finally {
             client.release();
         }
+    });
+
+/**
+ * POST /api/node/:id/:nodeId/comment
+ * @summary Fetch comments
+ * @description Fetch **comment(s)** for a **node**. You may need certain privileges to be able to add a node
+ * @pathParam {string} id - Id of the project where the node belongs
+ * @pathParam {string} nodeId - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ */
+router
+    .route('/node/:id/:nodeId/comment')
+    .get(async (req: Request, res: Response) => {
+        const projectId = parseInt(req.params.id);
+        const nodeId = parseInt(req.params.nodeId);
+
+        const permissions = await checkProjectPermissionByProjectId(req, projectId);
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        const query = `
+            SELECT username, users_id, node_id, created, content
+            FROM comment
+            LEFT JOIN users ON users_id = users.id
+            WHERE node_id = $1
+            ORDER BY created ASC
+        `;
+
+        const q = await db.query(query, [nodeId]);
+        res.json(q.rows);
+    })
+    /**
+     * POST /api/node/:id/:nodeId/comment
+     * @summary Create a comment
+     * @description Create a new **comment** for a **node**. You may need certain privileges to be able to add a node
+     * @bodyContent {string} - Content of the comment
+     * @bodyRequired
+     * @pathParam {string} id - Id of the project where the node belongs
+     * @pathParam {string} nodeId - Id of the node
+     * @response 200 - OK
+     * @response 401 - Unauthorized
+     * @response 403 - Forbidden
+     */
+    .post(async (req: Request, res: Response) => {
+        const projectId = parseInt(req.params.id);
+        const nodeId = parseInt(req.params.nodeId);
+        const content: string = req.body.content;
+
+        const permissions = await checkProjectPermissionByProjectId(req, projectId);
+        if (!permissions.edit || !req.user) {
+            return res
+                .status(401)
+                .json({ message: 'No permission or not an user' });
+        }
+
+        if (!content) {
+            return res
+                .status(403)
+                .json({ message: 'No text in comment content' });
+        }
+
+        const userId = req.user.id;
+
+        await db.query(
+            'INSERT INTO comment (users_id, node_id, content) VALUES ($1, $2, $3)',
+            [userId, nodeId, content]
+        );
+        res.status(200).json();
     });
 
 export { router as node };

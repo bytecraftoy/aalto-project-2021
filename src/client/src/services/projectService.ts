@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { IProject, ProjectPermissions, UserData } from '../../../../types';
+import {
+    IProject,
+    NoPermission,
+    ProjectPermissions,
+    UserData,
+} from '../../../../types';
 import { axiosWrapper } from './axiosWrapper';
 import { getAuthConfig } from './userService';
 export const baseUrl = '/api/project';
@@ -20,14 +25,14 @@ const getProject = async (projectId: number): Promise<IProject | undefined> => {
 
 const getProjectPermissions = async (
     projectId: number
-): Promise<ProjectPermissions> => {
+): Promise<ProjectPermissions | NoPermission> => {
     const project = await axiosWrapper(
-        axios.get<ProjectPermissions>(
+        axios.get<ProjectPermissions | NoPermission>(
             `${baseUrl}/${projectId}/permission`,
             getAuthConfig()
         )
     );
-    return project || { view: false, edit: false };
+    return project || { view: false, edit: false, projectId: undefined };
 };
 
 const sendProject = async (project: IProject): Promise<number | undefined> => {

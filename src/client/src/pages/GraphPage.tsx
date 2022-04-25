@@ -6,8 +6,10 @@ import {
     IEdge,
     INode,
     IProject,
+    NoPermission,
     ProjectPermissions,
     RootState,
+    UserToken,
     UserData,
 } from '../../../../types';
 import {
@@ -18,6 +20,7 @@ import {
     isEdge,
     isNode,
     Node,
+    Position,
 } from 'react-flow-renderer';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
@@ -38,7 +41,11 @@ const buttonStyle: CSS.Properties = {
     zIndex: '4',
 };
 
-export const GraphPage = (): JSX.Element => {
+interface GraphPageProps {
+    user?: UserToken;
+}
+
+export const GraphPage = (props: GraphPageProps): JSX.Element => {
     const { id } = useParams();
     const projectId = parseInt(id || '');
 
@@ -52,9 +59,12 @@ export const GraphPage = (): JSX.Element => {
     const [selectedProject, setSelectedProject] = useState<
         IProject | undefined
     >(undefined);
-    const [permissions, setPermissions] = useState<ProjectPermissions>({
+    const [permissions, setPermissions] = useState<
+        NoPermission | ProjectPermissions
+    >({
         view: false,
         edit: false,
+        projectId: undefined,
     });
     const [members, setMembers] = useState<UserData[]>([]);
     const [show, setShow] = useState(false);
@@ -96,7 +106,7 @@ export const GraphPage = (): JSX.Element => {
                 .then((permissions) => setPermissions(permissions))
                 .finally(() => setIsLoadingPermissions(false));
         } else {
-            setPermissions({ view: false, edit: false });
+            setPermissions({ view: false, edit: false, projectId: undefined });
         }
     }, [selectedProject]);
 
@@ -129,6 +139,8 @@ export const GraphPage = (): JSX.Element => {
                     type: DefaultNodeType,
                     data: n,
                     position: { x: n.x, y: n.y },
+                    sourcePosition: Position.Right,
+                    targetPosition: Position.Left,
                 }));
                 // Edge Types: 'default' | 'step' | 'smoothstep' | 'straight'
                 const edgeElements: Elements = edges.map((e) => ({
@@ -216,6 +228,7 @@ export const GraphPage = (): JSX.Element => {
                 setElements={setElements}
                 closeSidebar={closeSidebar}
                 permissions={permissions}
+                user={props.user}
             />
             {selectedProject && (
                 <>

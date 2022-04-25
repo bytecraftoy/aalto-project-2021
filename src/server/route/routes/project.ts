@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import { IProject, UserData } from '../../../../types';
 //import {IError} from '../../domain/IError';
 import { db } from '../../dbConfigs';
-import { checkProjectPermission } from '../../helper/permissionHelper';
+import { checkProjectPermissionByProjectId } from '../../helper/permissionHelper';
 
 /* let projects: Array<IProject> = [{id: '1', name: 'test'}]; */
 
@@ -18,15 +18,16 @@ import { checkProjectPermission } from '../../helper/permissionHelper';
 router
     .route('/project/:id')
     .get(async (req: Request, res: Response) => {
-        const project_id = parseInt(req.params.id);
+        const { view, projectId } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.id)
+        );
 
-        const permissions = await checkProjectPermission(req, project_id);
-
-        if (!permissions.view) {
+        if (!projectId || !view) {
             return res.status(401).json({ message: 'No permission' });
         }
         const q = await db.query('SELECT * FROM project WHERE id = $1', [
-            project_id,
+            projectId,
         ]);
         res.json(q.rows[0]);
     })
@@ -39,26 +40,21 @@ router
      * @response 401 - Unauthorized
      */
     .delete(async (req: Request, res: Response) => {
-        if (!req.token || !req.user) {
-            return res.status(401).json({ error: 'token missing or invalid' });
+        const { view, projectId } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.id)
+        );
+
+        if (!projectId || !view) {
+            return res.status(401).json({ message: 'No permission' });
         }
-        const id = req.params.id;
-        const ownerId = req.user.id;
+        const ownerId = req.user?.id;
 
         const q = await db.query(
             'DELETE FROM project WHERE id = $1 AND owner_id = $2',
-            [id, ownerId]
+            [projectId, ownerId]
         );
         res.status(200).json(q);
-        //the latter part is only for testing with array
-        /* const idx = projects.findIndex( p => p.id === id );
-        if(idx >= 0){
-            console.log('deleting project: ', projects[idx]);
-            projects.splice(idx, 1);
-            res.status(200).json({ message: 'deleted project'})
-        } else {
-            console.log('could not find project with id: ', id);
-        } */
     });
 
 /**
@@ -73,7 +69,10 @@ router
     .get(async (req: Request, res: Response) => {
         const project_id = parseInt(req.params.id);
 
-        const permissions = await checkProjectPermission(req, project_id);
+        const permissions = await checkProjectPermissionByProjectId(
+            req,
+            project_id
+        );
         res.json(permissions);
     });
 
@@ -101,8 +100,6 @@ router
             [userId]
         );
         res.json(q.rows);
-        /* console.log('projects: ', projects);
-        res.json(projects); */
     })
     /**
      * POST /api/project
@@ -130,6 +127,12 @@ router
         try {
             await client.query('BEGIN');
 
+            req.logger.info({
+                message: 'Creating project and assigning creator to it',
+                name: project.name,
+                ownerId,
+            });
+
             const q = await client.query(
                 'INSERT INTO project (name, owner_id, description, public_view, public_edit) VALUES ($1, $2, $3, $4, $5) RETURNING id',
                 [
@@ -149,8 +152,6 @@ router
             );
             client.query('COMMIT');
             res.status(200).json({ id: projectId });
-            /* console.log('adding project: ', project);
-            projects.push(project) */
         } catch (e) {
             // eslint-disable-next-line no-console
             console.log('Invalid project', e);
@@ -171,17 +172,21 @@ router
      *
      */
     .put(async (req: Request, res: Response) => {
-        if (!req.token || !req.user) {
-            return res.status(401).json({ error: 'token missing or invalid' });
-        }
-
         const p: IProject = req.body;
 
-        const permissions = await checkProjectPermission(req, p.id);
+        const { projectId, edit } = await checkProjectPermissionByProjectId(
+            req,
+            p.id
+        );
 
-        if (!permissions.view) {
+        if (!projectId || !edit) {
             return res.status(401).json({ message: 'No permission' });
         }
+
+        req.logger.info({
+            message: 'Updating project details',
+            projectId,
+        });
 
         const q = await db.query(
             'UPDATE project SET name = $1, description = $2, public_view = $3, public_edit = $4 WHERE id = $5 AND owner_id = $6',
@@ -190,14 +195,11 @@ router
                 p.description,
                 p.public_view,
                 p.public_edit,
-                p.id,
+                projectId,
                 p.owner_id,
             ]
         );
         res.status(200).json(q);
-        /* const idx = projects.findIndex( pr => pr.id === p.id );
-        projects[idx] = p;
-        res.status(200).json({ message: 'project updated'}); */
     })
     .delete(async (req: Request, res: Response) => {
         res.status(404).json({ message: 'Not implemented' });
@@ -214,10 +216,12 @@ router
 router
     .route('/project/:id/members')
     .get(async (req: Request, res: Response) => {
-        const projectId = parseInt(req.params.id);
-        const permissions = await checkProjectPermission(req, projectId);
+        const { projectId, view } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.id)
+        );
 
-        if (!permissions.view) {
+        if (!projectId || !view) {
             return res.status(401).json({ message: 'No permission' });
         }
 
@@ -243,13 +247,15 @@ router
      * @response 401 - Unauthorized
      */
     .post(async (req: Request, res: Response) => {
-        const projectId = parseInt(req.params.id);
-        const permissions = await checkProjectPermission(req, projectId);
+        const { edit, projectId } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.id)
+        );
 
         const invite: string = req.body.member;
 
         // Test whether inviter belongs in project
-        if (!permissions.edit) {
+        if (!edit) {
             return res.status(401).json({ message: 'No permission' });
         }
 
@@ -261,6 +267,12 @@ router
                     [invite]
                 )
             ).rows[0];
+
+            req.logger.info({
+                message: 'Adding user to project',
+                projectId,
+                addedUserId: user.id,
+            });
 
             await db.query(
                 'INSERT INTO users__project (users_id, project_id) VALUES ($1, $2)',
@@ -285,12 +297,14 @@ router
 router
     .route('/project/:pid/members/:uid')
     .delete(async (req: Request, res: Response) => {
-        const projectId = parseInt(req.params.pid);
         const userId = parseInt(req.params.uid);
-        const permissions = await checkProjectPermission(req, projectId);
+        const { projectId, edit } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.pid)
+        );
 
         // Test whether inviter belongs in project
-        if (!permissions.edit) {
+        if (!edit) {
             return res.status(401).json({ message: 'No permission' });
         }
 
@@ -303,6 +317,12 @@ router
         if (q.rowCount > 0) {
             return res.status(403).json({ message: 'Cannot delete owner' });
         }
+
+        req.logger.info({
+            message: 'Removing user from project',
+            projectId: projectId,
+            removedUserId: userId,
+        });
 
         await db.query(
             'DELETE FROM users__project WHERE project_id = $1 AND users_id = $2',

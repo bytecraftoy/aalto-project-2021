@@ -22,6 +22,6 @@ const logFormatDev = format.combine(
 export const logger = createLogger({
     level: 'info',
     format:
-        process.env.NODE_ENV === 'production' ? logFormatProd : logFormatDev,
+        process.env.NODE_ENV === 'development' ? logFormatDev : logFormatProd,
     transports: [new transports.Console()],
 });

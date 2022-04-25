@@ -76,13 +76,13 @@ describe('<Project>', () => {
         expect(button).toBeVisible;
     });
 
-    test('clicking edit button should open a form', () => {
+    test('clicking edit button should open a form', async () => {
         const component = renderComponent();
         const button = component.container.querySelector(
             '.project-card .icon-button'
         );
 
-        act(() => {
+        await act(async () => {
             button!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
         });
 

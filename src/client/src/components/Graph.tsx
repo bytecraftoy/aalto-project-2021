@@ -23,6 +23,7 @@ import { Toolbar, ToolbarHandle } from './Toolbar';
 import { basicNode } from '../App';
 import { socket } from '../services/socket';
 import { Spinner } from 'react-bootstrap';
+import './styles/Graph.css';
 
 // This is left here as a possible tip. You can check here whenever
 // the socket connects to the server. Right now it happens even though graph is no rendered
@@ -109,6 +110,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                 '--connect-btn-bckg-color',
                 '#310062'
             );
+            document.body.style.setProperty('--right-handle-size', '100%');
             document.body.style.setProperty('--bottom-handle-size', '100%');
             document.body.style.setProperty(
                 '--source-handle-border-radius',
@@ -123,6 +125,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                 '--connect-btn-bckg-color',
                 '#686559'
             );
+            document.body.style.setProperty('--right-handle-size', '6px');
             document.body.style.setProperty('--bottom-handle-size', '6px');
             document.body.style.setProperty(
                 '--source-handle-border-radius',
@@ -305,7 +308,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
         if (event.key === 'Shift') {
             switchConnectState(false);
         }
-        if (event.key === 'Control') {
+        if (event.key === 'Control' || event.key === 'Meta') {
             switchCreateState(false);
         }
     };
@@ -332,6 +335,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     const onConnectStart = () => {
         document.body.style.setProperty('--top-handle-size', '100%');
+        document.body.style.setProperty('--left-handle-size', '100%');
         document.body.style.setProperty('--source-handle-visibility', 'none');
         document.body.style.setProperty('--target-handle-border-radius', '0');
         document.body.style.setProperty('--target-handle-opacity', '0');
@@ -339,6 +343,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
 
     const onConnectEnd = () => {
         document.body.style.setProperty('--top-handle-size', '6px');
+        document.body.style.setProperty('--left-handle-size', '6px');
         document.body.style.setProperty('--source-handle-visibility', 'block');
         document.body.style.setProperty(
             '--target-handle-border-radius',
