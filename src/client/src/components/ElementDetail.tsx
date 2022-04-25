@@ -66,6 +66,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
     if (props.permissions.edit) {
         buttonRow.push(
             <button
+                key={'deleteButton'}
                 className="icon-button"
                 style={{ color: 'orangered' }}
                 onClick={async () => await deleteElement()}
@@ -77,6 +78,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         if (props.type === 'Node') {
             buttonRow.push(
                 <button
+                    key={'editButton'}
                     className="icon-button"
                     onClick={() => setEditMode(!editMode)}
                     id="edit-button"
@@ -87,7 +89,11 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         }
     }
     buttonRow.push(
-        <button className="icon-button" onClick={() => props.closeSidebar()}>
+        <button
+            key={'closeButton'}
+            className="icon-button"
+            onClick={() => props.closeSidebar()}
+        >
             <BsXLg />
         </button>
     );
