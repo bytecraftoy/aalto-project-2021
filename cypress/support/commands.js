@@ -65,7 +65,9 @@ Cypress.Commands.add('insertNode', (nodeName, location) => {
     var b_NodeNamePrefixed = true;
 
     cy.get('#createBtn').click(); // Toggle on
+    cy.wait(100);
     cy.get('.react-flow__renderer').click(location)
+    cy.wait(100);
     cy.get('.react-flow input').type(nodeName + '{enter}')
     cy.get('#createBtn').click(); // Toggle off
 
@@ -73,6 +75,10 @@ Cypress.Commands.add('insertNode', (nodeName, location) => {
         // nodeName should be prefixed by '__test__'
         expect(nodeName).match(/^__test__/);
     }
+    cy.get('.react-flow__node').should(($div) => {
+        expect(Array.from($div, elem => elem.innerText)).to.include(nodeName)
+    })
+
 });
 
 // remove nodes prefixed with __test__
@@ -82,6 +88,7 @@ Cypress.Commands.add('removeAllTestNodes', () => {
     cy.get('body').then(($body) => {
         $body.find(`.react-flow__node-default:contains(${nodeNamePrefix})`).each((index, $div, $list) => {
             cy.removeNodeDiv(index, $div, $list);
+            cy.get('.detail-sidebar-topbar').should('not.exist');
         });
     });
 });

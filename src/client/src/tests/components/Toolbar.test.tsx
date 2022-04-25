@@ -12,6 +12,7 @@ describe('Toolbar', () => {
     const mockReverseConnectState = jest.fn();
     const mockReverseCreateState = jest.fn();
     const mockLayout = jest.fn();
+    const mockHighlight = jest.fn();
 
     beforeEach(() => {
         component = render(
@@ -23,6 +24,8 @@ describe('Toolbar', () => {
                 forceDirected={async () => {}}
                 setNodeHidden={mockHidden}
                 nodeHidden={false}
+                setLeavesHighlited={mockHighlight}
+                leavesHighlited={false}
             />
         );
     });
@@ -58,5 +61,18 @@ describe('Toolbar', () => {
 
         expect(cb).toBeChecked;
         expect(mockHidden).toBeCalled;
+    });
+
+    test('calls a function when checkbox is checked', () => {
+        const cb = component.container.querySelector(
+            '#leaf-highlight-checkbox'
+        );
+        expect(cb).toBeDefined;
+        fireEvent.change(cb!, {
+            target: { checked: true },
+        });
+
+        expect(cb).toBeChecked;
+        expect(mockHighlight).toBeCalled;
     });
 });
