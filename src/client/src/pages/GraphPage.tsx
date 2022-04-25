@@ -259,7 +259,7 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
                 const resTaggedNode: ITaggedNode = {project_id: projectId, node_id: nodeId, tag_id: newTag.id};
                 setTaggedNodes(taggedNodes.concat(resTaggedNode));
 
-                const selNode = getINodeFromSelectedElement(selectedElement);
+                const selNode = getINodeFromSelectedElement();
                 if (selNode && selNode.id == nodeId) {
                     setNodeTags(nodeTags.concat(newTag));
                     return true;
@@ -271,7 +271,7 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
         return false;
     };
 
-    const getINodeFromSelectedElement = (element: Node<INode> | Edge<IEdge> | null): INode | undefined => {
+    const getINodeFromSelectedElement = (): INode | undefined => {
         if (selectedDataType == 'Node') {
             return (selectedElement as Node<INode>).data;
         }
@@ -288,7 +288,7 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
             if (retTaggedNode) {
                 setTaggedNodes(taggedNodes.filter((taggedNode) => !taggedNodeEq(taggedNode, retTaggedNode)));
 
-                const selNode: INode | undefined = getINodeFromSelectedElement(selectedElement);
+                const selNode: INode | undefined = getINodeFromSelectedElement();
                 
                 if (selNode && selNode.id) {
                     if (selNode.id == retTaggedNode.node_id) {
