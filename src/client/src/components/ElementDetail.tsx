@@ -93,6 +93,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
             key={'closeButton'}
             className="icon-button"
             onClick={() => props.closeSidebar()}
+            aria-label="Close sidebar"
         >
             <BsXLg />
         </button>
