@@ -78,7 +78,9 @@ export const LoginForm = (props: LoginFormProps): JSX.Element => {
                                 name="emailUser"
                                 id="emailUser"
                                 value={emailUser}
-                                onChange={({ target }) => setEmail(target.value)}
+                                onChange={({ target }) =>
+                                    setEmail(target.value)
+                                }
                             />
                         </div>
                     </div>
@@ -90,7 +92,9 @@ export const LoginForm = (props: LoginFormProps): JSX.Element => {
                                 name="psw"
                                 id="psw"
                                 value={password}
-                                onChange={({ target }) => setPassword(target.value)}
+                                onChange={({ target }) =>
+                                    setPassword(target.value)
+                                }
                             />
                         </div>
                     </div>
