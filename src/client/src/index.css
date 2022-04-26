@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
 *,
 *::before,
 *::after {
@@ -227,10 +229,11 @@ code {
 
 .form-box-login,
 .form-box-reg {
-    display: block;
-    margin-top: 200px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    display: absolute;
+    margin-top: -19.5vw !important;
+    width: auto;
+    margin-left: 65vw;
+    align-items: center;
 }
 
 .form-box-login > input,
@@ -347,4 +350,16 @@ code {
 .tag-disptag:hover {
     background-color: #2d0061;
     color: #ffffff;
+}
+
+.app-name {
+    display: absolute;
+    width: 35vw;
+    margin-top: 15vw !important;
+    height: 20vw;
+    font-size: 9vw;
+    font-weight: 400;
+    margin-left: 10% !important;
+
+    font-family: 'Orbitron', sans-serif;
 }
