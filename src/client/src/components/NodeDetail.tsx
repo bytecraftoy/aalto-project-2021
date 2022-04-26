@@ -81,14 +81,10 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     <p className="node-description">{data.description}</p>
                 )}
                 <p>
-                    <BsClipboardCheck className="icon" />{' '}
-                    <b className="title">Status: </b>
-                    {data.status}
+                    <BsClipboardCheck className="icon" /> {data.status}
                 </p>
                 <p>
-                    <BsExclamationCircle className="icon" />{' '}
-                    <b className="title">Priority: </b>
-                    {data.priority}
+                    <BsExclamationCircle className="icon" /> {data.priority}
                 </p>
                 {/* <p>
                     <BsHash className="icon" /> <b className="title">ID: </b>
