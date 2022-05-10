@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { IEdge, INode,  ITag, ProjectPermissions, UserToken } from '../../../../types';
+import {
+    IEdge,
+    INode,
+    ITag,
+    ProjectPermissions,
+    UserToken,
+} from '../../../../types';
 import { NodeDetail } from './NodeDetail';
 import { BsXLg, BsPencilFill, BsFillTrashFill } from 'react-icons/bs';
 import {
@@ -23,7 +29,10 @@ interface ElementDetailProps {
     closeSidebar: () => void;
     user?: UserToken;
     nodeTags: ITag[];
-    addNodeTag: (nodeId: number | undefined, tagName: string) => Promise<boolean>;
+    addNodeTag: (
+        nodeId: number | undefined,
+        tagName: string
+    ) => Promise<boolean>;
     removeNodeTag: (nodeId: number | undefined, tagId: number) => Promise<void>;
 }
 
