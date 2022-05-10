@@ -1,49 +1,50 @@
 import axios from 'axios';
 import { axiosWrapper } from './axiosWrapper';
 import { ITag, ITaggedNode } from '../../../../types';
-export const baseUrl = '/api/tag';
 import { getAuthConfig } from './userService';
+const baseUrl = '/api/tag';
+const baseUrl2 = '/api/tag2';
 
-const getAllProjTags = async (projId: number): Promise<ITag[]> => {
-    const response = await axiosWrapper(
-        axios.post<ITag[]>(
-            `${baseUrl}/proj`,
-            {
-                projId: projId,
-            },
-            getAuthConfig()
-        )
-    );
-    return response || [];
-};
-
-const getAllProjTaggedNodes = async (
+const getAllProjTags = async (
     projId: number
-): Promise<ITaggedNode[]> => {
+): Promise<
+    | {
+          tags: ITag[];
+          tagged_nodes: ITaggedNode[];
+      }
+    | undefined
+> => {
     const response = await axiosWrapper(
-        axios.post<ITaggedNode[]>(
-            `${baseUrl}/taggednodes/proj`,
-            {
-                projId: projId,
-            },
+        axios.get<{
+            tags: ITag[];
+            tagged_nodes: ITaggedNode[];
+        }>(`${baseUrl}/${projId}`, getAuthConfig())
+    );
+    return response;
+};
+
+const deleteTag = async (
+    projId: number,
+    tagId: number
+): Promise<{ msg: string }> => {
+    const response = await axiosWrapper(
+        axios.delete<string>(`${baseUrl2}/${projId}/${tagId}`, getAuthConfig())
+    );
+    return { msg: response || '' };
+};
+const updateTag = async (
+    projId: number,
+    tagId: number,
+    tag: ITag
+): Promise<void> => {
+    const response = await axiosWrapper(
+        axios.put(
+            `${baseUrl2}/${projId}/${tagId}`,
+            { tag: tag },
             getAuthConfig()
         )
     );
-    return response || [];
-};
-
-const sendTag = async (tag: ITag): Promise<number> => {
-    const response = await axios.post(baseUrl, tag);
-    return response.data.rows[0].id;
-};
-
-const deleteTag = async (tag: ITag): Promise<{ msg: string }> => {
-    const response = await axios.delete(baseUrl, { data: tag });
-    return response.data;
-};
-const updateTag = async (tag: ITag): Promise<void> => {
-    const response = await axios.put(baseUrl, tag);
-    return response.data;
+    return;
 };
 
 const addNodeTagName = async (
@@ -54,33 +55,20 @@ const addNodeTagName = async (
     const tagColor = 'red';
 
     const response = await axiosWrapper(
-        axios.post<ITag>(
-            `${baseUrl}/node/tagname`,
+        axios.post<{
+            tag: ITag;
+            tagged_node: ITaggedNode;
+        }>(
+            `${baseUrl}/${projId}/${nodeId}`,
             {
-                projId: projId,
-                nodeId: nodeId,
-                tagName: tagName,
-                tagColor: tagColor,
+                tag_label: tagName,
+                tag_color: tagColor,
             },
             getAuthConfig()
         )
     );
 
-    const isValidITag = (tag: ITag | undefined): tag is ITag => {
-        return (
-            tag !== undefined &&
-            tag.id !== undefined &&
-            tag.project_id !== undefined &&
-            tag.label !== undefined &&
-            tag.color !== undefined
-        );
-    };
-
-    if (isValidITag(response)) {
-        return response;
-    }
-
-    return undefined;
+    return response?.tag;
 };
 
 const addNodeTagId = async (
@@ -90,11 +78,9 @@ const addNodeTagId = async (
 ): Promise<ITaggedNode | undefined> => {
     const response: ITaggedNode | undefined = await axiosWrapper(
         axios.post<ITaggedNode>(
-            `${baseUrl}/node/tagid`,
+            `${baseUrl}/${projId}/${nodeId}`,
             {
-                projId: projId,
-                nodeId: nodeId,
-                tagId: tagId,
+                tag_id: tagId,
             },
             getAuthConfig()
         )
@@ -108,13 +94,8 @@ const removeNodeTagId = async (
     tagId: number
 ): Promise<ITaggedNode | undefined> => {
     const response: ITaggedNode | undefined = await axiosWrapper(
-        axios.post<ITaggedNode>(
-            `${baseUrl}/node/tagid/remove`,
-            {
-                projId: projId,
-                nodeId: nodeId,
-                tagId: tagId,
-            },
+        axios.delete<ITaggedNode>(
+            `${baseUrl}/${projId}/${nodeId}/${tagId}`,
             getAuthConfig()
         )
     );
@@ -123,11 +104,9 @@ const removeNodeTagId = async (
 
 export {
     getAllProjTags,
-    sendTag,
     deleteTag,
     updateTag,
     addNodeTagName,
     addNodeTagId,
-    getAllProjTaggedNodes,
     removeNodeTagId,
 };
