@@ -1,5 +1,4 @@
 import { Ipath, IPathRoute } from '../domain/IPath';
-import { tag } from './routes/tag';
 
 function path(url: string): IPathRoute {
     const allRoutes: Ipath = {
