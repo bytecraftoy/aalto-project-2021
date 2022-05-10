@@ -48,7 +48,7 @@ router
             return res.status(401).json({ message: 'No permission' });
         }
 
-        let tag: ITag? = req.body.tag;
+        let tag: ITag | null = req.body.tag;
         if (!tag) {
             req.logger.info({
                 message: 'Creating tag to node',
@@ -57,8 +57,8 @@ router
                 body: req.body,
             });
 
-            const label: string? = req.body.label;
-            let tagColor: string? = req.body.tag_color;
+            const label: string | null = req.body.label;
+            let tagColor: string | null = req.body.tag_color;
             if (label) {
                 if (!tagColor) {
                     tagColor = 'red';
@@ -160,7 +160,7 @@ router
             tagId: tagId,
         });
     
-        const tag: ITag? = req.body.tag;
+        const tag: ITag | null = req.body.tag;
     
         if (tag) {
             const q = await db.query(
