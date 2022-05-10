@@ -1,4 +1,5 @@
 import { Ipath, IPathRoute } from '../domain/IPath';
+import { tag } from './routes/tag';
 
 function path(url: string): IPathRoute {
     const allRoutes: Ipath = {
@@ -32,23 +33,17 @@ function path(url: string): IPathRoute {
         '/project/:id/permission': {
             methods: ['GET'],
         },
-        '/tag': {
-            methods: ['POST', 'GET', 'PUT', 'DELETE'],
+        '/tag/:proj': {
+            methods: ['GET'],
         },
-        '/tag/node/tagname': {
+        '/tag/:proj/:node': {
             methods: ['POST'],
         },
-        '/tag/node/tagid': {
-            methods: ['POST'],
+        '/tag/:proj/:node/:tag': {
+            methods: ['DELETE'],
         },
-        '/tag/node/tagid/remove': {
-            methods: ['POST'],
-        },
-        '/tag/proj': {
-            methods: ['POST'],
-        },
-        '/tag/taggednodes/proj': {
-            methods: ['POST'],
+        '/tag2/:proj/:tag': {
+            methods: ['PUT', 'DELETE'],
         },
         '/user/register': {
             methods: ['POST'],
@@ -76,6 +71,17 @@ function path(url: string): IPathRoute {
             return allRoutes['/project/:id'];
         } else if (url.includes('/assignment/')) {
             return allRoutes['/assignment'];
+        } else if (url.startsWith('/tag/')) {
+            // for '/tag/:proj' the count would be 2
+            const countSubPaths = url.split('/').length - 1;
+
+            switch (countSubPaths) {
+                case 2: { return allRoutes['/tag/:proj']; }
+                case 3: { return allRoutes['/tag/:proj/:node']; }
+                case 4: { return allRoutes['/tag/:proj/:node/:tag']; }
+            }
+        } else if (url.startsWith('/tag2/')) {
+            return allRoutes['/tag2/:proj/:tag'];
         }
     }
     return allRoutes[url];

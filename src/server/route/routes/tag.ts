@@ -7,173 +7,120 @@ import {
     checkProjectPermissionByTagId,
 } from '../../helper/permissionHelper';
 
-router.route('/tag/proj').post(async (req: Request, res: Response) => {
-    const projId = req.body.projId;
-
-    const { view, projectId } = await checkProjectPermissionByProjectId(
-        req,
-        parseInt(projId)
-    );
-
-    if (!projectId || !view) {
-        return res.status(401).json({ message: 'No permission' });
-    }
-
-    const q = await db.query('SELECT * FROM tag WHERE project_id = $1', [
-        projId,
-    ]);
-    res.json(q.rows);
-});
-
 router
-    .route('/tag/taggednodes/proj')
-    .post(async (req: Request, res: Response) => {
-        const projId = req.body.projId;
+    .route('/tag/:proj')
+    .get(async (req: Request, res: Response) => {
+        const projId = parseInt(req.params.proj);
 
-        const q = await db.query(
+        const view = await checkProjectPermissionByProjectId(req, projId);
+
+        if (!projId || !view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        const projTagsQuery = await db.query(
+            'SELECT * FROM tag WHERE project_id = $1',
+            [projId]
+        );
+
+        const projTaggedNodesQuery = await db.query(
             'SELECT * FROM tagged_nodes WHERE project_id = $1',
             [projId]
         );
-        res.json(q.rows);
+
+        const projTags = projTagsQuery.rows;
+        const projTagged = projTaggedNodesQuery.rows;
+
+        res.json({
+            tags: projTags,
+            tagged_nodes: projTagged 
+        });
     });
 
 router
-    .route('/tag')
-    .get(async (req: Request, res: Response) => {
-        // todo: check permissions?
-        const q = await db.query('SELECT * FROM tag', []);
-        res.json(q.rows);
-    })
+    .route('/tag/:proj/:node')
     .post(async (req: Request, res: Response) => {
-        const tag: ITag = req.body;
+        const projId = parseInt(req.params.proj);
+        const nodeId = parseInt(req.params.node);
 
-        const { view, projectId } = await checkProjectPermissionByProjectId(
-            req,
-            tag.project_id
-        );
-
-        if (!projectId || !view) {
+        const view = await checkProjectPermissionByProjectId(req, projId);
+    
+        if (!projId || !view) {
             return res.status(401).json({ message: 'No permission' });
         }
 
-        req.logger.info({
-            message: 'Adding tag to node',
-            projectId: tag.project_id,
-            label: tag.label,
-        });
+        let tag: ITag? = req.body.tag;
+        if (!tag) {
+            req.logger.info({
+                message: 'Creating tag to node',
+                projectId: projId,
+                nodeId: nodeId,
+                body: req.body,
+            });
 
-        const q = await db.query(
-            // ignores tag.id when inserting into table
-            'INSERT INTO tag (label, color, project_id) VALUES ($1, $2, $3) RETURNING id',
-            [tag.label, tag.color, tag.project_id]
-        );
-        res.status(200).json(q);
-    })
-    .put(async (req: Request, res: Response) => {
-        const t: ITag = req.body;
+            const label: string? = req.body.label;
+            let tagColor: string? = req.body.tag_color;
+            if (label) {
+                if (!tagColor) {
+                    tagColor = 'red';
+                }
 
-        const { edit, projectId } = await checkProjectPermissionByTagId(
-            req,
-            t.id
-        );
-
-        if (!projectId || !edit) {
-            return res.status(401).json({ message: 'No permission' });
+                const insertTagQuery = await db.query(
+                    'INSERT INTO tag (label, color, project_id) VALUES ($1, $2, $3) RETURNING id, label, color, project_id',
+                    [label, tagColor, projId]
+                );
+            
+                if (insertTagQuery.rowCount == 1) {
+                    tag = insertTagQuery.rows[0];
+                }
+            }
         }
 
-        req.logger.info({
-            message: 'Updating tag',
-            projectId,
-            tagId: t.id,
-        });
+        if (tag) {
+            req.logger.info({
+                message: 'Adding tag to node',
+                projectId: projId,
+                label: tag.label,
+            });
 
-        const q = await db.query(
-            'UPDATE tag SET label = $1, color = $2 WHERE id = $3 AND project_id = $4',
-            [t.label, t.color, t.id, projectId]
-        );
-        res.status(200).json(q);
-    })
+            const tagId = tag.id;
+
+            if (projId && nodeId && tagId) {
+                const insertTaggedNodeQuery = await db.query(
+                    'INSERT INTO tagged_nodes (node_id, tag_id, project_id) VALUES ($1, $2, $3)',
+                    [nodeId, tagId, projId]
+                );
+
+                if (insertTaggedNodeQuery.rowCount == 1) {
+                    const retTaggedNode: ITaggedNode = insertTaggedNodeQuery.rows[0];
+                    if (retTaggedNode) {
+                        return res.status(200).json({
+                            tag: tag,
+                            tagged_node: retTaggedNode
+                        });
+                    }
+                }
+            }
+        }
+
+        res.status(401).json({ error: 'failed to add tag to node' });
+    });
+
+router
+    .route('/tag/:proj/:node/:tag')
     .delete(async (req: Request, res: Response) => {
-        const t: ITag = req.body;
+        const projId = parseInt(req.params.proj);
+        const nodeId = parseInt(req.params.node);
+        const tagId = parseInt(req.params.tag);
 
-        const { edit, projectId } = await checkProjectPermissionByTagId(
+        const { edit, projectId } = await checkProjectPermissionByProjectId(
             req,
-            t.id
+            projId
         );
 
         if (!projectId || !edit) {
             return res.status(401).json({ message: 'No permission' });
         }
-
-        req.logger.info({
-            message: 'Deleting tag',
-            projectId: projectId,
-            tagId: t.id,
-        });
-
-        const q = await db.query(
-            'DELETE FROM tag WHERE id = $1 AND project_id = $2',
-            [t.id, t.project_id]
-        );
-        res.status(200).json(q);
-    });
-
-router.route('/tag/node/tagname').post(async (req: Request, res: Response) => {
-    const projId = req.body.projId;
-    const nodeId = req.body.nodeId;
-    const tagName = req.body.tagName;
-    const tagColor = req.body.tagColor;
-
-    const insertTagQuery = await db.query(
-        'INSERT INTO tag (label, color, project_id) VALUES ($1, $2, $3) RETURNING id, label, color, project_id',
-        [tagName, tagColor, projId]
-    );
-
-    if (insertTagQuery.rowCount == 1) {
-        const retTag: ITag = insertTagQuery.rows[0];
-        const tagId = retTag.id;
-
-        if (tagId) {
-            const insertTaggedNodeQuery = await db.query(
-                'INSERT INTO tagged_nodes (node_id, tag_id, project_id) VALUES ($1, $2, $3)',
-                [nodeId, tagId, projId]
-            );
-
-            if (insertTaggedNodeQuery.rowCount == 1) {
-                return res.status(200).json(retTag);
-            }
-        }
-    }
-    res.status(401).json({ error: 'failed to add tagname to tag' });
-});
-
-router.route('/tag/node/tagid').post(async (req: Request, res: Response) => {
-    const projId: number = req.body.projId;
-    const nodeId: number = req.body.nodeId;
-    const tagId: number = req.body.tagId;
-
-    if (projId && nodeId && tagId) {
-        const insertTaggedNodeQuery = await db.query(
-            'INSERT INTO tagged_nodes (node_id, tag_id, project_id) VALUES ($1, $2, $3)',
-            [nodeId, tagId, projId]
-        );
-
-        if (insertTaggedNodeQuery.rowCount == 1) {
-            const retTaggedNode: ITaggedNode = insertTaggedNodeQuery.rows[0];
-            if (retTaggedNode) {
-                return res.status(200).json(retTaggedNode);
-            }
-        }
-    }
-    return res.status(401).json({ error: 'failed to add tagId to node' });
-});
-
-router
-    .route('/tag/node/tagid/remove')
-    .post(async (req: Request, res: Response) => {
-        const projId: number = req.body.projId;
-        const nodeId: number = req.body.nodeId;
-        const tagId: number = req.body.tagId;
 
         if (projId && nodeId && tagId) {
             const selectTaggedNodeQuery = await db.query(
@@ -193,9 +140,61 @@ router
                 return res.status(200).json(retTaggedNode);
             }
         }
-        return res
-            .status(401)
-            .json({ error: 'failed to remove tagId from node' });
+        return res.status(401).json({ error: 'failed to remove tag from node' });
     });
+
+    router
+        .route('/tag2/:proj/:tag')
+        .put(async (req: Request, res: Response) => {
+            const projId = parseInt(req.params.proj);
+            const tagId = parseInt(req.params.tag);
+    
+            const edit = await checkProjectPermissionByProjectId(req, projId);
+        
+            if (!projId || !edit) {
+                return res.status(401).json({ message: 'No permission' });
+            }
+    
+            req.logger.info({
+                message: 'Updating tag',
+                projectId: projId,
+                tagId: tagId,
+            });
+    
+            const tag: ITag? = req.body.tag;
+    
+            if (tag) {
+                const q = await db.query(
+                    'UPDATE tag SET label = $1, color = $2 WHERE id = $3 AND project_id = $4',
+                    [tag.label, tag.color, tag.id, projId]
+                );
+                res.status(200).json(q);
+            }
+    
+            res.status(401).json({ error: 'failed to update tag' });
+    
+        })
+        .delete(async (req: Request, res: Response) => {
+            const projId = parseInt(req.params.proj);
+            const tagId = parseInt(req.params.tag);
+    
+            const edit = await checkProjectPermissionByProjectId(req, projId);
+
+            if (!projId || !edit) {
+                return res.status(401).json({ message: 'No permission' });
+            }
+    
+            req.logger.info({
+                message: 'Deleting tag',
+                projectId: projId,
+                tagId: tagId,
+            });
+    
+            const q = await db.query(
+                'DELETE FROM tag WHERE id = $1 AND project_id = $2',
+                [tagId, projId]
+            );
+            res.status(200).json(q);
+        });
 
 export { router as tag };
