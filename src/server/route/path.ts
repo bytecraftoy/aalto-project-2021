@@ -75,9 +75,15 @@ function path(url: string): IPathRoute {
             const countSubPaths = url.split('/').length - 1;
 
             switch (countSubPaths) {
-                case 2: { return allRoutes['/tag/:proj']; }
-                case 3: { return allRoutes['/tag/:proj/:node']; }
-                case 4: { return allRoutes['/tag/:proj/:node/:tag']; }
+                case 2: {
+                    return allRoutes['/tag/:proj'];
+                }
+                case 3: {
+                    return allRoutes['/tag/:proj/:node'];
+                }
+                case 4: {
+                    return allRoutes['/tag/:proj/:node/:tag'];
+                }
             }
         } else if (url.startsWith('/tag2/')) {
             return allRoutes['/tag2/:proj/:tag'];
