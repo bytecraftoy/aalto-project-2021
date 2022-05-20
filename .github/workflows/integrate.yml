@@ -16,6 +16,12 @@ jobs:
               run: npm run lint
             - name: Runs prettier
               run: npm run prettier
+            - name: Lockfile version check
+              uses: sergeysova/jq-action@v2
+              with:
+                  cmd: "! jq '.lockfileVersion == 2' package-lock.json src/client/package-lock.json src/docs/package-lock.json src/server/package-lock.json |grep false"
+            - name: Check that yarn.lock files do not exist
+              run: '[ ! -f yarn.lock ] && [ ! -f src/client/yarn.lock ] && [ ! -f src/server/yarn.lock ] && [ ! -f src/docs/yarn.lock ]'
     front_tests:
         runs-on: ubuntu-latest
         steps:
