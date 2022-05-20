@@ -1,6 +1,6 @@
 import supertest from 'supertest';
 import { INode, IProject, Registration, User } from '../../../types';
-import { Database } from '../dbConfigs';
+import { Database } from '../src/dbConfigs';
 
 export const registerRandomUser = async (
     api: supertest.SuperTest<supertest.Test>

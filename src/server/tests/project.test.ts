@@ -1,8 +1,8 @@
 import { beforeAll, expect, test, describe } from '@jest/globals';
-import { db } from '../dbConfigs';
+import { db } from '../src/dbConfigs';
 import { INode, IProject, User } from '../../../types';
 import supertest from 'supertest';
-import { app } from '../index';
+import { app } from '../src/index';
 import {
     addProject,
     registerLoginUser,

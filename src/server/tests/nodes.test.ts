@@ -1,8 +1,8 @@
 import { beforeEach, expect, test, describe, beforeAll } from '@jest/globals';
-import { db } from '../dbConfigs';
+import { db } from '../src/dbConfigs';
 import { INode, User } from '../../../types';
 import supertest from 'supertest';
-import { app } from '../index';
+import { app } from '../src/index';
 import {
     addDummyNodes,
     addDummyProject,
