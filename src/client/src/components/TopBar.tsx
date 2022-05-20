@@ -24,7 +24,7 @@ export const Topbar = (props: TopbarProps): JSX.Element => {
             <div>
                 {user && (
                     <Link className="link-topbar" id="home-link" to="/">
-                        Home
+                        Depsee
                     </Link>
                 )}
                 {!user && (

@@ -99,7 +99,10 @@ export const App: FC = () => {
                         )
                     }
                 ></Route>
-                <Route path="/project/:id" element={<GraphPage />}></Route>
+                <Route
+                    path="/project/:id"
+                    element={<GraphPage user={user || undefined} />}
+                ></Route>
                 <Route path="/user/register" element={<Registration />}></Route>
                 <Route
                     path="/user/login"

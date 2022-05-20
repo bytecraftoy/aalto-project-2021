@@ -1,8 +1,16 @@
-import React /* , { useEffect, useState } */ from 'react';
+import React, { useEffect, useState } from 'react';
 import { Elements, Node } from 'react-flow-renderer';
-import { INode } from '../../../../types';
+import {
+    Comment,
+    INode,
+    ProjectPermissions,
+    UserToken,
+    ITag,
+} from '../../../../types';
+import * as nodeService from '../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
+import { CommentSection } from './CommentSection';
 import { NodeForm } from './NodeForm';
 import { NodeFieldForm } from './NodeFieldForm';
 import './styles/Sidebar.css';
@@ -10,6 +18,7 @@ import {
     BsClipboardCheck,
     BsExclamationCircle /* BsHash */,
 } from 'react-icons/bs';
+import { NodeTagEdit } from './NodeTagEdit';
 
 interface NodeDetailProps {
     element: Node<INode>;
@@ -18,14 +27,49 @@ interface NodeDetailProps {
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     setEditAll: React.Dispatch<React.SetStateAction<boolean>>;
     setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
+    permissions: ProjectPermissions;
+    user?: UserToken;
+    nodeTags: ITag[];
+    addNodeTag: (
+        nodeId: number | undefined,
+        tagName: string
+    ) => Promise<boolean>;
+    removeNodeTag: (nodeId: number | undefined, tagId: number) => Promise<void>;
 }
 
 export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
     const data = props.element.data;
+    const [comments, setComments] = useState<Comment[]>([]);
+
+    useEffect(() => {
+        if (data?.id) {
+            nodeService
+                .getComments(data.project_id, data.id)
+                .then((comments) => setComments(comments));
+        } else {
+            setComments([]);
+        }
+    }, [data]);
 
     if (!data) {
         return <></>;
     }
+
+    const sendComment = async (content: string) => {
+        if (data.id) {
+            const comment: Comment = {
+                username: props.user?.username || '',
+                users_id: props.user?.id || 0,
+                node_id: data.id || 0,
+                created: new Date().toISOString(),
+                content,
+            };
+
+            await nodeService.sendComment(data.project_id, data.id, content);
+
+            setComments(comments.concat(comment));
+        }
+    };
 
     let content;
 
@@ -50,6 +94,15 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     setEditAll={props.setEditAll}
                 />
                 <AssignUsers node={data} />
+                <NodeTagEdit
+                    tags={props.nodeTags}
+                    addTag={async (tagName: string): Promise<boolean> => {
+                        return props.addNodeTag(data.id, tagName);
+                    }}
+                    removeTag={(tagId: number): Promise<void> => {
+                        return props.removeNodeTag(data.id, tagId);
+                    }}
+                />
             </>
         );
     } else if (props.editOne !== null) {
@@ -84,8 +137,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     {data.description ? data.description : 'No description'}
                 </p>
                 <p>
-                    <BsClipboardCheck className="icon" />{' '}
-                    <b className="title">Status: </b>
+                    <BsClipboardCheck className="icon" />
                     <span
                         onClick={() => {
                             props.setEditOne('status');
@@ -95,8 +147,7 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     </span>
                 </p>
                 <p>
-                    <BsExclamationCircle className="icon" />{' '}
-                    <b className="title">Priority: </b>
+                    <BsExclamationCircle className="icon" />
                     <span
                         onClick={() => {
                             props.setEditOne('priority');
@@ -106,6 +157,12 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     </span>
                 </p>
                 <AssignedUsers node={data} setEditOne={props.setEditOne} />
+                <CommentSection
+                    comments={comments}
+                    sendComment={sendComment}
+                    user={props.user}
+                    permissions={props.permissions}
+                />
             </>
         );
     }

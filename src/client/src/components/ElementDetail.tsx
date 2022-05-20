@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { IEdge, INode, ProjectPermissions } from '../../../../types';
+import {
+    IEdge,
+    INode,
+    ITag,
+    ProjectPermissions,
+    UserToken,
+} from '../../../../types';
 import { NodeDetail } from './NodeDetail';
 import {
     BsXLg,
@@ -27,6 +33,13 @@ interface ElementDetailProps {
     type: 'Node' | 'Edge' | null;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
     closeSidebar: () => void;
+    user?: UserToken;
+    nodeTags: ITag[];
+    addNodeTag: (
+        nodeId: number | undefined,
+        tagName: string
+    ) => Promise<boolean>;
+    removeNodeTag: (nodeId: number | undefined, tagId: number) => Promise<void>;
 }
 
 export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
@@ -72,6 +85,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
     if (props.permissions.edit) {
         buttonRow.push(
             <button
+                key={'deleteButton'}
                 className="icon-button"
                 style={{ color: 'orangered' }}
                 onClick={async () => await deleteElement()}
@@ -84,6 +98,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
             if (editOne !== null) {
                 buttonRow.push(
                     <button
+                        key={'editOne'}
                         className="icon-button"
                         onClick={() => setEditOne(null)}
                         id="confirm-button"
@@ -94,6 +109,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
             } else {
                 buttonRow.push(
                     <button
+                        key={'editAll'}
                         className="icon-button"
                         onClick={() => setEditAll(!editAll)}
                         id="edit-button"
@@ -103,6 +119,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                 );
                 buttonRow.push(
                     <button
+                        key={'editOneUser'}
                         className="icon-button"
                         onClick={() => setEditOne('user')}
                         id="user-button"
@@ -115,12 +132,14 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
     }
     buttonRow.push(
         <button
+            key={'closeButton'}
             className="icon-button"
             onClick={() => {
                 props.closeSidebar();
                 setEditAll(false);
                 setEditOne(null);
             }}
+            aria-label="Close sidebar"
         >
             <BsXLg />
         </button>
@@ -138,6 +157,11 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                         setElements={props.setElements}
                         setEditAll={setEditAll}
                         setEditOne={setEditOne}
+                        user={props.user}
+                        permissions={props.permissions}
+                        nodeTags={props.nodeTags}
+                        addNodeTag={props.addNodeTag}
+                        removeNodeTag={props.removeNodeTag}
                     />
                 )}
                 {element && isEdge(element) && (

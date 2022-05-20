@@ -9,7 +9,7 @@ function path(url: string): IPathRoute {
             methods: ['POST', 'PUT'],
         },
         '/node/:id': {
-            methods: ['GET', 'DELETE'],
+            methods: ['GET', 'POST', 'DELETE'],
         },
         '/assignment': {
             methods: ['GET', 'POST', 'DELETE'],
@@ -32,11 +32,17 @@ function path(url: string): IPathRoute {
         '/project/:id/permission': {
             methods: ['GET'],
         },
-        '/tag': {
-            methods: ['POST', 'GET', 'PUT', 'DELETE'],
-        },
-        '/tag/proj/:proj': {
+        '/tag/:proj': {
             methods: ['GET'],
+        },
+        '/tag/:proj/:node': {
+            methods: ['POST'],
+        },
+        '/tag/:proj/:node/:tag': {
+            methods: ['DELETE'],
+        },
+        '/tag2/:proj/:tag': {
+            methods: ['PUT', 'DELETE'],
         },
         '/user/register': {
             methods: ['POST'],
@@ -54,8 +60,6 @@ function path(url: string): IPathRoute {
             return allRoutes['/edge/:source/:target'];
         } else if (url.includes('/node/')) {
             return allRoutes['/node/:id'];
-        } else if (url.includes('/tag/proj/')) {
-            return allRoutes['/tag/proj/:proj'];
         } else if (url.includes('/project/')) {
             if (url.includes('permission')) {
                 return allRoutes['/project/:id/permission'];
@@ -66,6 +70,23 @@ function path(url: string): IPathRoute {
             return allRoutes['/project/:id'];
         } else if (url.includes('/assignment/')) {
             return allRoutes['/assignment'];
+        } else if (url.startsWith('/tag/')) {
+            // for '/tag/:proj' the count would be 2
+            const countSubPaths = url.split('/').length - 1;
+
+            switch (countSubPaths) {
+                case 2: {
+                    return allRoutes['/tag/:proj'];
+                }
+                case 3: {
+                    return allRoutes['/tag/:proj/:node'];
+                }
+                case 4: {
+                    return allRoutes['/tag/:proj/:node/:tag'];
+                }
+            }
+        } else if (url.startsWith('/tag2/')) {
+            return allRoutes['/tag2/:proj/:tag'];
         }
     }
     return allRoutes[url];

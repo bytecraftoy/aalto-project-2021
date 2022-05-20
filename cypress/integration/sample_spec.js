@@ -251,5 +251,24 @@ describe('Graph', () => {
                 cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('not.exist');
             }
         });
+
+        it('Can add comment on the sidebar', () => {
+            const node_name_1 = '__test__1';
+            const comment = '__test__';
+
+            cy.get('.flow-wrapper').should('exist');
+
+            cy.insertNode(node_name_1);
+
+            cy.get(`.react-flow__node-default:contains(${node_name_1})`).dblclick('center')
+            cy.get('#commentId').click().type(comment + '{enter}')
+            
+            cy.get(`.speech-bubble:contains(${comment})`).should('exist')
+
+            if (!myConsts.global_clean) {
+                cy.removeAllTestNodes();
+                cy.get(`.react-flow__node-default:contains(${node_name_1})`).should('not.exist');
+            }
+        });
     });
 });

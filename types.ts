@@ -83,11 +83,20 @@ export interface ToolbarProps {
     setNodeHidden: (value: React.SetStateAction<boolean>) => void;
     nodeHidden: boolean;
     forceDirected: () => Promise<void>;
+    setLeavesHighlited: (value: React.SetStateAction<boolean>) => void;
+    leavesHighlited: boolean;
 }
 
 export interface ProjectPermissions {
+    projectId: number;
     view: boolean;
     edit: boolean;
+}
+
+export interface NoPermission {
+    projectId: undefined;
+    view: false;
+    edit: false;
 }
 
 export interface ITag {
@@ -98,7 +107,15 @@ export interface ITag {
 }
 
 export interface ITaggedNode {
-    node_id: string;
+    node_id: number;
     tag_id: number;
     project_id: number;
+}
+
+export interface Comment {
+    username: string;
+    users_id: number;
+    node_id: number;
+    created: string;
+    content: string;
 }

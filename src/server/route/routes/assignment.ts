@@ -1,7 +1,7 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
 import { db } from '../../dbConfigs';
-import { checkProjectPermission } from '../../helper/permissionHelper';
+import { checkProjectPermissionByNodeId } from '../../helper/permissionHelper';
 
 const assignmentCheck = async (
     req: Request,
@@ -15,8 +15,18 @@ const assignmentCheck = async (
         return;
     }
 
-    //check user id
+    //check permissions
+    const { edit, projectId } = await checkProjectPermissionByNodeId(
+        req,
+        nodeId
+    );
 
+    if (!projectId || !edit) {
+        res.status(401).json({ message: 'No permission' });
+        return;
+    }
+
+    //check user id
     const userQuery = await db.query(
         'SELECT COUNT(*) FROM users WHERE id = $1;',
         [userId]
@@ -27,31 +37,7 @@ const assignmentCheck = async (
         return;
     }
 
-    //get project id
-
-    const projectIdQuery = await db.query(
-        'SELECT project_id FROM node WHERE id = $1;',
-        [nodeId]
-    );
-
-    if (!projectIdQuery.rowCount) {
-        res.status(403).json({ message: 'Invalid node id' });
-        return;
-    }
-
-    const projectId: number = projectIdQuery.rows[0].project_id;
-
-    //check permissions
-
-    const permissions = await checkProjectPermission(req, projectId);
-
-    if (!permissions.edit) {
-        res.status(401).json({ message: 'No permission' });
-        return;
-    }
-
     //return user, node and project ids
-
     return [userId, nodeId, projectId];
 };
 
@@ -93,6 +79,13 @@ router
 
         //assign user
 
+        req.logger.info({
+            message: 'Assigning user to node',
+            projectId,
+            userId,
+            nodeId,
+        });
+
         await db.query(
             'INSERT INTO users__node (users_id, node_id) VALUES ($1, $2);',
             [userId, nodeId]
@@ -104,9 +97,16 @@ router
         const result = await assignmentCheck(req, res);
         if (!result) return;
 
-        const [userId, nodeId] = result;
+        const [userId, nodeId, projectId] = result;
 
         //unassign user
+
+        req.logger.info({
+            message: 'Deleting user from node',
+            projectId,
+            userId,
+            nodeId,
+        });
 
         await db.query(
             'DELETE FROM users__node WHERE users_id = $1 AND node_id = $2;',
@@ -124,30 +124,19 @@ router.route('/assignment/:nodeId').get(async (req: Request, res: Response) => {
         return;
     }
 
-    const projectIdQuery = await db.query(
-        'SELECT project_id FROM node WHERE id = $1;',
-        [nodeId]
-    );
-
-    if (!projectIdQuery.rowCount) {
-        res.status(403).json({ message: 'Invalid node id' });
-        return;
-    }
-
-    const projectId: number = projectIdQuery.rows[0].project_id;
-    const permissions = await checkProjectPermission(req, projectId);
-
-    if (!permissions.view) {
+    //check permissions
+    const { view } = await checkProjectPermissionByNodeId(req, nodeId);
+    if (!view) {
         res.status(401).json({ message: 'No permission' });
         return;
     }
 
-    const asd = await db.query(
+    const result = await db.query(
         'SELECT username, email, id FROM users WHERE id IN (SELECT users_id FROM users__node WHERE node_id = $1)',
         [nodeId]
     );
 
-    res.status(200).json(asd.rows);
+    res.status(200).json(result.rows);
 });
 
 export { router as assignment };

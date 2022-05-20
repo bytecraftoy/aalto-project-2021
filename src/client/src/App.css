@@ -37,6 +37,8 @@
 }
 
 .detail-sidebar {
+    overflow-y: auto;
+    overflow-x: hidden;
     position: absolute;
     right: 0;
     top: 0;
@@ -119,4 +121,19 @@
     align-items: center;
     justify-content: center;
     margin-top: 75px;
+}
+
+.assigned-users-list {
+    list-style-type: none;
+    padding: 0 1em;
+    border-left: 2px solid #eeefff;
+}
+
+#edge-detail-arrow {
+    margin-bottom: 10px;
+    margin-left: 10px;
+}
+
+.unhighlited-node {
+    background-color: var(--unhighlited-node-background-color);
 }
