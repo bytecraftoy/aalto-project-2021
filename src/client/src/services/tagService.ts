@@ -37,7 +37,7 @@ const updateTag = async (
     tagId: number,
     tag: ITag
 ): Promise<void> => {
-    const response = await axiosWrapper(
+    await axiosWrapper(
         axios.put(
             `${baseUrl2}/${projId}/${tagId}`,
             { tag: tag },
