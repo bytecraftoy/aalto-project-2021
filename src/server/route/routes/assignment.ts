@@ -135,6 +135,11 @@ router.route('/assignment/:nodeId').get(async (req: Request, res: Response) => {
         'SELECT username, email, id FROM users WHERE id IN (SELECT users_id FROM users__node WHERE node_id = $1)',
         [nodeId]
     );
+    if(permissions.edit) {
+        asd.rows.forEach(row => {
+            delete row.email;
+        });
+    }
 
     res.status(200).json(result.rows);
 });
