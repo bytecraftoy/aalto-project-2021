@@ -125,8 +125,8 @@ router.route('/assignment/:nodeId').get(async (req: Request, res: Response) => {
     }
 
     //check permissions
-    const { view } = await checkProjectPermissionByNodeId(req, nodeId);
-    if (!view) {
+    const permissions = await checkProjectPermissionByNodeId(req, nodeId);
+    if (!permissions.view) {
         res.status(401).json({ message: 'No permission' });
         return;
     }
@@ -136,7 +136,7 @@ router.route('/assignment/:nodeId').get(async (req: Request, res: Response) => {
         [nodeId]
     );
     if (permissions.edit) {
-        asd.rows.forEach((row) => {
+        result.rows.forEach((row) => {
             delete row.email;
         });
     }

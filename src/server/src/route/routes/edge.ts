@@ -1,6 +1,6 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
-import { IEdge } from '../../../../types';
+import { IEdge } from '../../../../../types';
 import { db } from '../../dbConfigs';
 import {
     checkProjectPermissionByEdgeId,

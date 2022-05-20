@@ -1,6 +1,6 @@
 import { db } from '../dbConfigs';
 import { Request } from 'express';
-import { ProjectPermissions, NoPermission, IProject } from '../../../types';
+import { ProjectPermissions, NoPermission, IProject } from '../../../../types';
 
 export const noPermission: NoPermission = {
     projectId: undefined,

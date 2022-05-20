@@ -1,7 +1,7 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
 import { db } from '../../dbConfigs';
-import { Login, Registration, UserToken } from '../../../../types';
+import { Login, Registration, UserToken } from '../../../../../types';
 import bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';

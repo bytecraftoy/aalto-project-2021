@@ -1,6 +1,6 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
-import { INode } from '../../../../types';
+import { INode } from '../../../../../types';
 import { db } from '../../dbConfigs';
 import { projectIo } from '../../helper/socket';
 import {

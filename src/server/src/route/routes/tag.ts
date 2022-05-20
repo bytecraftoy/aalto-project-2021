@@ -1,6 +1,6 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
-import { ITag, ITaggedNode } from '../../../../types';
+import { ITag, ITaggedNode } from '../../../../../types';
 import { db } from '../../dbConfigs';
 import { checkProjectPermissionByProjectId } from '../../helper/permissionHelper';
 

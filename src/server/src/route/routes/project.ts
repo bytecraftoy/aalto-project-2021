@@ -1,6 +1,6 @@
 import { router } from '../router';
 import { Request, Response } from 'express';
-import { IProject, UserData } from '../../../../types';
+import { IProject, UserData } from '../../../../../types';
 //import {IError} from '../../domain/IError';
 import { db } from '../../dbConfigs';
 import { checkProjectPermissionByProjectId } from '../../helper/permissionHelper';
