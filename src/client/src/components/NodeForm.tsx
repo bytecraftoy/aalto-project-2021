@@ -16,7 +16,7 @@ import {
 export interface NodeFormProps {
     element: Node<INode>;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
-    setEditMode: React.Dispatch<React.SetStateAction<boolean>>;
+    setEditAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const NodeForm = (props: NodeFormProps): JSX.Element => {
@@ -40,7 +40,7 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
         const form = event.currentTarget as HTMLFormElement;
         if (form.checkValidity()) {
             setValidated(true);
-            props.setEditMode(false);
+            props.setEditAll(false);
             const node: INode = {
                 ...data,
                 label,
@@ -71,7 +71,7 @@ export const NodeForm = (props: NodeFormProps): JSX.Element => {
     };
 
     const handleCancel = () => {
-        props.setEditMode(false);
+        props.setEditAll(false);
     };
 
     if (!data) {

@@ -7,6 +7,7 @@ import { BsFillPersonFill } from 'react-icons/bs';
 
 interface assignedUsersProps {
     node: INode;
+    setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
@@ -31,12 +32,13 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
             {isLoading ? (
                 <Spinner animation="border" />
             ) : (
-                <ul className="assigned-users-list">
-                    {assigned.map((user, i) => (
-                        <li key={i}>
-                            <BsFillPersonFill />
-                            {' ' + user.username}
-                        </li>
+                <ul className="assigned-users-list"
+                    onClick={() => {
+                        props.setEditOne('user');
+                    }}
+                >
+                    {assigned.map((user) => (
+                        <li>{user.username}</li>
                     ))}
                 </ul>
             )}

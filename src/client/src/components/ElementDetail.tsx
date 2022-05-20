@@ -7,7 +7,13 @@ import {
     UserToken,
 } from '../../../../types';
 import { NodeDetail } from './NodeDetail';
-import { BsXLg, BsPencilFill, BsFillTrashFill } from 'react-icons/bs';
+import {
+    BsXLg,
+    BsPencilFill,
+    BsFillTrashFill,
+    BsFillCheckCircleFill,
+    BsFillPeopleFill,
+} from 'react-icons/bs';
 import {
     Edge,
     Elements,
@@ -37,7 +43,8 @@ interface ElementDetailProps {
 }
 
 export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
-    const [editMode, setEditMode] = useState<boolean>(false);
+    const [editAll, setEditAll] = useState<boolean>(false);
+    const [editOne, setEditOne] = useState<string | null>(null);
 
     const element = props.element;
 
@@ -88,23 +95,50 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
         );
 
         if (props.type === 'Node') {
-            buttonRow.push(
-                <button
-                    key={'editButton'}
-                    className="icon-button"
-                    onClick={() => setEditMode(!editMode)}
-                    id="edit-button"
-                >
-                    <BsPencilFill />
-                </button>
-            );
+            if (editOne !== null) {
+                buttonRow.push(
+                    <button
+                        key={'editOne'}
+                        className="icon-button"
+                        onClick={() => setEditOne(null)}
+                        id="confirm-button"
+                    >
+                        <BsFillCheckCircleFill />
+                    </button>
+                );
+            } else {
+                buttonRow.push(
+                    <button
+                        key={'editAll'}
+                        className="icon-button"
+                        onClick={() => setEditAll(!editAll)}
+                        id="edit-button"
+                    >
+                        <BsPencilFill />
+                    </button>
+                );
+                buttonRow.push(
+                    <button
+                        key={'editOneUser'}
+                        className="icon-button"
+                        onClick={() => setEditOne('user')}
+                        id="user-button"
+                    >
+                        <BsFillPeopleFill />
+                    </button>
+                );
+            }
         }
     }
     buttonRow.push(
         <button
             key={'closeButton'}
             className="icon-button"
-            onClick={() => props.closeSidebar()}
+            onClick={() => {
+                props.closeSidebar();
+                setEditAll(false);
+                setEditOne(null);
+            }}
             aria-label="Close sidebar"
         >
             <BsXLg />
@@ -118,9 +152,11 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
                 {element && isNode(element) && (
                     <NodeDetail
                         element={element}
-                        editMode={editMode}
+                        editAll={editAll}
+                        editOne={editOne}
                         setElements={props.setElements}
-                        setEditMode={setEditMode}
+                        setEditAll={setEditAll}
+                        setEditOne={setEditOne}
                         user={props.user}
                         permissions={props.permissions}
                         nodeTags={props.nodeTags}

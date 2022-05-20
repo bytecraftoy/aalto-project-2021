@@ -12,6 +12,7 @@ import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
 import { CommentSection } from './CommentSection';
 import { NodeForm } from './NodeForm';
+import { NodeFieldForm } from './NodeFieldForm';
 import './styles/Sidebar.css';
 import {
     BsClipboardCheck,
@@ -21,9 +22,11 @@ import { NodeTagEdit } from './NodeTagEdit';
 
 interface NodeDetailProps {
     element: Node<INode>;
-    editMode: boolean;
+    editAll: boolean;
+    editOne: string | null;
     setElements: React.Dispatch<React.SetStateAction<Elements>>;
-    setEditMode: React.Dispatch<React.SetStateAction<boolean>>;
+    setEditAll: React.Dispatch<React.SetStateAction<boolean>>;
+    setEditOne: React.Dispatch<React.SetStateAction<string | null>>;
     permissions: ProjectPermissions;
     user?: UserToken;
     nodeTags: ITag[];
@@ -69,14 +72,26 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
     };
 
     let content;
-    if (props.editMode) {
+
+    /* const handleCancel = () => {
+        props.setEditOne('null');
+        props.setEditAssign(false);
+    }; */
+
+    /* useEffect(() => {
+        if(props.editOne === null){
+            handleCancel();
+        }
+    }, [props.editOne]) */
+
+    if (props.editAll) {
         content = (
             <>
                 <h2>{data.label}</h2>
                 <NodeForm
                     element={props.element}
                     setElements={props.setElements}
-                    setEditMode={props.setEditMode}
+                    setEditAll={props.setEditAll}
                 />
                 <AssignUsers node={data} />
                 <NodeTagEdit
@@ -90,24 +105,58 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                 />
             </>
         );
+    } else if (props.editOne !== null) {
+        content = (
+            <>
+                <NodeFieldForm
+                    element={props.element}
+                    editOne={props.editOne}
+                    setElements={props.setElements}
+                    setEditOne={props.setEditOne}
+                />
+            </>
+        );
     } else {
         content = (
             <>
-                <h2>{data.label}</h2>
-                {data.description && (
-                    <p className="node-description">{data.description}</p>
-                )}
-                <p>
-                    <BsClipboardCheck className="icon" /> {data.status}
+                <h2>
+                    <span
+                        onClick={() => {
+                            props.setEditOne('label');
+                        }}
+                    >
+                        {data.label}
+                    </span>
+                </h2>
+                <p
+                    className="node-description"
+                    onClick={() => {
+                        props.setEditOne('description');
+                    }}
+                >
+                    {data.description ? data.description : 'No description'}
                 </p>
                 <p>
-                    <BsExclamationCircle className="icon" /> {data.priority}
+                    <BsClipboardCheck className="icon" />
+                    <span
+                        onClick={() => {
+                            props.setEditOne('status');
+                        }}
+                    >
+                        {data.status}
+                    </span>
                 </p>
-                {/* <p>
-                    <BsHash className="icon" /> <b className="title">ID: </b>
-                    {data.id}
-                </p> */}
-                <AssignedUsers node={data} />
+                <p>
+                    <BsExclamationCircle className="icon" />
+                    <span
+                        onClick={() => {
+                            props.setEditOne('priority');
+                        }}
+                    >
+                        {data.priority}
+                    </span>
+                </p>
+                <AssignedUsers node={data} setEditOne={props.setEditOne} />
                 <CommentSection
                     comments={comments}
                     sendComment={sendComment}
