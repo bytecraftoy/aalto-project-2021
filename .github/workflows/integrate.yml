@@ -6,17 +6,6 @@ jobs:
     linter:
         runs-on: ubuntu-latest
         steps:
-            - uses: ravsamhq/notify-slack-action@v1
-              if: always()
-              with:
-                  status: ${{ job.status }}
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  notification_title: '{workflow} has {status_message}'
-                  message_format: '{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>'
-                  footer: 'Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
-                  notify_when: 'failure'
-              env:
-                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v1
               with:
@@ -30,17 +19,6 @@ jobs:
     front_tests:
         runs-on: ubuntu-latest
         steps:
-            - uses: ravsamhq/notify-slack-action@v1
-              if: always()
-              with:
-                  status: ${{ job.status }}
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  notification_title: '{workflow} has {status_message}'
-                  message_format: '{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>'
-                  footer: 'Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
-                  notify_when: 'failure'
-              env:
-                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v1
               with:
@@ -56,17 +34,6 @@ jobs:
     back_tests:
         runs-on: ubuntu-latest
         steps:
-            - uses: ravsamhq/notify-slack-action@v1
-              if: always()
-              with:
-                  status: ${{ job.status }}
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  notification_title: '{workflow} has {status_message}'
-                  message_format: '{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>'
-                  footer: 'Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
-                  notify_when: 'failure'
-              env:
-                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v1
               with:
@@ -84,17 +51,6 @@ jobs:
     cypress:
         runs-on: ubuntu-latest
         steps:
-            - uses: ravsamhq/notify-slack-action@v1
-              if: always()
-              with:
-                  status: ${{ job.status }}
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  notification_title: '{workflow} has {status_message}'
-                  message_format: '{emoji} *{workflow}* {status_message} in <{repo_url}|{repo}>'
-                  footer: 'Linked Repo <{repo_url}|{repo}> | <{workflow_url}|View Workflow>'
-                  notify_when: 'failure'
-              env:
-                  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
             - uses: actions/checkout@v2
             - uses: actions/setup-node@v1
               with:
@@ -107,10 +63,3 @@ jobs:
                   build: npm run build
                   start: npm start
                   config: baseUrl=http://localhost:8050
-            - name: 'Upload screenshots and videos to Slack'
-              uses: trymbill/cypress-slack-video-upload-action@v1.3.0
-              if: failure()
-              with:
-                  token: ${{ secrets.SLACK_CYPRESS_TOKEN }}
-                  channels: 'cypress'
-                  message-text: 'Cypress tests failed! They have been placed in this thread, good luck.'
