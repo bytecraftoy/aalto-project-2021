@@ -11,7 +11,7 @@
         "install-deps": "cp ./src/server/package.json ./build/ && cp ./src/server/package.json ./build/ && cd build && npm install --production",
         "build": "rm -rf ./build && npm run build-server && npm run build-client && npm run build-docs && npm run copy-migrations && npm run install-deps",
         "build:coverage": "rm -rf ./build && npm run build-server && npm run build-client:coverage && npm run copy-migrations && npm run install-deps",
-        "start": "cd build && NODE_ENV=production node index.js",
+        "start": "cd build && NODE_ENV=production node src/index.js",
         "cypress": "cross-env CYPRESS_BASE_URL=http://localhost:3000 cypress run --browser chrome",
         "cypress:open": "cross-env CYPRESS_BASE_URL=http://localhost:3000 cypress open"
     },
