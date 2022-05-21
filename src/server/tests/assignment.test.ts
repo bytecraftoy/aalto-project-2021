@@ -64,7 +64,7 @@ describe('assignment', () => {
             const userData: UserData = result1.body[0];
 
             expect(userData.id).toBe(user.id);
-            expect(userData).toHaveProperty('email');
+            expect(userData).not.toHaveProperty('email');
             expect(userData).toHaveProperty('username');
         });
     });
