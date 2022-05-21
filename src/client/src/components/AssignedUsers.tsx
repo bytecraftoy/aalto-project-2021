@@ -39,7 +39,7 @@ export const AssignedUsers = (props: assignedUsersProps): JSX.Element => {
                     }}
                 >
                     {assigned.map((user) => (
-                        <li>{user.username}</li>
+                        <li><BsFillPersonFill/>{' ' + user.username}</li>
                     ))}
                 </ul>
             )}
