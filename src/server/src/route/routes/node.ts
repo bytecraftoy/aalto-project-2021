@@ -1,10 +1,11 @@
 import { router } from '../router';
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express-serve-static-core';
 import { INode } from '../../../../../types';
 import { db } from '../../dbConfigs';
 import { projectIo } from '../../helper/socket';
 import {
     checkProjectPermissionByNodeId,
+    checkProjectPermissionByNodeTypeId,
     checkProjectPermissionByProjectId,
 } from '../../helper/permissionHelper';
 
@@ -34,7 +35,7 @@ const nodeCheck = (node: INode): boolean => {
  */
 router
     .route('/node/:id')
-    .get(async (req: Request, res: Response) => {
+    .get(async (req: Request, res: Response<INode[] | { message: string }>) => {
         const { view, projectId } = await checkProjectPermissionByProjectId(
             req,
             parseInt(req.params.id)
@@ -43,10 +44,29 @@ router
         if (!projectId || !view) {
             return res.status(401).json({ message: 'No permission' });
         }
-        const q = await db.query('SELECT * FROM node WHERE project_id = $1', [
+        const q = await db.query(`SELECT n.id, n.label, n.status, n.priority, n.x, n.y,
+                                 n.project_id, n.description, n.node_type, nt.id AS node_type_id,
+                                 nt.label AS node_type_label, nt.color AS node_type_COLOR
+                                 FROM node n
+                                 LEFT JOIN node_type nt ON nt.id = node_type
+                                 WHERE n.project_id = $1`, [
             projectId,
         ]);
-        res.json(q.rows);
+        res.json(q.rows.map(row => ({
+            label: row.label,
+            status: row.status,
+            priority: row.priority,
+            id: row.id,
+            x: row.x,
+            y: row.y,
+            project_id: row.project_id,
+            description: row.description,
+            node_type: row.node_type ? {
+                id: row.node_type_id,
+                label: row.node_type_label,
+                color: row.node_type_color,
+            } : undefined,
+        })));
     })
     /**
      * DELETE /api/node/:id
@@ -202,7 +222,7 @@ router
             await client.query('BEGIN');
             for (const node of array) {
                 await client.query(
-                    'UPDATE node SET label = $1, status = $2, priority = $3, x = $4, y = $5, description = $6 WHERE id = $7',
+                    'UPDATE node SET label = $1, status = $2, priority = $3, x = $4, y = $5, description = $6, node_type = $7 WHERE id = $8',
                     [
                         node.label,
                         node.status,
@@ -210,6 +230,7 @@ router
                         Math.round(node.x),
                         Math.round(node.y),
                         node.description,
+                        node.node_type,
                         node.id,
                     ]
                 );
@@ -223,7 +244,7 @@ router
                 .to(array[0].project_id.toString())
                 .emit('update-node', array);
         } catch (e) {
-            // eslint-disable-next-line no-console
+            req.logger.info({message: "Exception", err: e});
             await client.query('ROLLBACK');
             res.status(403).json();
         } finally {
@@ -304,6 +325,98 @@ router
         await db.query(
             'INSERT INTO comment (users_id, node_id, content) VALUES ($1, $2, $3)',
             [userId, nodeId, content]
+        );
+        res.status(200).json();
+    });
+
+/**
+ * POST /api/node/:id/type
+ * @bodyRequired
+ * @summary Create a new node type
+ * @bodyContent {NodeType} - Initial settings for the type
+ * @pathParam {string} id - Project id
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ */
+router
+    .route('/node/:id/type')
+    .post(async (req: Request, res: Response) => {
+        const projectId = parseInt(req.params.id);
+
+        const permissions = await checkProjectPermissionByProjectId(
+            req,
+            projectId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        await db.query(
+            'INSERT INTO node_type (project_id, type_name, color) VALUES ($1, $2, $3)',
+            [projectId, req.body.type_name, req.body.color]
+        );
+        res.status(200).json();
+    });
+
+/**
+ * PUT /api/node/:id/type/:typeId
+ * @summary Modify a node type
+ * @bodyContent {NodeType} - New properties for the type
+ * @bodyRequired
+ * @pathParam {string} id - Id of the project where the node belongs
+ * @pathParam {string} nodeId - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ * @response 403 - Forbidden
+ */
+router
+    .route('/node/:id/type/:typeId')
+    .put(async (req: Request, res: Response) => {
+        const typeId = parseInt(req.params.typeId);
+
+        const permissions = await checkProjectPermissionByNodeTypeId(
+            req,
+            typeId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        await db.query(
+            'UPDATE node_type SET label=$1, color=$2 WHERE id=$3',
+            [req.body.label, req.body.color, typeId]
+        );
+        res.status(200).json();
+    });
+
+/**
+ * DELETE /api/node/:id/type/:typeId
+ * @summary Delete a node type
+ * @pathParam {string} id - Id of the project where the node belongs
+ * @pathParam {string} nodeId - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ * @response 403 - Forbidden
+ */
+router
+    .route('/node/:id/type/:typeId')
+    .put(async (req: Request, res: Response) => {
+        const typeId = parseInt(req.params.typeId);
+
+        const permissions = await checkProjectPermissionByNodeTypeId(
+            req,
+            typeId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        await db.query(
+            'DELETE FROM node_type WHERE id=$1',
+            [typeId]
         );
         res.status(200).json();
     });

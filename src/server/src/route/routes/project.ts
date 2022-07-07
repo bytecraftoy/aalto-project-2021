@@ -153,8 +153,7 @@ router
             client.query('COMMIT');
             res.status(200).json({ id: projectId });
         } catch (e) {
-            // eslint-disable-next-line no-console
-            console.log('Invalid project', e);
+            req.logger.info({message: "Exception", err: e});
             await client.query('ROLLBACK');
             res.status(403).json();
         } finally {
@@ -281,6 +280,7 @@ router
 
             res.status(200).json(user);
         } catch (e) {
+            req.logger.info({message: "Exception", err: e});
             res.status(403).json();
         }
     });

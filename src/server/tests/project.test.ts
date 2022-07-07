@@ -1,4 +1,4 @@
-import { beforeAll, expect, test, describe } from '@jest/globals';
+import { beforeEach, expect, test, describe } from '@jest/globals';
 import { db } from '../src/dbConfigs';
 import { INode, IProject, User } from '../../../types';
 import supertest from 'supertest';
@@ -20,8 +20,6 @@ let token: string;
 
 //Helper functions for the tests
 const addDummyProjects = async (): Promise<void> => {
-    ids = [];
-
     const p1: IProject = {
         name: 'Test-1',
         description: 'First-project',
@@ -41,16 +39,14 @@ const addDummyProjects = async (): Promise<void> => {
     };
 
     ids = [];
-    let id = await addProject(db, p1);
-    ids.push(id);
-    id = await addProject(db, p2);
-    ids.push(id);
+    ids.push(await addProject(db, p1));
+    ids.push(await addProject(db, p2));
 };
 
 //Helper functions end here
 describe('Projects', () => {
-    beforeAll(async () => {
-        await db.initDatabase();
+    beforeEach(async () => {
+        await db.clean("Project tests: " + expect.getState().currentTestName);
         const login = await registerRandomUser(api);
         user = login.user;
         token = login.token;
@@ -82,9 +78,7 @@ describe('Projects', () => {
                 .set('X-Depsee-Auth', `bearer ${token}`)
                 .send(p)
                 .expect(200);
-        });
 
-        test('should save the project appropriately', async () => {
             const res = await api
                 .get(baseUrl)
                 .set('X-Depsee-Auth', `bearer ${token}`)
@@ -184,7 +178,11 @@ describe('Projects', () => {
             id: 0,
         };
 
-        beforeAll(async () => {
+        beforeEach(async () => {
+            const anotherUserAuth = await registerLoginUser(api, anotherUser);
+            anotherUser.id = anotherUserAuth.id;
+            anotherToken = anotherUserAuth.token;
+
             const p1: IProject = {
                 name: 'onlyView',
                 description: 'Only viewing no editing',
@@ -207,12 +205,6 @@ describe('Projects', () => {
             noViewId = await addProject(db, p2);
         });
 
-        beforeAll(async () => {
-            const login = await registerLoginUser(api, anotherUser);
-            anotherUser.id = login.id;
-            anotherToken = login.token;
-        });
-
         test('should return 200 on get if public_view is true on an anonymous account', async () => {
             await api.get(`${baseUrl}/${onlyViewId}`).expect(200);
         });
@@ -230,24 +222,38 @@ describe('Projects', () => {
                 y: 0,
                 project_id: onlyViewId,
                 description: 'this should not be posted',
+                node_type: undefined,
             };
 
             await api.post('/api/node').send(n).expect(401);
         });
 
-        test('should be able to add an account to a project', async () => {
+        test('should be able to add and remove an account to a project', async () => {
+            await api
+                .get(`${baseUrl}/${noViewId}`)
+                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
+                .expect(401);
+
             await api
                 .post(`${baseUrl}/${noViewId}/members`)
                 .set('X-Depsee-Auth', `bearer ${token}`)
                 .send({ member: anotherUser.email })
                 .expect(200);
-        });
 
-        test('should be able to get project if account is invited', async () => {
             await api
                 .get(`${baseUrl}/${noViewId}`)
                 .set('X-Depsee-Auth', `bearer ${anotherToken}`)
                 .expect(200);
+
+            await api
+                .delete(`${baseUrl}/${noViewId}/members/${anotherUser.id}`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
+                .expect(200);
+
+            await api
+                .get(`${baseUrl}/${noViewId}`)
+                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
+                .expect(401);
         });
 
         test('should be able to post in project if account is invited', async () => {
@@ -259,27 +265,26 @@ describe('Projects', () => {
                 y: 0,
                 project_id: noViewId,
                 description: 'this should be posted',
+                node_type: undefined,
             };
 
             await api
                 .post('/api/node')
                 .set('X-Depsee-Auth', `bearer ${anotherToken}`)
                 .send(n)
-                .expect(200);
-        });
-
-        test('should be able to remove an account from a project', async () => {
-            await api
-                .delete(`${baseUrl}/${noViewId}/members/${anotherUser.id}`)
-                .set('X-Depsee-Auth', `bearer ${token}`)
-                .expect(200);
-        });
-
-        test('should not be able to get project if account is removed', async () => {
-            await api
-                .get(`${baseUrl}/${noViewId}`)
-                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
                 .expect(401);
+
+            await api
+                .post(`${baseUrl}/${noViewId}/members`)
+                .set('X-Depsee-Auth', `bearer ${token}`)
+                .send({ member: anotherUser.email })
+                .expect(200);
+
+            await api
+                .post('/api/node')
+                .set('X-Depsee-Auth', `bearer ${anotherToken}`)
+                .send(n)
+                .expect(200);
         });
     });
 });

@@ -19,6 +19,13 @@ export interface INode {
     y: number;
     project_id: number;
     description: string;
+    node_type: NodeType | undefined;
+}
+
+export interface NodeType {
+    id: number;
+    label: string;
+    color: string;
 }
 
 export interface IEdge {

@@ -1,8 +1,10 @@
 import { getConfig } from './configs';
-import { Pool, QueryConfig, QueryResultRow } from 'pg'; //PoolConfig was unused
+import { Pool, QueryConfig, QueryResultRow } from 'pg';
 import { migrate } from 'postgres-migrations';
 import { logger } from './helper/logging';
+import { doClean } from './db/cleaner';
 
+    let cleaning = false;
 export class Database {
     private _pool: Pool | null = null;
     private _waiting: Promise<void> | null = null;
@@ -20,8 +22,6 @@ export class Database {
         }
 
         const start = Date.now();
-        //console.log("Text: ", text)
-        //console.log("Params: ", params)
         const pool = await this.getPool();
         const res = await pool.query<R, I>(text, params as any);
         const duration = Date.now() - start;
@@ -53,40 +53,64 @@ export class Database {
         return this._pool;
     }
 
-    async turnOff() {
-        const pool = await this.getPool();
-        const w = await pool.off;
-        return w;
+    async initDatabase() {
+        const client = await this.getClient();
+
+        let res: () => void = () => {};
+        let rej: (e: unknown) => void = () => {};
+
+        this._waiting = new Promise((resolve, reject) => {
+            res = resolve;
+            rej = reject;
+        });
+
+        logger.info({ message: 'Running migrations' });
+        try {
+            await migrate({ client }, './migrations');
+            logger.info('Migrations finished');
+            res();
+        } catch (e: unknown) {
+            logger.error({
+                message: 'Migrations failed, shutting down.\n',
+                error: e,
+            });
+
+            rej(e);
+            throw e;
+        } finally {
+            client.release();
+            this._waiting = null;
+        }
+
+        return this._waiting;
     }
 
-    async initDatabase() {
-        const pool = await this.getPool();
-        const client = await pool.connect();
-
-        this._waiting = new Promise((resolve) => {
-            logger.info({ message: 'Running migrations' });
-            migrate({ client }, './migrations')
-                .then(() => {
-                    logger.info('Migrations finished');
-                })
-                .catch(async (e: Error) => {
-                    logger.error({
-                        message: 'Migrations failed, shutting down.\n',
-                        error: e,
-                    });
-
-                    process.exit(1);
-                })
-                .finally(() => {
-                    resolve();
-                    this._waiting = null;
-                });
-        });
+    async clean(reason: string) {
+        logger.info({message: 'Starting database cleanup', reason});
+        if(cleaning) {
+            throw "Concurrent access to clean";
+        }
+        try {
+            cleaning = true;
+            logger.info('Cleaning database');
+            const client = await this.getClient();
+            try {
+                await doClean(client);
+            } catch(e) {
+                console.log(e);
+                throw(e);
+            } finally {
+                client.release();
+            }
+            logger.info('Database cleaned, running migrations');
+            await this.initDatabase();
+            logger.info('Migrations done');
+        } finally {
+            cleaning = false;
+        }
     }
 }
 
 const db = new Database();
-
-db.initDatabase();
 
 export { db };

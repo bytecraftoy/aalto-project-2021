@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { GraphPage } from './pages/GraphPage';
-import { INode, UserToken } from '../../../types';
+import { UserToken } from '../../../types';
 import { Projects } from './components/Projects';
 import { Topbar } from './components/TopBar';
 import { useDispatch } from 'react-redux';
@@ -13,16 +13,6 @@ import { LoginForm } from './components/LoginForm';
 //import { useNavigate } from 'react-router-dom';
 import toast, { resolveValue, Toaster } from 'react-hot-toast';
 import { checkLogin } from './services/userService';
-
-export const basicNode: INode = {
-    status: 'ToDo',
-    label: 'Text',
-    priority: 'Urgent',
-    x: 0,
-    y: 0,
-    project_id: 0,
-    description: '',
-};
 
 export const App: FC = () => {
     const dispatch = useDispatch();

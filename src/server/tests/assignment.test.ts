@@ -3,7 +3,6 @@ import {
     expect,
     test,
     describe,
-    beforeAll,
     jest,
 } from '@jest/globals';
 import { db } from '../src/dbConfigs';
@@ -16,6 +15,7 @@ import {
     registerLoginUser,
 } from './testHelper';
 import { mockUser } from '../../../testmock';
+import { logger } from '../src/helper/logging';
 
 const api = supertest(app);
 
@@ -25,15 +25,10 @@ const user: User = mockUser;
 jest.setTimeout(10000);
 
 describe('assignment', () => {
-    beforeAll(async () => {
+    beforeEach(async () => {
+        await db.clean("User assignment: " + expect.getState().currentTestName);
         const login = await registerLoginUser(api, user);
         user.id = login.id;
-    });
-
-    beforeEach(async () => {
-        // DATABASE RESET
-        await db.query('DELETE FROM project', []);
-        //adding project
         pId = await addDummyProject(db, user.id);
     });
 

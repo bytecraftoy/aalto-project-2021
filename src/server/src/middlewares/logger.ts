@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { logger } from '../helper/logging';
 
 export const requestLogger = (
     req: Request,
@@ -21,7 +22,7 @@ export const requestLogger = (
     }
 
     res.on('finish', () => {
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV === 'development' || res.statusCode === 500) {
             req.logger.info({
                 message: 'Response',
                 method,
@@ -40,4 +41,11 @@ export const requestLogger = (
     });
 
     next();
+};
+
+export function logExceptions(err: unknown, req: Request, res: Response, next: (param?: unknown) => void) {
+    const log = req.logger || logger;
+    console.log(err);
+    log.error({message: "Exception", err});
+    next(err);
 };

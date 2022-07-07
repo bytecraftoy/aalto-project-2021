@@ -8,7 +8,7 @@ export const registerRandomUser = async (
     const user: User = {
         username: (Math.random() + 1).toString(36).substring(7),
         password: (Math.random() + 1).toString(30),
-        email: (Math.random() + 1).toString(36).substring(7) + '@test.com',
+        email: (Math.random() + 1).toString(36).substring(7) + '@example.com',
         id: 0,
     };
 
@@ -67,8 +67,10 @@ export const addProject = async (
             'INSERT INTO users__project (users_id, project_id) VALUES ($1, $2)',
             [project.owner_id, projectId]
         );
+        await client.query('COMMIT');
     } catch (e) {
         await client.query('ROLLBACK');
+        throw e;
     } finally {
         client.release();
     }

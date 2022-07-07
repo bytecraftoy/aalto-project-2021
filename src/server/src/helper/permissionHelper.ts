@@ -113,18 +113,38 @@ export const checkProjectPermissionByTagId = async (
     return checkProjectPermissionByProjectId(req, q.rows[0].project_id);
 };
 
+export const checkProjectPermissionByNodeTypeId = async (
+    req: Request,
+    nodeTypeId: number | unknown
+): Promise<ProjectPermissions | NoPermission> => {
+    if (typeof nodeTypeId !== 'number') {
+        return noPermission;
+    }
+
+    const q = await db.query<{ project_id: number }>(
+        'SELECT project_id FROM node_type WHERE id = $1',
+        [nodeTypeId]
+    );
+
+    if (!q.rowCount) {
+        return noPermission;
+    }
+
+    return checkProjectPermissionByProjectId(req, q.rows[0].project_id);
+};
+
 export const userMemberOfProject = async (
     userId: number,
     projectId: number
 ): Promise<boolean> => {
-    try {
-        const query = await db.query(
-            'SELECT * FROM users__project WHERE users_id = $1 AND project_id = $2',
-            [userId, projectId]
-        );
-
-        return query.rowCount > 0;
-    } catch (e) {
+    if (typeof projectId !== 'number' || typeof projectId !== 'number') {
         return false;
     }
+
+    const query = await db.query(
+        'SELECT * FROM users__project WHERE users_id = $1 AND project_id = $2',
+        [userId, projectId]
+    );
+
+    return query.rowCount > 0;
 };

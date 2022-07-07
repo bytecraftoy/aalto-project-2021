@@ -1,9 +1,10 @@
-import { beforeEach, expect, test, describe, beforeAll } from '@jest/globals';
+import { beforeEach, expect, test, describe } from '@jest/globals';
 import { db } from '../src/dbConfigs';
 import supertest from 'supertest';
 import { app } from '../src/index';
 import bcrypt from 'bcrypt';
 import { Registration } from '../../../types';
+import { logger } from '../src/helper/logging';
 
 const api = supertest(app);
 const baseUrl = '/api/user';
@@ -32,12 +33,8 @@ const addDummyUsers = async () => {
 };
 
 describe('User registration', () => {
-    beforeAll(async () => {
-        await db.initDatabase();
-    });
-
     beforeEach(async () => {
-        await db.query('DELETE FROM users', []);
+        await db.clean("User tests: " + expect.getState().currentTestName);
     });
 
     test('sending a POST request with appropriate information should add a user', async () => {

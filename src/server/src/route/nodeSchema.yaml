@@ -40,3 +40,18 @@ components:
                 y:
                     type: float
                     description: y position of the node in the 2D graph. Though a float it will be rounded when a node is created
+                node_type:
+                    type: NodeType
+                    description: Color and associated label for a node type
+        NodeType:
+            type: object
+            properties:
+                id:
+                    type: number
+                    description: ID of the type
+                label:
+                    type: string
+                    description: Label for the type
+                color:
+                    type: string
+                    description: Color in hex with leading pound

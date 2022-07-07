@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, describe, beforeAll } from '@jest/globals';
+import { beforeEach, expect, test, describe } from '@jest/globals';
 import { db } from '../src/dbConfigs';
 import { IEdge, User } from '../../../types';
 import supertest from 'supertest';
@@ -23,13 +23,10 @@ let user: User = mockUser;
 //Helper functions end here
 
 describe('Edge', () => {
-    beforeAll(async () => {
-        await db.initDatabase();
+    beforeEach(async () => {
+        await db.clean("Edge tests: " + expect.getState().currentTestName);
         const login = await registerRandomUser(api);
         user = login.user;
-    });
-
-    beforeEach(async () => {
         pId = await addDummyProject(db, user.id);
     });
 

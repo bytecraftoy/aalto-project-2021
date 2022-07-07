@@ -9,6 +9,7 @@
         "dev": "cross-env NODE_ENV=development SECRET=graphtask nodemon ",
         "lint": "eslint \"**/*.{ts,tsx}\"",
         "test": "cross-env NODE_ENV=test SECRET=graphtask jest --clearCache && jest --verbose --runInBand --forceExit --detectOpenHandles ",
+        "test:watch": "cross-env NODE_ENV=test SECRET=graphtask jest --verbose --runInBand --forceExit --detectOpenHandles --watch ",
         "build": "rm -rf dist && npx tsc -p tsconfig.json",
         "docu:dev": "nodemon e- yaml,js,ts --exec \"openapi-comment-parser src ../docs/openapi.json && npm run dev\"",
         "openapi": "openapi-comment-parser ./route ../docs/openapi.json"

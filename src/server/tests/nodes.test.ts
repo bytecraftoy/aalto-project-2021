@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, describe, beforeAll } from '@jest/globals';
+import { beforeEach, expect, test, describe } from '@jest/globals';
 import { db } from '../src/dbConfigs';
 import { INode, User } from '../../../types';
 import supertest from 'supertest';
@@ -8,6 +8,7 @@ import {
     addDummyProject,
     registerRandomUser,
 } from './testHelper';
+import { logger } from '../src/helper/logging';
 
 const api = supertest(app);
 
@@ -16,15 +17,11 @@ let user: User;
 let token: string;
 
 describe('Node', () => {
-    beforeAll(async () => {
-        await db.initDatabase();
+    beforeEach(async () => {
+        await db.clean("Node tests: " + expect.getState().currentTestName);
         const login = await registerRandomUser(api);
         user = login.user;
         token = login.token;
-    });
-
-    beforeEach(async () => {
-        //adding project
         pId = await addDummyProject(db, user.id);
     });
 
@@ -44,6 +41,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'this is a test node',
+                node_type: undefined
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -58,6 +56,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'this is a test node',
+                node_type: undefined
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -83,6 +82,7 @@ describe('Node', () => {
                 y: 2,
                 project_id: pId,
                 description: 'this is a test node',
+                node_type: undefined
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -150,13 +150,11 @@ describe('Node', () => {
 
             await api.put('/api/node').send(dummyNode).expect(200);
             const res2 = await api.get(`/api/node/${pId}`);
-            const found: INode | undefined = res2.body.find(
+            const found: INode = res2.body.find(
                 (x: INode) => x.id == res.body[0].id
-            );
-            if (found) {
-                expect(found.x).toBe(50);
-                expect(found.y).toBe(60);
-            }
+            )!;
+            expect(found.x).toBe(50);
+            expect(found.y).toBe(60);
         });
 
         test('should update the label of a node', async () => {
@@ -221,6 +219,7 @@ describe('Node', () => {
                 project_id: pId,
                 // eslint-disable-next-line quotes
                 description: "'this is a test node); DROP TABLE nodes; --'",
+                node_type: undefined
             };
 
             await api.post('/api/node').send(node).expect(200);
@@ -242,6 +241,23 @@ describe('Node', () => {
             ]);
             expect(q.rowCount).toBeGreaterThan(0);
         });
+
+        //test('Should update the type of node', async () => {
+        //    await addDummyNodes(db, pId);
+
+        //    const res = await api.get(`/api/node/${pId}`);
+        //    const dummyNode: INode = {
+        //        ...res.body[0],
+        //        node_type: 1,
+        //    };
+
+        //    await api.put('/api/node').send(dummyNode).expect(200);
+        //    const res2 = await api.get(`/api/node/${pId}`);
+        //    const found: INode = res2.body.find(
+        //        (x: INode) => x.id == res.body[0].id
+        //    )!;
+        //    expect(found.node_type?.color).toBe("#ffffaa");
+        //});
     });
 
     describe('Comments', () => {
@@ -254,6 +270,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'desc',
+                node_type: undefined
             };
 
             const nodeId = (await api.post('/api/node').send(n).expect(200))
@@ -276,6 +293,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'desc',
+                node_type: undefined
             };
 
             const nodeId = (await api.post('/api/node').send(n).expect(200))
@@ -310,6 +328,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'desc',
+                node_type: undefined
             };
 
             const nodeId = (await api.post('/api/node').send(n).expect(200))

@@ -20,11 +20,19 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
     const user: Registration = req.body;
 
     if (!user || !user.username || !user.password || !user.email) {
+        req.logger.info({
+            message: 'Missing parameters',
+            body: JSON.stringify(user)
+        });
         res.status(403).json({ message: 'Missing parameters' });
         return;
     }
 
     if (user.password.length < 12) {
+        req.logger.info({
+            message: 'Too small pw',
+            body: JSON.stringify(user)
+        });
         res.status(403)
             .json({
                 message: 'Password must be at least 12 characters long',
@@ -33,7 +41,7 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
         return;
     }
 
-    const saltRounds = 10;
+    const saltRounds = 5;
     const hash = await bcrypt.hash(user.password, saltRounds);
 
     req.logger.info({
@@ -48,6 +56,9 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
     if (q.rowCount > 0) {
         res.status(200).json().end();
     } else {
+        req.logger.info({
+            message: 'Rowcount 0',
+        });
         res.status(403)
             .json({
                 message: 'Username or email already registered',
