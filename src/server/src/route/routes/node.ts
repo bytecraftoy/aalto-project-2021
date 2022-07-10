@@ -352,11 +352,11 @@ router
             return res.status(401).json({ message: 'No permission' });
         }
 
-        await db.query(
-            'INSERT INTO node_type (project_id, type_name, color) VALUES ($1, $2, $3)',
-            [projectId, req.body.type_name, req.body.color]
+        const q = await db.query(
+            'INSERT INTO node_type (project_id, label, color) VALUES ($1, $2, $3) RETURNING id',
+            [projectId, req.body.label, req.body.color]
         );
-        res.status(200).json();
+        res.status(200).json({ id: q.rows[0].id });
     });
 
 /**
@@ -402,7 +402,7 @@ router
  */
 router
     .route('/node/:id/type/:typeId')
-    .put(async (req: Request, res: Response) => {
+    .delete(async (req: Request, res: Response) => {
         const typeId = parseInt(req.params.typeId);
 
         const permissions = await checkProjectPermissionByNodeTypeId(

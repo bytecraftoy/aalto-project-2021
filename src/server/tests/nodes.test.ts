@@ -242,22 +242,32 @@ describe('Node', () => {
             expect(q.rowCount).toBeGreaterThan(0);
         });
 
-        //test('Should update the type of node', async () => {
-        //    await addDummyNodes(db, pId);
+        test('Should update the type of node', async () => {
+            await addDummyNodes(db, pId);
 
-        //    const res = await api.get(`/api/node/${pId}`);
-        //    const dummyNode: INode = {
-        //        ...res.body[0],
-        //        node_type: 1,
-        //    };
+            const res = await api.get(`/api/node/${pId}`);
 
-        //    await api.put('/api/node').send(dummyNode).expect(200);
-        //    const res2 = await api.get(`/api/node/${pId}`);
-        //    const found: INode = res2.body.find(
-        //        (x: INode) => x.id == res.body[0].id
-        //    )!;
-        //    expect(found.node_type?.color).toBe("#ffffaa");
-        //});
+            const ty = {
+                label: "Type label",
+                color: "#FF00FF",
+            };
+
+            const nodeTypeId = (await api.post(`/api/node/${pId}/type`).send(ty).expect(200))
+                .body.id;
+
+            const dummyNode: INode = {
+                ...res.body[0],
+                node_type: nodeTypeId,
+            };
+
+            await api.put('/api/node').send(dummyNode).expect(200);
+            const res2 = await api.get(`/api/node/${pId}`);
+            const found: INode = res2.body.find(
+                (x: INode) => x.id == res.body[0].id
+            )!;
+            expect(found.node_type?.label).toBe("Type label");
+            expect(found.node_type?.color).toBe("#FF00FF");
+        });
     });
 
     describe('Comments', () => {
