@@ -1,5 +1,4 @@
 import express, { Request, Response, Router, Express } from 'express';
-require('express-async-errors'); //This needs to be imported before 'router' at least
 import * as router from './route';
 import { RequestHandler } from 'express-serve-static-core';
 import { Server } from 'socket.io';

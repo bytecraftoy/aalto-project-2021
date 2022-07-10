@@ -1,14 +1,15 @@
 import supertest from 'supertest';
 import { INode, IProject, Registration, User } from '../../../types';
 import { Database } from '../src/dbConfigs';
+import { v4 as uuid } from "uuid";
 
 export const registerRandomUser = async (
     api: supertest.SuperTest<supertest.Test>
 ) => {
     const user: User = {
-        username: (Math.random() + 1).toString(36).substring(7),
-        password: (Math.random() + 1).toString(30),
-        email: (Math.random() + 1).toString(36).substring(7) + '@example.com',
+        username: uuid(),
+        password: uuid(),
+        email: uuid() + '@example.com',
         id: 0,
     };
 
@@ -30,11 +31,12 @@ export const registerLoginUser = async (
         email: user.email,
     };
 
-    await api.post('/api/user/register').send(registration);
+    await api.post('/api/user/register').send(registration).expect(200);
 
     const res = await api
         .post('/api/user/login')
-        .send({ email: user.email, password: user.password });
+        .send({ email: user.email, password: user.password })
+        .expect(200);
     return {
         id: res.body.id,
         token: res.body.token,

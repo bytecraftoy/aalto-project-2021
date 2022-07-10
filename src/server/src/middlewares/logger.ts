@@ -8,7 +8,7 @@ export const requestLogger = (
 ): void => {
     let body = req.body;
 
-    if (body.password) {
+    if (body?.password) {
         body = { ...body, password: '' };
     }
 
