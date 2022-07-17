@@ -3,7 +3,6 @@ import { FC } from 'react';
 import { Handle, Position, NodeProps } from 'react-flow-renderer';
 
 export const BasicNode: FC<NodeProps> = (props) => {
-    console.log(props);
     return (
         <>
             <Handle type="target" position={Position.Top} />

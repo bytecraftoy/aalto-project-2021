@@ -1,13 +1,10 @@
 import React, { FormEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
 import {
-    Comment,
     NodeType,
     ProjectPermissions,
     UserToken,
 } from '../../../../../types';
-import { CommentMessage } from './CommentMessage';
-import CSS from 'csstype';
 import toast from 'react-hot-toast';
 
 interface Props {
