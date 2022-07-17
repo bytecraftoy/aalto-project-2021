@@ -34,7 +34,7 @@ const addDummyUsers = async () => {
 
 describe('User registration', () => {
     beforeEach(async () => {
-        await db.clean("User tests: " + expect.getState().currentTestName);
+        await db.clean('User tests: ' + expect.getState().currentTestName);
     });
 
     test('sending a POST request with appropriate information should add a user', async () => {

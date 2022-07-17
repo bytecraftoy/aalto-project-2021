@@ -24,7 +24,7 @@ let user: User = mockUser;
 
 describe('Edge', () => {
     beforeEach(async () => {
-        await db.clean("Edge tests: " + expect.getState().currentTestName);
+        await db.clean('Edge tests: ' + expect.getState().currentTestName);
         const login = await registerRandomUser(api);
         user = login.user;
         pId = await addDummyProject(db, user.id);

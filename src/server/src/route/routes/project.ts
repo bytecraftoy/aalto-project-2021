@@ -359,15 +359,13 @@ router
             [projectId]
         );
 
-        return res
-            .status(200)
-            .json(
-                query.rows.map((row) => ({
-                    id: row.id,
-                    label: row.label,
-                    color: row.color,
-                }))
-            );
+        return res.status(200).json(
+            query.rows.map((row) => ({
+                id: row.id,
+                label: row.label,
+                color: row.color,
+            }))
+        );
     })
     /**
      * POST /api/project/:pid/type

@@ -46,7 +46,7 @@ const addDummyProjects = async (): Promise<void> => {
 //Helper functions end here
 describe('Projects', () => {
     beforeEach(async () => {
-        await db.clean("Project tests: " + expect.getState().currentTestName);
+        await db.clean('Project tests: ' + expect.getState().currentTestName);
         const login = await registerRandomUser(api);
         user = login.user;
         token = login.token;

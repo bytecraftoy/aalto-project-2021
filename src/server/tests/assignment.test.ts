@@ -1,10 +1,4 @@
-import {
-    beforeEach,
-    expect,
-    test,
-    describe,
-    jest,
-} from '@jest/globals';
+import { beforeEach, expect, test, describe, jest } from '@jest/globals';
 import { db } from '../src/dbConfigs';
 import { User, UserData } from '../../../types';
 import supertest from 'supertest';
@@ -26,7 +20,7 @@ jest.setTimeout(10000);
 
 describe('assignment', () => {
     beforeEach(async () => {
-        await db.clean("User assignment: " + expect.getState().currentTestName);
+        await db.clean('User assignment: ' + expect.getState().currentTestName);
         const login = await registerLoginUser(api, user);
         user.id = login.id;
         pId = await addDummyProject(db, user.id);

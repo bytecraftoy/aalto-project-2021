@@ -18,7 +18,7 @@ let token: string;
 
 describe('Node', () => {
     beforeEach(async () => {
-        await db.clean("Node tests: " + expect.getState().currentTestName);
+        await db.clean('Node tests: ' + expect.getState().currentTestName);
         const login = await registerRandomUser(api);
         user = login.user;
         token = login.token;
@@ -41,7 +41,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'this is a test node',
-                node_type: undefined
+                node_type: undefined,
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -56,7 +56,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'this is a test node',
-                node_type: undefined
+                node_type: undefined,
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -82,7 +82,7 @@ describe('Node', () => {
                 y: 2,
                 project_id: pId,
                 description: 'this is a test node',
-                node_type: undefined
+                node_type: undefined,
             };
 
             await api.post('/api/node').send(n).expect(200);
@@ -219,7 +219,7 @@ describe('Node', () => {
                 project_id: pId,
                 // eslint-disable-next-line quotes
                 description: "'this is a test node); DROP TABLE nodes; --'",
-                node_type: undefined
+                node_type: undefined,
             };
 
             await api.post('/api/node').send(node).expect(200);
@@ -248,16 +248,17 @@ describe('Node', () => {
             const res = await api.get(`/api/node/${pId}`);
 
             const ty = {
-                label: "Type label",
-                color: "#FF00FF",
+                label: 'Type label',
+                color: '#FF00FF',
             };
 
-            const nodeTypeId = (await api.post(`/api/node/${pId}/type`).send(ty).expect(200))
-                .body.id;
+            const nodeTypeId: number = (
+                await api.post(`/api/project/${pId}/type`).send(ty).expect(200)
+            ).body.id;
 
             const dummyNode: INode = {
                 ...res.body[0],
-                node_type: nodeTypeId,
+                node_type: { id: nodeTypeId },
             };
 
             await api.put('/api/node').send(dummyNode).expect(200);
@@ -265,8 +266,8 @@ describe('Node', () => {
             const found: INode = res2.body.find(
                 (x: INode) => x.id == res.body[0].id
             )!;
-            expect(found.node_type?.label).toBe("Type label");
-            expect(found.node_type?.color).toBe("#FF00FF");
+            expect(found.node_type?.label).toBe('Type label');
+            expect(found.node_type?.color).toBe('#FF00FF');
         });
     });
 
@@ -280,7 +281,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'desc',
-                node_type: undefined
+                node_type: undefined,
             };
 
             const nodeId = (await api.post('/api/node').send(n).expect(200))
@@ -303,7 +304,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'desc',
-                node_type: undefined
+                node_type: undefined,
             };
 
             const nodeId = (await api.post('/api/node').send(n).expect(200))
@@ -338,7 +339,7 @@ describe('Node', () => {
                 y: 0,
                 project_id: pId,
                 description: 'desc',
-                node_type: undefined
+                node_type: undefined,
             };
 
             const nodeId = (await api.post('/api/node').send(n).expect(200))
