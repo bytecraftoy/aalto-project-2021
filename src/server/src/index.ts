@@ -26,7 +26,7 @@ app.use('/api', routes);
 
 // Send index.html on root request
 app.use(express.static('dist'));
-app.get('/*', (req: Request, res: Response) => {
+app.get(/.*/, (req: Request, res: Response) => {
     res.sendFile('dist/index.html', { root: '.' });
 });
 
