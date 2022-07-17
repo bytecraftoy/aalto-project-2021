@@ -363,3 +363,16 @@ code {
 
     font-family: 'Orbitron', sans-serif;
 }
+
+.react-flow__node-default {
+    padding: 0 !important;
+    background: none !important;
+    border: none;
+}
+
+.react-flow__node-default > .depsee-node {
+    padding: 10px;
+    border-radius: 3px;
+    background: white;
+    border: #222222 1px solid;
+}
