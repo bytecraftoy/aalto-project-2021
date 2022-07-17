@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { ITag } from '../../../../types';
+import { ITag } from '../../../../../types';
 import { BsJournalAlbum } from 'react-icons/bs';
 
 interface NodeTagEditProps {

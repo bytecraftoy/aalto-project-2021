@@ -1,5 +1,5 @@
 import React from 'react';
-import { Comment, UserToken } from '../../../../types';
+import { Comment, UserToken } from '../../../../../types';
 import CSS from 'csstype';
 
 interface CommentMessageProps {

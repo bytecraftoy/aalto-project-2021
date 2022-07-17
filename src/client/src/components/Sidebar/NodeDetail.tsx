@@ -6,14 +6,14 @@ import {
     ProjectPermissions,
     UserToken,
     ITag,
-} from '../../../../types';
-import * as nodeService from '../services/nodeService';
+} from '../../../../../types';
+import * as nodeService from '../../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
 import { CommentSection } from './CommentSection';
 import { NodeForm } from './NodeForm';
 import { NodeFieldForm } from './NodeFieldForm';
-import './styles/Sidebar.css';
+import './Sidebar.css';
 import {
     BsClipboardCheck,
     BsExclamationCircle /* BsHash */,

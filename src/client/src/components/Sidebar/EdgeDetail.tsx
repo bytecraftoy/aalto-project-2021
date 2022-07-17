@@ -1,7 +1,7 @@
 import React from 'react';
 import { Edge, Elements } from 'react-flow-renderer';
-import { IEdge, INode } from '../../../../types';
-import './styles/Sidebar.css';
+import { IEdge, INode } from '../../../../../types';
+import './Sidebar.css';
 import { BsClipboardCheck, BsExclamationCircle } from 'react-icons/bs';
 import { HiOutlineArrowNarrowDown } from 'react-icons/hi';
 

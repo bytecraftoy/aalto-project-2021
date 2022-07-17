@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
-import { INode, UserData } from '../../../../types';
-import { getAssignedUsers } from '../services/assignmentService';
-import './styles/Sidebar.css';
+import { INode, UserData } from '../../../../../types';
+import { getAssignedUsers } from '../../services/assignmentService';
+import './Sidebar.css';
 import { BsFillPersonFill } from 'react-icons/bs';
 
 interface assignedUsersProps {

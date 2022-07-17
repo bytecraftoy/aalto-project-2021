@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-import { INode, UserData } from '../../../../types';
+import { INode, UserData } from '../../../../../types';
 import {
     assignUser,
     getAssignedUsers,
     unassignUser,
-} from '../services/assignmentService';
-import { getMembers } from '../services/projectService';
+} from '../../services/assignmentService';
+import { getMembers } from '../../services/projectService';
 import { Spinner } from 'react-bootstrap';
-import './styles/Sidebar.css';
+import './Sidebar.css';
 import { BsFillPeopleFill, BsFillPersonPlusFill } from 'react-icons/bs';
 
 interface assignUsersProps {

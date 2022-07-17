@@ -1,6 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { Comment, ProjectPermissions, UserToken } from '../../../../types';
+import { Comment, ProjectPermissions, UserToken } from '../../../../../types';
 import { CommentMessage } from './CommentMessage';
 import CSS from 'csstype';
 import toast from 'react-hot-toast';

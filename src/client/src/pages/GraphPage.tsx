@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Graph } from '../components/Graph';
-import { ElementDetail } from '../components/ElementDetail';
+import { ElementDetail } from '../components/Sidebar/ElementDetail';
 import { MemberModal } from '../components/MemberModal';
 import {
     IEdge,

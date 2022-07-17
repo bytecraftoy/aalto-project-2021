@@ -1,13 +1,13 @@
 import React, { FormEvent, useState, KeyboardEvent } from 'react';
-import { INode, Status } from '../../../../types';
+import { INode, Status } from '../../../../../types';
 import { Form } from 'react-bootstrap';
 import { Elements, isNode, Node } from 'react-flow-renderer';
-import * as nodeService from '../services/nodeService';
+import * as nodeService from '../../services/nodeService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
 import toast from 'react-hot-toast';
-import { socket } from '../services/socket';
-import './styles/Sidebar.css';
+import { socket } from '../../services/socket';
+import './Sidebar.css';
 import {
     BsCardHeading,
     BsCardText,

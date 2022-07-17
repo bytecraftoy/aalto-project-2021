@@ -5,7 +5,7 @@ import {
     ITag,
     ProjectPermissions,
     UserToken,
-} from '../../../../types';
+} from '../../../../../types';
 import { NodeDetail } from './NodeDetail';
 import {
     BsXLg,
@@ -23,8 +23,8 @@ import {
     removeElements,
 } from 'react-flow-renderer';
 import { EdgeDetail } from './EdgeDetail';
-import * as nodeService from '../services/nodeService';
-import * as edgeService from '../services/edgeService';
+import * as nodeService from '../../services/nodeService';
+import * as edgeService from '../../services/edgeService';
 
 interface ElementDetailProps {
     element: Node<INode> | Edge<IEdge> | null;
