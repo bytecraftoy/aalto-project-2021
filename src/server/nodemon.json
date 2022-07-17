@@ -1,7 +1,7 @@
 {
     "ignore": ["**/*.test.ts", "**/*.spec.ts", "node_modules", "src/client"],
     "watch": ["./"],
-    "exec": "tsc && node ./dist/src/server",
+    "exec": "tsc && node ./dist/src/server/src",
     "ext": "ts",
     "env": {
         "PG_HOSTNAME": "localhost",
