@@ -700,10 +700,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                 >
                     <ReactFlow
                         id="graph"
-                        elements={elements.map((elem) => ({
-                            ...elem,
-                            type: 'basic',
-                        }))}
+                        elements={elements}
                         onConnect={onConnect}
                         connectionLineType={ConnectionLineType.Straight}
                         onConnectStart={onConnectStart}
@@ -719,7 +716,7 @@ export const Graph = (props: GraphProps): JSX.Element => {
                         selectionKeyCode={'e'}
                         nodesDraggable={permissions.edit}
                         nodesConnectable={permissions.edit}
-                        nodeTypes={{ basic: BasicNode }}
+                        nodeTypes={{ default: BasicNode }}
                     >
                         <Controls />
                         <Background color="#aaa" gap={16} />
