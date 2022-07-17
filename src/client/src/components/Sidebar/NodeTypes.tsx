@@ -1,10 +1,6 @@
 import React, { FormEvent, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import {
-    NodeType,
-    ProjectPermissions,
-    UserToken,
-} from '../../../../../types';
+import { NodeType, ProjectPermissions, UserToken } from '../../../../../types';
 import toast from 'react-hot-toast';
 
 interface Props {
