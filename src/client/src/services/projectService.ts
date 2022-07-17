@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {
     IProject,
+    NodeType,
     NoPermission,
     ProjectPermissions,
     UserData,
@@ -9,21 +10,23 @@ import { axiosWrapper } from './axiosWrapper';
 import { getAuthConfig } from './userService';
 export const baseUrl = '/api/project';
 
-const getAll = async (): Promise<IProject[]> => {
+export const getAll = async (): Promise<IProject[]> => {
     const project = await axiosWrapper(
         axios.get<IProject[]>(baseUrl, getAuthConfig())
     );
     return project || [];
 };
 
-const getProject = async (projectId: number): Promise<IProject | undefined> => {
+export const getProject = async (
+    projectId: number
+): Promise<IProject | undefined> => {
     const project = await axiosWrapper(
         axios.get<IProject>(`${baseUrl}/${projectId}`, getAuthConfig())
     );
     return project;
 };
 
-const getProjectPermissions = async (
+export const getProjectPermissions = async (
     projectId: number
 ): Promise<ProjectPermissions | NoPermission> => {
     const project = await axiosWrapper(
@@ -35,23 +38,25 @@ const getProjectPermissions = async (
     return project || { view: false, edit: false, projectId: undefined };
 };
 
-const sendProject = async (project: IProject): Promise<number | undefined> => {
+export const sendProject = async (
+    project: IProject
+): Promise<number | undefined> => {
     const response = await axiosWrapper(
         axios.post<{ id: number }>(baseUrl, project, getAuthConfig())
     );
     return response?.id;
 };
 
-const deleteProject = async (projectId: number): Promise<void> => {
+export const deleteProject = async (projectId: number): Promise<void> => {
     return await axiosWrapper(
         axios.delete(`${baseUrl}/${projectId}`, getAuthConfig())
     );
 };
-const updateProject = async (project: IProject): Promise<void> => {
+export const updateProject = async (project: IProject): Promise<void> => {
     return await axiosWrapper(axios.put(baseUrl, project, getAuthConfig()));
 };
 
-const getMembers = async (projectId: number): Promise<UserData[]> => {
+export const getMembers = async (projectId: number): Promise<UserData[]> => {
     return (
         (await axiosWrapper(
             axios.get<UserData[]>(
@@ -62,7 +67,7 @@ const getMembers = async (projectId: number): Promise<UserData[]> => {
     );
 };
 
-const addMember = async (
+export const addMember = async (
     projectId: number,
     member: string
 ): Promise<UserData | undefined> => {
@@ -75,7 +80,7 @@ const addMember = async (
     );
 };
 
-const deleteMember = async (
+export const deleteMember = async (
     projectId: number,
     userId: number
 ): Promise<void> => {
@@ -87,14 +92,29 @@ const deleteMember = async (
     );
 };
 
-export {
-    getAll,
-    getProject,
-    getProjectPermissions,
-    sendProject,
-    deleteProject,
-    updateProject,
-    getMembers,
-    addMember,
-    deleteMember,
+export const getNodeTypes = async (projectId: number): Promise<NodeType[]> => {
+    return (
+        (await axiosWrapper(
+            axios.get<NodeType[]>(
+                `${baseUrl}/${projectId}/type`,
+                getAuthConfig()
+            )
+        )) || []
+    );
+};
+
+export const addNodeType = async (
+    projectId: number,
+    ty: NodeType
+): Promise<NodeType | undefined> => {
+    const id = (
+        await axiosWrapper(
+            axios.post<NodeType>(
+                `${baseUrl}/${projectId}/type`,
+                ty,
+                getAuthConfig()
+            )
+        )
+    )?.id;
+    return id ? { ...ty, id } : undefined;
 };

@@ -43,9 +43,14 @@ export const requestLogger = (
     next();
 };
 
-export function logExceptions(err: unknown, req: Request, res: Response, next: (param?: unknown) => void) {
+export function logExceptions(
+    err: unknown,
+    req: Request,
+    res: Response,
+    next: (param?: unknown) => void
+) {
     const log = req.logger || logger;
     console.log(err);
-    log.error({message: "Exception", err});
+    log.error({ message: 'Exception', err });
     next(err);
-};
+}

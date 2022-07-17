@@ -354,6 +354,7 @@ export const GraphPage = (props: GraphPageProps): JSX.Element => {
                 {...graphProps}
             />
             <ElementDetail
+                project={selectedProject}
                 element={selectedElement}
                 type={selectedDataType}
                 elements={elements}

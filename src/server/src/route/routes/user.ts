@@ -22,7 +22,7 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
     if (!user || !user.username || !user.password || !user.email) {
         req.logger.info({
             message: 'Missing parameters',
-            body: JSON.stringify(user)
+            body: JSON.stringify(user),
         });
         res.status(403).json({ message: 'Missing parameters' });
         return;
@@ -31,7 +31,7 @@ router.route('/user/register').post(async (req: Request, res: Response) => {
     if (user.password.length < 12) {
         req.logger.info({
             message: 'Too small pw',
-            body: JSON.stringify(user)
+            body: JSON.stringify(user),
         });
         res.status(403)
             .json({

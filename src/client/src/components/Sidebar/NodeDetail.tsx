@@ -6,8 +6,11 @@ import {
     ProjectPermissions,
     UserToken,
     ITag,
+    NodeType,
+    IProject,
 } from '../../../../../types';
 import * as nodeService from '../../services/nodeService';
+import * as projectService from '../../services/projectService';
 import { AssignedUsers } from './AssignedUsers';
 import { AssignUsers } from './AssignUsers';
 import { CommentSection } from './CommentSection';
@@ -19,8 +22,10 @@ import {
     BsExclamationCircle /* BsHash */,
 } from 'react-icons/bs';
 import { NodeTagEdit } from './NodeTagEdit';
+import { NodeTypes } from './NodeTypes';
 
 interface NodeDetailProps {
+    project: IProject;
     element: Node<INode>;
     editAll: boolean;
     editOne: string | null;
@@ -40,6 +45,25 @@ interface NodeDetailProps {
 export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
     const data = props.element.data;
     const [comments, setComments] = useState<Comment[]>([]);
+    const [nodeTypes, setNodeTypes] = useState<NodeType[]>([]);
+
+    useEffect(() => {
+        if (data?.id) {
+            projectService.getNodeTypes(data.project_id).then(setNodeTypes);
+        } else {
+            setComments([]);
+        }
+    }, [data]);
+
+    useEffect(() => {
+        if (data?.id) {
+            nodeService
+                .getComments(data.project_id, data.id)
+                .then((comments) => setComments(comments));
+        } else {
+            setComments([]);
+        }
+    }, [data]);
 
     useEffect(() => {
         if (data?.id) {
@@ -162,6 +186,17 @@ export const NodeDetail = (props: NodeDetailProps): JSX.Element => {
                     sendComment={sendComment}
                     user={props.user}
                     permissions={props.permissions}
+                />
+                <NodeTypes
+                    nodeTypes={nodeTypes}
+                    setType={(ty) =>
+                        nodeService.updateNode({ ...data, node_type: ty })
+                    }
+                    addType={(ty) =>
+                        projectService.addNodeType(data.project_id, ty)
+                    }
+                    permissions={props.permissions}
+                    user={props.user}
                 />
             </>
         );

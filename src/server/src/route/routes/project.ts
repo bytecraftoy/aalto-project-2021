@@ -3,7 +3,10 @@ import { Request, Response } from 'express';
 import { IProject, UserData } from '../../../../../types';
 //import {IError} from '../../domain/IError';
 import { db } from '../../dbConfigs';
-import { checkProjectPermissionByProjectId } from '../../helper/permissionHelper';
+import {
+    checkProjectPermissionByNodeTypeId,
+    checkProjectPermissionByProjectId,
+} from '../../helper/permissionHelper';
 
 /* let projects: Array<IProject> = [{id: '1', name: 'test'}]; */
 
@@ -153,7 +156,7 @@ router
             client.query('COMMIT');
             res.status(200).json({ id: projectId });
         } catch (e) {
-            req.logger.info({message: "Exception", err: e});
+            req.logger.info({ message: 'Exception', err: e });
             await client.query('ROLLBACK');
             res.status(403).json();
         } finally {
@@ -280,7 +283,7 @@ router
 
             res.status(200).json(user);
         } catch (e) {
-            req.logger.info({message: "Exception", err: e});
+            req.logger.info({ message: 'Exception', err: e });
             res.status(403).json();
         }
     });
@@ -329,6 +332,128 @@ router
             [projectId, userId]
         );
 
+        res.status(200).json();
+    });
+
+router
+    .route('/project/:pid/type')
+    /**
+     * GET /api/project/:pid/type
+     * @summary Get all node types in project
+     * @pathParam {string} pid - Project id
+     * @response 200 - OK
+     * @response 401 - Unauthorized
+     */
+    .get(async (req: Request, res: Response) => {
+        const { projectId, view } = await checkProjectPermissionByProjectId(
+            req,
+            parseInt(req.params.pid)
+        );
+
+        if (!projectId || !view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        const query = await db.query(
+            'SELECT id, label, color FROM node_type WHERE project_id = $1',
+            [projectId]
+        );
+
+        return res
+            .status(200)
+            .json(
+                query.rows.map((row) => ({
+                    id: row.id,
+                    label: row.label,
+                    color: row.color,
+                }))
+            );
+    })
+    /**
+     * POST /api/project/:pid/type
+     * @bodyRequired
+     * @summary Create a new node type
+     * @bodyContent {NodeType} - Initial settings for the type
+     * @pathParam {string} pid - Project id
+     * @response 200 - OK
+     * @response 401 - Unauthorized
+     */
+    .post(async (req: Request, res: Response) => {
+        const projectId = parseInt(req.params.pid);
+
+        const permissions = await checkProjectPermissionByProjectId(
+            req,
+            projectId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        const q = await db.query(
+            'INSERT INTO node_type (project_id, label, color) VALUES ($1, $2, $3) RETURNING id',
+            [projectId, req.body.label, req.body.color]
+        );
+        res.status(200).json({ id: q.rows[0].id });
+    });
+
+/**
+ * PUT /api/project/:pid/type/:typeId
+ * @summary Modify a node type
+ * @bodyContent {NodeType} - New properties for the type
+ * @bodyRequired
+ * @pathParam {string} id - Id of the project where the node belongs
+ * @pathParam {string} pid - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ * @response 403 - Forbidden
+ */
+router
+    .route('/project/:pid/type/:typeId')
+    .put(async (req: Request, res: Response) => {
+        const typeId = parseInt(req.params.typeId);
+
+        const permissions = await checkProjectPermissionByNodeTypeId(
+            req,
+            typeId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        await db.query('UPDATE node_type SET label=$1, color=$2 WHERE id=$3', [
+            req.body.label,
+            req.body.color,
+            typeId,
+        ]);
+        res.status(200).json();
+    });
+
+/**
+ * DELETE /api/project/:id/type/:typeId
+ * @summary Delete a node type
+ * @pathParam {string} pid - Id of the project where the node belongs
+ * @pathParam {string} nodeId - Id of the node
+ * @response 200 - OK
+ * @response 401 - Unauthorized
+ * @response 403 - Forbidden
+ */
+router
+    .route('/project/:pid/type/:typeId')
+    .delete(async (req: Request, res: Response) => {
+        const typeId = parseInt(req.params.typeId);
+
+        const permissions = await checkProjectPermissionByNodeTypeId(
+            req,
+            typeId
+        );
+
+        if (!permissions.view) {
+            return res.status(401).json({ message: 'No permission' });
+        }
+
+        await db.query('DELETE FROM node_type WHERE id=$1', [typeId]);
         res.status(200).json();
     });
 

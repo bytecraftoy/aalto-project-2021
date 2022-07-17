@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
     IEdge,
     INode,
+    IProject,
     ITag,
     ProjectPermissions,
     UserToken,
@@ -27,6 +28,7 @@ import * as nodeService from '../../services/nodeService';
 import * as edgeService from '../../services/edgeService';
 
 interface ElementDetailProps {
+    project: IProject;
     element: Node<INode> | Edge<IEdge> | null;
     elements: Elements;
     permissions: ProjectPermissions;
@@ -46,9 +48,9 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
     const [editAll, setEditAll] = useState<boolean>(false);
     const [editOne, setEditOne] = useState<string | null>(null);
 
-    const element = props.element;
+    const { project, element } = props;
 
-    if (!props.element) {
+    if (!element) {
         return <></>;
     }
 
@@ -151,6 +153,7 @@ export const ElementDetail = (props: ElementDetailProps): JSX.Element => {
             <div className="detail-sidebar-content">
                 {element && isNode(element) && (
                     <NodeDetail
+                        project={project}
                         element={element}
                         editAll={editAll}
                         editOne={editOne}

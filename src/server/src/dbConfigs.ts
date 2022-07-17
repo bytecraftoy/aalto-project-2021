@@ -4,7 +4,7 @@ import { migrate } from 'postgres-migrations';
 import { logger } from './helper/logging';
 import { doClean } from './db/cleaner';
 
-    let cleaning = false;
+let cleaning = false;
 export class Database {
     private _pool: Pool | null = null;
     private _waiting: Promise<void> | null = null;
@@ -86,9 +86,9 @@ export class Database {
     }
 
     async clean(reason: string) {
-        logger.info({message: 'Starting database cleanup', reason});
-        if(cleaning) {
-            throw "Concurrent access to clean";
+        logger.info({ message: 'Starting database cleanup', reason });
+        if (cleaning) {
+            throw 'Concurrent access to clean';
         }
         try {
             cleaning = true;
@@ -96,9 +96,9 @@ export class Database {
             const client = await this.getClient();
             try {
                 await doClean(client);
-            } catch(e) {
+            } catch (e) {
                 console.log(e);
-                throw(e);
+                throw e;
             } finally {
                 client.release();
             }
